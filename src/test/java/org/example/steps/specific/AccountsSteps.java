@@ -1,7 +1,6 @@
 package org.example.steps.specific;
 
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.Response;
@@ -9,9 +8,10 @@ import org.example.api.data.entity.Account;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
-import org.junit.Assert;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AccountsSteps extends AbstractSteps {
@@ -30,7 +30,7 @@ public class AccountsSteps extends AbstractSteps {
   @When("i request this users account amount")
   public void iRequestThisUsersAccountAmount() {
     response =proxy.getUserAmount(null);
-    Assert.assertEquals(HttpStatus.OK.value(), response.getStatus());
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
   }
 
   @Then("i should receive the amount")
@@ -48,7 +48,7 @@ public class AccountsSteps extends AbstractSteps {
       account.setAccountType(Account.AccountType.BUSINESS_ACCOUNT);
       Response accountResponse = bankService.doNewAccount(account,null);
 
-      Assert.assertEquals(201,accountResponse.getStatus());
+      assertEquals(201,accountResponse.getStatus());
       numberOfAccount--;
       String accountOrigin = accountResponse.readEntity(String.class);
       String[] parts = accountOrigin.split(": ");
@@ -65,6 +65,6 @@ public class AccountsSteps extends AbstractSteps {
   public void theReceivingCustomerHasAnAccountWithId(int receiverAccountId) {
     proxy = bankService.proxy;
     Response receiverAccountresponse = proxy.accountById(receiverAccountId);
-    Assert.assertEquals(200,receiverAccountresponse.getStatus());
+    assertEquals(200,receiverAccountresponse.getStatus());
   }
 }

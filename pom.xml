@@ -86,7 +86,6 @@
         </dependency>
 
 
-
         <!-- H2 Database -->
         <dependency>
             <groupId>com.h2database</groupId>
@@ -136,11 +135,21 @@
 
         <!-- JUnit (para pruebas unitarias junto con Cucumber) -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -188,11 +197,11 @@
             <version>4.0.5</version>
         </dependency>
 
-            <!-- Dependencia de JAXB API -->
+        <!-- Dependencia de JAXB API -->
         <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.3.1</version> <!-- O la última versión disponible -->
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version> <!-- O la última versión disponible -->
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.jboss.resteasy/resteasy-client -->
@@ -210,31 +219,37 @@
         </dependency>
 
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.13.3</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.0</version>
                 <configuration>
                     <compilerArgs>
                         <arg>-parameters</arg>
-                    </compilerArgs><source>17</source><target>17</target>
+                    </compilerArgs>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version> 3.5.2</version>
-                <configuration>
-                    <includes>
-                        <include>
-                            **/*Runner.java
-                        </include>
-                    </includes>
-                </configuration>
+                <version>3.5.3</version>
             </plugin>
 
         </plugins>

@@ -39,6 +39,14 @@ public class BankClient {
         return proxy;
     }
 
+    @Bean
+    public BankAPI getAPI(String url){
+        ResteasyClient client = (ResteasyClient)ClientBuilder.newClient();
+        ResteasyWebTarget target = client.target(url);
+        BankAPI proxy = target.proxy(BankAPI.class);
+        return proxy;
+    }
+
     private Cookie convertNewCookieToCookie(NewCookie newCookie) {
         return new Cookie(
                 newCookie.getName(),      // Nombre de la cookie

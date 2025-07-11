@@ -6,19 +6,16 @@ import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
-import org.example.api.data.repository.AccountRepository;
-import org.example.api.data.repository.CardRepository;
 import org.example.api.data.repository.CustomerRepository;
-import org.example.api.data.request.CardRequest;
 import org.example.apicalls.service.BankService;
 import org.example.apicalls.utils.Generator;
-import org.example.apicalls.utils.JsonConverter;
 import org.example.context.AbstractSteps;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GenericSteps extends AbstractSteps {
     private Response response;
@@ -29,13 +26,13 @@ public class GenericSteps extends AbstractSteps {
     public void verifyMessage(String expectedMessage) {
         response = testContext().getResponse();
         String actualMessage = response.readEntity(String.class);
-        Assert.assertEquals(expectedMessage, actualMessage);
+        assertEquals(expectedMessage, actualMessage);
     }
 
     @Then("i should receive the code {int}")
     public void iShouldReceiveTheCode(int expectedCode) {
         response = testContext().getResponse();
-        Assert.assertEquals(expectedCode, response.getStatus());
+        assertEquals(expectedCode, response.getStatus());
     }
 
     @Then("The customer gets a {int} status response and message: {string}")
@@ -46,8 +43,8 @@ public class GenericSteps extends AbstractSteps {
         String receivedMessage= response.readEntity(String.class);
 
         // Comprobamos que el status y el mensaje de la response sean los esperados
-        Assert.assertEquals(expectedStatus,receivedStatus);
-        Assert.assertEquals(expectedMessage,receivedMessage);
+        assertEquals(expectedStatus,receivedStatus);
+        assertEquals(expectedMessage,receivedMessage);
 
     }
 
@@ -58,7 +55,7 @@ public class GenericSteps extends AbstractSteps {
         Integer receivedStatus = response.getStatus();
 
         // Comprobamos que el status y el mensaje de la response sean los esperados
-        Assert.assertEquals(expectedStatus,receivedStatus);
+        assertEquals(expectedStatus,receivedStatus);
 
     }
 

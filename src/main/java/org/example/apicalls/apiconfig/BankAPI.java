@@ -41,6 +41,11 @@ public interface BankAPI {
             @HeaderParam("Authorization") String authorization,
             @PathParam("automation_api") String automation_api);
      */
+    @GET
+    @Path("/")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getPage();
+
 
     @GET
     @Path("/api/account/{id}")

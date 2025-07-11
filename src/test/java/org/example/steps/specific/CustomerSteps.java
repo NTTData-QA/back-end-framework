@@ -16,18 +16,11 @@ import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.client.BankClient;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
-import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
-import java.util.Optional;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CustomerSteps extends AbstractSteps {
@@ -89,10 +82,10 @@ public class CustomerSteps extends AbstractSteps {
         }
         //Optional<Customer> updatedCustomer = customerService.findByEmail(randomCustomer.getEmail());
         if (updateStatus.equals("successfully")) {
-            assertTrue(updatedCustomer!=null);
+            assertNotNull(updatedCustomer);
             System.out.println("Customer updated successfully with email: " + updatedCustomer.getEmail());
         } else {
-            assertFalse(updatedCustomer!=null);
+            assertNull(updatedCustomer);
             System.out.println("Customer update failed.");
         }
     }

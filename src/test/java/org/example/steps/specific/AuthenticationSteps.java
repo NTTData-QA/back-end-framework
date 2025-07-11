@@ -12,12 +12,11 @@ import org.example.api.data.entity.Customer;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
-import org.junit.Assert;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AuthenticationSteps extends AbstractSteps {
@@ -106,7 +105,7 @@ public class AuthenticationSteps extends AbstractSteps {
         String password = testContext().getCustomer().getPassword();
         response = bankService.doLogin(email,password);
         testContext().setBankService(bankService);
-        Assert.assertEquals(200,response.getStatus());
+        assertEquals(200,response.getStatus());
     }
 
     @When("I log out")
@@ -130,7 +129,7 @@ public class AuthenticationSteps extends AbstractSteps {
             Response deleteResponse = proxy.deleteCustomer(registeredEmail);
             int statusCode = deleteResponse.getStatus();
             System.out.println("Delete response status code: " + statusCode);
-            Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+            assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
         } else {
             System.out.println("No user to delete, registeredEmail is null");
         }
