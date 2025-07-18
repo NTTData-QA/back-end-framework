@@ -1,23 +1,15 @@
 package org.example.apicalls.client;
 
-import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Cookie;
-import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.NewCookie;
-import lombok.Getter;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import jakarta.ws.rs.core.Response;
-import java.util.Optional;
-import java.util.function.Supplier;
 
-@Configuration
+@Configuration(enforceUniqueMethods = false)
 public class BankClient {
 
     @Bean

@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import org.springframework.security.core.context.SecurityContext;
+import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
@@ -12,16 +12,10 @@ import org.example.api.data.request.CardRequest;
 import org.example.api.data.request.LoginRequest;
 import org.example.api.data.request.TransferRequest;
 import org.example.api.data.request.UpdateRequest;
-import org.example.api.service.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import jakarta.ws.rs.core.Response;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
-import java.util.Optional;
 
 public interface BankAPI {
 
@@ -41,10 +35,6 @@ public interface BankAPI {
             @HeaderParam("Authorization") String authorization,
             @PathParam("automation_api") String automation_api);
      */
-    @GET
-    @Path("/")
-    @Produces(MediaType.APPLICATION_JSON)
-    Response getPage();
 
 
     @GET

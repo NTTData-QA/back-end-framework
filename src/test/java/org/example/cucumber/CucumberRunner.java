@@ -1,4 +1,4 @@
-package org.example;
+package org.example.cucumber;
 
 import io.cucumber.core.options.Constants;
 import org.junit.platform.suite.api.ConfigurationParameter;
@@ -9,6 +9,5 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @IncludeEngines("cucumber")
 @SelectClasspathResource("features")
-@ConfigurationParameter(key = Constants.GLUE_PROPERTY_NAME, value = "org.example.steps")
-@ConfigurationParameter(key = Constants.PLUGIN_PROPERTY_NAME, value = "pretty, html:target/cucumber-reports.html")
+@ConfigurationParameter(key = Constants.GLUE_PROPERTY_NAME, value = "org.example.steps,org.example.util")
 public class CucumberRunner {}

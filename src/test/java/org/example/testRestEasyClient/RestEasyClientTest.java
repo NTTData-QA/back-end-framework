@@ -1,22 +1,24 @@
-package org.testRestEasyClient;
+package org.example.testRestEasyClient;
 
 import jakarta.ws.rs.core.NewCookie;
-import org.example.api.Application;
+import jakarta.ws.rs.core.Response;
+import org.example.Application;
 import org.example.api.data.request.LoginRequest;
 import org.example.apicalls.apiconfig.BankAPI;
-import jakarta.ws.rs.core.Response;
 import org.example.apicalls.client.BankClient;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Map;
 
+@SpringBootTest
 public class RestEasyClientTest {
 
     @Autowired
-    private BankClient bankClient = new BankClient() ;
+    private BankClient bankClient;
 
     private Integer id = 1;
     private Response loginResponse;

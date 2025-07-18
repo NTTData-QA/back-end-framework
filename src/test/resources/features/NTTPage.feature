@@ -2,6 +2,6 @@
 Feature: NTTData webpage
 
 
-  Scenario: Validate http status code for landing page
-    When the user navigates to "https://www.openbank.es/"
+  Scenario: Validate http status code for NTTData landing page
+    When the user navigates to "https://es.nttdata.com/"
     Then the status code is 200
