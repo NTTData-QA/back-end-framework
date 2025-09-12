@@ -16,7 +16,6 @@ import org.example.api.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import jakarta.ws.rs.core.Response;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.print.attribute.standard.Media;
@@ -163,7 +162,7 @@ public interface BankAPI {
     @Path("/api/account/withdraw/{accountId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    Response withdrawAccountId(@PathVariable("accountId") int accountId, @RequestBody UpdateRequest updateRequest, @Context HttpServletRequest request);
+    Response withdrawAccountId(@PathParam("accountId") int accountId, @RequestBody UpdateRequest updateRequest, @Context HttpServletRequest request);
 
     @DELETE
     @Path("/api/card/delete")
@@ -174,13 +173,13 @@ public interface BankAPI {
     @Path("/api/card/delete/customer/{customerId}")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    Response deleteCardsOfCustomer(@PathVariable("customerId") int customerId);
+    Response deleteCardsOfCustomer(@PathParam("customerId") int customerId);
 
     @DELETE
     @Path("/api/card/delete/account/{accountId}")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    Response deleteCardsOfAccounts(@PathVariable("accountId") int accountId);
+    Response deleteCardsOfAccounts(@PathParam("accountId") int accountId);
 
     @POST
     @Path("/api/transfer/new")
