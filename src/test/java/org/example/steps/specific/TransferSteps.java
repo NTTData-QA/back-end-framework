@@ -1,5 +1,6 @@
 package org.example.steps.specific;
 
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.GenericType;
@@ -14,7 +15,7 @@ import org.junit.Assert;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TransferSteps extends AbstractSteps {
 
@@ -35,46 +36,29 @@ public class TransferSteps extends AbstractSteps {
 
         testContext().setResponse(transferResponse);
     }
-    /*
-        @When("i request this users main account sent transfers")
-        public void iRequestThisUsersMainAccountSentTransfers() {
 
-        }
-        @Then("i should receive the sent transfers")
-        public void iShouldReceiveTheSentTransfers() {
-
-        }
-
-        @When("i request this users main account received transfers")
-        public void iRequestThisUsersMainAccountReceivedTransfers() {
-
-        }
-        @Then("i should receive the received transfers")
-        public void iShouldReceiveTheReceivedTransfers() {
-
-        }
-    */
-    @When("i request all of this users main account transfers")
-    public void iRequestAllOfThisUsersMainAccountTransfers() {
-        int accountId = 1;
+    @When("i request all of this users transfers with accountId {int}")
+    public void iRequestAllOfThisUsersTransfersWithAccountIdAccId(int accountId) {
         response = bankService.getTransferHistory(accountId);
         testContext().setResponse(response);
     }
-    @Then("i should receive all of the transfers")
-    public void iShouldReceiveAllOfTheTransfers() {
+
+    @And("i should receive all of the transfers or an error message")
+    public void iShouldReceiveAllOfTheTransfersOrAnErrorMessage() {
         response = testContext().getResponse();
         try {
             assertEquals(200, response.getStatus());
-        } catch (AssertionError e) {
+            List<Transfer> transfers = response.readEntity(new GenericType<List<Transfer>>() {});
+            assertNotNull(transfers);
+            assertFalse(transfers.isEmpty());
+            for (Transfer t: transfers) {
+                System.out.println(t);
+            }
+        } catch (Error e) {
             String mensaje = response.readEntity(String.class);
             System.out.println("Test fallido. Código de error: " + response.getStatus());
             System.out.println("Mensaje de error: " + mensaje);
-            throw e;
-        }
-
-        List<Transfer> transfers = response.readEntity(new GenericType<List<Transfer>>() {});
-        for (Transfer t: transfers) {
-            System.out.println(t);
+            assertNotNull(mensaje);
         }
     }
 }

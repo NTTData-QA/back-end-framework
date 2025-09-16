@@ -7,14 +7,13 @@ Feature: Get Transfers History given an account
     When i request this users account information
     Then i should receive the code 200
 
-#  Scenario: Logged customer main account sent Transfers
-#    When i request this users main account sent transfers
-#    Then i should receive the sent transfers
 
-#  Scenario: Logged customer main account received Transfers
-#    When i request this users main account received transfers
-#    Then i should receive the received transfers
-
-  Scenario: All logged customer main account Transfers
-    When i request all of this users main account transfers
-    Then i should receive all of the transfers
+  Scenario Outline: All logged customer main account Transfers
+    When i request all of this users transfers with accountId <accId>
+    Then i should receive the code <code>
+    And i should receive all of the transfers or an error message
+    Examples:
+      | accId | code |
+      | 1     | 200  |
+      | 2     | 403  |
+      | 99999 | 400  |
