@@ -197,4 +197,8 @@ public class BankService {
         responses.add(responsePassword);
         return responses;
     }
+
+    public Response getTransferHistory(int accountId) {
+        return proxy.getTransferHistory(accountId);
+    }
 }

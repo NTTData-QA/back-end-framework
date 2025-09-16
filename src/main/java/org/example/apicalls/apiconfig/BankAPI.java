@@ -16,6 +16,7 @@ import org.example.api.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import jakarta.ws.rs.core.Response;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.print.attribute.standard.Media;
@@ -209,6 +210,11 @@ public interface BankAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response updatePassword(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("api/transfer/history/{accountId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getTransferHistory(@PathParam("accountId") Integer accountId);
 }
 
 
