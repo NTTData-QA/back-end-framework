@@ -179,6 +179,7 @@ public class Generator {
         card.setNumber(generateRandomCardNumber());
         card.setExpirationDate(generateRandomFutureDate());
         card.setAccount(account);
+        card.setIsBlocked(Boolean.FALSE);
 
         return card;
     }

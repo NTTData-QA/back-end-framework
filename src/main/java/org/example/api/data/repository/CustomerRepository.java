@@ -14,4 +14,5 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
   // Verificar si existe un cliente con el email proporcionado
   boolean existsByEmail(String email);
   Optional<Customer> findByPassword(String password);
+  boolean existsById(Integer customerId);
 }

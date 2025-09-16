@@ -4,14 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import org.example.api.data.request.*;
 import org.springframework.security.core.context.SecurityContext;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
-import org.example.api.data.request.CardRequest;
-import org.example.api.data.request.LoginRequest;
-import org.example.api.data.request.TransferRequest;
-import org.example.api.data.request.UpdateRequest;
 import org.example.api.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -158,11 +155,33 @@ public interface BankAPI {
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteLoggedUser(@Context HttpServletRequest request);
 
-    @PATCH
-    @Path("/api/account/withdraw/{accountId}")
+//    @PATCH
+//    @Path("/api/account/withdraw/{accountId}")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @Produces(MediaType.TEXT_PLAIN)
+//    Response withdrawAccountId(@PathParam("accountId") int accountId, @RequestBody UpdateRequest updateRequest, @Context HttpServletRequest request);
+
+    // Withdraws
+    @POST
+    @Path("/api/withdraw")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    Response withdrawAccountId(@PathParam("accountId") int accountId, @RequestBody UpdateRequest updateRequest, @Context HttpServletRequest request);
+    @Produces(MediaType.APPLICATION_JSON)
+    Response createWithdraw(WithdrawRequest request, @Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("/api/withdraws")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listMyWithdraws(@Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("/api/withdraws/card/{cardId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listWithdrawsByCard(@PathParam("cardId") Integer cardId, @Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("/api/withdraws/account/{accountId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listWithdrawsByAccount(@PathParam("accountId") Integer accountId, @Context HttpServletRequest httpServletRequest);
 
     @DELETE
     @Path("/api/card/delete")
@@ -180,6 +199,11 @@ public interface BankAPI {
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCardsOfAccounts(@PathParam("accountId") int accountId);
+
+    @DELETE
+    @Path("/public/customer/delete/{customerId}")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response deleteById(@PathParam("customerId") int customerId);
 
     @POST
     @Path("/api/transfer/new")

@@ -7,10 +7,7 @@ import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
-import org.example.api.data.request.CardRequest;
-import org.example.api.data.request.LoginRequest;
-import org.example.api.data.request.TransferRequest;
-import org.example.api.data.request.UpdateRequest;
+import org.example.api.data.request.*;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.client.BankClient;
 import org.example.apicalls.utils.Generator;
@@ -196,5 +193,32 @@ public class BankService {
         responses.add(responseEmail);
         responses.add(responsePassword);
         return responses;
+    }
+
+    public Response createWithdraw(Integer cardId, double amount, HttpServletRequest request) {
+        WithdrawRequest wr = new WithdrawRequest();
+        wr.setCardId(cardId);
+        wr.setAmount(amount);
+        proxy = client.getAPI();
+        response = proxy.createWithdraw(wr, request);
+        return response;
+    }
+
+    public Response listMyWithdraws(Integer cardId,HttpServletRequest request) {
+        proxy = client.getAPI();
+        response = proxy.listMyWithdraws(request);
+        return response;
+    }
+
+    public Response listWithdrawsByCard(Integer cardId, HttpServletRequest request) {
+        proxy = client.getAPI();
+        response = proxy.listWithdrawsByCard(cardId, request);
+        return response;
+    }
+
+    public Response listWithdrawsByAccount(Integer accountId, HttpServletRequest request) {
+        proxy = client.getAPI();
+        response = proxy.listWithdrawsByAccount(accountId, request);
+        return response;
     }
 }

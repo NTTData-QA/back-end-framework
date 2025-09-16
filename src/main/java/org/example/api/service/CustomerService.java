@@ -40,9 +40,9 @@ public class CustomerService {
     return customerRepository.save(cust);
   }
 
-  public void deleteById(Integer customerId) {
-    customerRepository.deleteById(customerId);
-  }
+//  public void deleteById(Integer customerId) {
+//    customerRepository.deleteById(customerId);
+//  }
 
   public Optional<Customer> findByEmail(String email) {
     return customerRepository.findByEmail(email);
@@ -98,6 +98,16 @@ public class CustomerService {
     }
   }
 
+  public Boolean deleteById(Integer customerId) {
+    if (customerRepository.existsById(customerId)) {
+      System.out.println("Eliminando cliente por su Id: " + customerId);
+      customerRepository.deleteById(customerId);
+      return true;
+    } else {
+      System.out.println("Cliente no encontrado por Id: " + customerId);
+      return false;
+    }
+  }
 
   public Optional<Customer> findByPassword(String password){
     return customerRepository.findByPassword(password);
