@@ -166,7 +166,7 @@ public class TransferController {
         }
         return ResponseEntity.ok(responseBody.toString());
     }
-  
+
     @GetMapping("/api/transfers/sent/{accountId}")
     public ResponseEntity<List<Transfer>> getSentTransfers(@PathVariable Integer accountId){
         List<Transfer> sentTransfer = transferService.getTransferByAccountId(accountId);
@@ -218,15 +218,15 @@ public class TransferController {
         return ResponseEntity.ok(responseBody.toString());
     }
 
-  @DeleteMapping("api/transfer/{id}")
-  public ResponseEntity<?> deleteTransfer(@PathVariable Integer id) {
-    return transferRepository
-        .findById(id)
-        .map(
-            transfer -> {
-              transferRepository.delete(transfer);
-              return ResponseEntity.ok().build();
-            })
-        .orElse(ResponseEntity.notFound().build());
+    @DeleteMapping("api/transfer/{id}")
+    public ResponseEntity<?> deleteTransfer(@PathVariable Integer id) {
+        return transferRepository
+                .findById(id)
+                .map(
+                        transfer -> {
+                            transferRepository.delete(transfer);
+                            return ResponseEntity.ok().build();
+                        })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
