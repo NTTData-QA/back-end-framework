@@ -18,6 +18,10 @@ public class WithdrawService {
 
     private final WithdrawRepository withdrawRepository;
 
+    public void deleteById(Integer cardId) {
+        withdrawRepository.deleteById(cardId);
+    }
+
     private final AccountRepository accountRepository;
 
     public WithdrawService(WithdrawRepository withdrawRepository,
@@ -74,7 +78,7 @@ public class WithdrawService {
         }
         if( (dailyLimit + amount) > card.getDailyLimit()){
             Double saldoDisponible = card.getDailyLimit() - dailyLimit;
-            throw new IllegalArgumentException("Saldo diario insuficiente, saldo restante diario: " +saldoDisponible + "dailyLimit "+ dailyLimit);
+            throw new IllegalArgumentException("Saldo diario insuficiente, saldo restante diario: " +saldoDisponible);
         }
         if( (monthlyLimit + amount) > card.getMonthlyLimit()){
             Double saldoDisponible1 = card.getMonthlyLimit() - monthlyLimit;
