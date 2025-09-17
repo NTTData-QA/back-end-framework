@@ -34,6 +34,7 @@ public class AccountController {
     @Autowired private Token tokenService;
     @Autowired private CustomerService customerService;
     @Autowired private TransferRepository transferRepository;
+    @Autowired private CardController cardController;
 
 
     @GetMapping("/api/account/{id}")    // get 1 account by accountId
@@ -210,6 +211,7 @@ public class AccountController {
                 transferRepository.delete(transfer);
         }
 
+
         // We try to delete the account from the customer list and from the database
         if (!customer.deleteAccount(accountId)){
             return ResponseEntity.badRequest().body("Error: could not delete account from customer");
@@ -257,6 +259,10 @@ public class AccountController {
                     }
                     transferRepository.delete(transfer);
                 }
+
+                // Delete cards of the account. This also remove the witdraws of each card
+                cardController.deleteCardsOfAccounts(account.getAccountId());
+
             }
 
             // Delete all the accounts associated with the customer
