@@ -8,6 +8,7 @@ import org.example.api.data.entity.Transfer;
 import org.example.api.data.repository.AccountRepository;
 import org.example.api.data.repository.CustomerRepository;
 import org.example.api.data.repository.TransferRepository;
+import org.example.api.data.request.AccountRequest;
 import org.example.api.data.request.UpdateRequest;
 import org.example.api.service.AccountService;
 import org.example.api.service.AuthService;
@@ -386,5 +387,23 @@ public class AccountController {
         account.setExpirationDate(expirationDateExtension);
         accountRepository.save(account);
         return ResponseEntity.ok("The expiration date has been updated to:" + expirationDateExtension);
+    }
+
+    @PatchMapping("/api/account/accountType/{accountId}")
+    public ResponseEntity<String> accountTypeUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request){
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        Account.AccountType accountType = accountRequest.getAccountType();
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID:" + accountId);
+        }
+
+        if (customerAccount != account.getCustomer()) {
+            return ResponseEntity.badRequest().body("You cannot change accountType of an account that is not associated with you.");
+        }
+        account.setAccountType(accountType);
+        accountRepository.save(account);
+        return ResponseEntity.ok("You accountType has been changed");
     }
 }

@@ -209,6 +209,12 @@ public interface BankAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response expirationDateUpdate(@PathParam("accountId") int accountId, @Context HttpServletRequest httpServletRequest);
+
+    @PATCH
+    @Path("/api/account/accountType/{accountId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response accountTypeUpdate(@PathParam("accountId") int accountId, @Context HttpServletRequest httpServletRequest);
 }
 
 
