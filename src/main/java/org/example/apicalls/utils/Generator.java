@@ -180,6 +180,8 @@ public class Generator {
         card.setExpirationDate(generateRandomFutureDate());
         card.setAccount(account);
         card.setIsBlocked(Boolean.FALSE);
+        card.setDailyLimit(500.);
+        card.setMonthlyLimit(2000.70);
 
         return card;
     }

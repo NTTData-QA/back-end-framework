@@ -77,7 +77,7 @@ public class WithdrawController {
         // if (Boolean.TRUE.equals(card.getIsBlocked())) return ResponseEntity.badRequest().body("Card is blocked");
 
         try {
-            Withdraw w = withdrawService.createWithdraw(card, req.getAmount(), req.getWithdrawDate());
+            Withdraw w = withdrawService.createWithdraw(card, req.getAmount());
             return ResponseEntity.ok(w);
         } catch (IllegalStateException ise) {
             return ResponseEntity.badRequest().body(ise.getMessage());

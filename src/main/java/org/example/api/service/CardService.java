@@ -53,6 +53,8 @@ public class CardService {
         newCard.setCvc(card.getCvc());
         newCard.setExpirationDate(card.getExpirationDate());
         newCard.setIsBlocked((card.getIsBlocked()));
+        newCard.setDailyLimit(card.getDailyLimit());
+        newCard.setMonthlyLimit(card.getMonthlyLimit());
 
         return newCard;
     }

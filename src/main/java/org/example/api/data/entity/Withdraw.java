@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.sql.Time;
+import java.time.LocalDateTime;
+
 
 @Data
 @Entity
@@ -19,7 +21,7 @@ public class Withdraw {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date withdrawDate = new Date(); // por defecto, ahora
+    private LocalDateTime withdrawDate; // por defecto, ahora
 
     @JsonIgnore
     @ManyToOne
