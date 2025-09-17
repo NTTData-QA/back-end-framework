@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class WithdrawService {
 
-    @Autowired private final WithdrawRepository withdrawRepository;
+    private final WithdrawRepository withdrawRepository;
 
     private final AccountRepository accountRepository;
 
