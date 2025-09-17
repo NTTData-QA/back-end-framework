@@ -7,7 +7,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @CucumberContextConfiguration
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
         classes = Application.class
 )
 @TestPropertySource("classpath:application-test.properties")
