@@ -27,13 +27,20 @@ import java.util.Optional;
 public class AccountController {
 
 
-    @Autowired  private AccountService accountService;
-    @Autowired private AuthService authService;
-    @Autowired private CustomerRepository customerRepository;
-    @Autowired private AccountRepository accountRepository;
-    @Autowired private Token tokenService;
-    @Autowired private CustomerService customerService;
-    @Autowired private TransferRepository transferRepository;
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private AuthService authService;
+    @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private Token tokenService;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private TransferRepository transferRepository;
 
 
     @GetMapping("/api/account/{id}")    // get 1 account by accountId
@@ -73,8 +80,8 @@ public class AccountController {
         return ResponseEntity.ok(accounts); // 200 OK with users accounts
     }
 
-    @GetMapping ("/api/accounts/amount")    // get total amount from all accounts (logged-in user)
-    public ResponseEntity<Double> getUserAmount(HttpServletRequest request){
+    @GetMapping("/api/accounts/amount")    // get total amount from all accounts (logged-in user)
+    public ResponseEntity<Double> getUserAmount(HttpServletRequest request) {
         // Get JWT token from cookies
         String jwt = authService.getJwtFromCookies(request);
         System.out.println(jwt);
@@ -99,14 +106,14 @@ public class AccountController {
 
         // Calculate total money from all accounts
         double totalAmount = 0.0;
-        for (Account acc : accounts){
+        for (Account acc : accounts) {
             totalAmount += acc.getAmount();
         }
 
         return ResponseEntity.ok(totalAmount); // 200 OK with total money
     }
 
-    private boolean checkAccountInDebt(Account account){
+    private boolean checkAccountInDebt(Account account) {
         return account.getAmount() < 0;
     }
 
@@ -171,18 +178,19 @@ public class AccountController {
             return ResponseEntity.status(500).body("Error: Could not create account. " + e.getMessage()); // 500 Internal Server Error
         }
     }
+
     //Delete an account with its Id
-    @DeleteMapping ("/api/account/delete/{accountId}")
-    public ResponseEntity<String> deleteAccount(@PathVariable int accountId){
-         // Check if the account exists
+    @DeleteMapping("/api/account/delete/{accountId}")
+    public ResponseEntity<String> deleteAccount(@PathVariable int accountId) {
+        // Check if the account exists
         Optional<Account> account = accountRepository.findByAccountId(accountId);
-        if (account.isEmpty()){
+        if (account.isEmpty()) {
             return ResponseEntity.badRequest().body("Error: account not found");
         }
 
         // Check if the accounts customer exists
         Customer customer = account.get().getCustomer();
-        if (customer == null){
+        if (customer == null) {
             return ResponseEntity.badRequest().body("Error: client of the account not found");
         }
 
@@ -197,7 +205,7 @@ public class AccountController {
             if (originAccount != null) {
                 originAccount.getOriginatingTransfers().remove(transfer);
             }
-                transferRepository.delete(transfer);
+            transferRepository.delete(transfer);
         }
 
         //Delete receiving transfers
@@ -207,11 +215,11 @@ public class AccountController {
             if (receivinAccount != null) {
                 receivinAccount.getReceivingTransfers().remove(transfer);
             }
-                transferRepository.delete(transfer);
+            transferRepository.delete(transfer);
         }
 
         // We try to delete the account from the customer list and from the database
-        if (!customer.deleteAccount(accountId)){
+        if (!customer.deleteAccount(accountId)) {
             return ResponseEntity.badRequest().body("Error: could not delete account from customer");
         }
         accountRepository.delete(account.get());
@@ -222,10 +230,10 @@ public class AccountController {
     //Delete all the accounts with its customer id
     @Transactional
     @DeleteMapping("/api/account/delete/customer/{customerId}")
-    public ResponseEntity<String> deleteAccountsOfCustomer(@PathVariable int customerId){
+    public ResponseEntity<String> deleteAccountsOfCustomer(@PathVariable int customerId) {
         // Check if the customer exists
         Optional<Customer> customer = customerRepository.findById(customerId);
-        if (customer.isEmpty()){
+        if (customer.isEmpty()) {
             return ResponseEntity.badRequest().body("Error: customer not found");
         }
 
@@ -271,7 +279,7 @@ public class AccountController {
 
 
     @DeleteMapping("/api/account/delete")
-    public ResponseEntity<String> deleteLoggedUser (HttpServletRequest request){
+    public ResponseEntity<String> deleteLoggedUser(HttpServletRequest request) {
         // Get JWT token from cookies
         String jwt = authService.getJwtFromCookies(request);
         System.out.println(jwt);
@@ -305,55 +313,78 @@ public class AccountController {
             accountRepository.deleteByCustomer_CustomerId(customer.getCustomerId());
 
             return ResponseEntity.ok("All accounts and associated transfers have been deleted successfully."); // 200 OK
-            } catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(500).body("Error: Could not delete accounts. " + e.getMessage()); // 500 Internal Server Error
         }
     }
+
     @PatchMapping("/api/account/deposit/{accountId}")
-    public ResponseEntity<String> depositAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest){
+    public ResponseEntity<String> depositAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest) {
 
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()){
-            return ResponseEntity.badRequest().body("There is no account with ID: "+ accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
         }
 
-        Account account= accountOpt.get();
+        Account account = accountOpt.get();
         Double deposit = updateRequest.getAmount();
-        if (deposit <= 0){
+        if (deposit <= 0) {
             return ResponseEntity.badRequest().body("The deposit must be greater than 0");
         }
 
-        try{
-            accountService.makeDeposit(account,deposit);
+        try {
+            accountService.makeDeposit(account, deposit);
             return ResponseEntity.ok().body("The deposit was made successfully");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("The deposit could not be done");
         }
     }
 
     @PatchMapping("/api/account/withdraw/{accountId}")
-    public ResponseEntity<String> withdrawAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
+    public ResponseEntity<String> withdrawAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request) {
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()){
-            return ResponseEntity.badRequest().body("There is no account with ID: "+ accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
         }
-        Account account= accountOpt.get();
+        Account account = accountOpt.get();
         Customer customerAccount = customerService.getCustomerFromRequest(request);
-        if(customerAccount != account.getCustomer()){
+        if (customerAccount != account.getCustomer()) {
             return ResponseEntity.badRequest().body("You cannot withdraw money from an account that is not associated with you");
         }
         Double deposit = updateRequest.getAmount();
-        if (deposit <= 0){
+        if (deposit <= 0) {
             return ResponseEntity.badRequest().body("The withdraw must be greater than 0");
         }
-        try{
-            accountService.makeWithdraw(account,deposit);
+        try {
+            accountService.makeWithdraw(account, deposit);
             return ResponseEntity.ok().body("The withdraw was made successfully");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("The withdraw could not be done");
 
         }
+    }
+
+    @PatchMapping("/api/account/expirationDate/{accountId}")
+    public ResponseEntity<String> expirationDateUpdate(@PathVariable Integer accountId, HttpServletRequest request) {
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID:" + accountId);
+        }
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        LocalDateTime expirationDateLimit = LocalDateTime.now().plusMonths(3);
+        LocalDateTime expirationDateExtension = LocalDateTime.now().plusYears(5);
+
+        if (customerAccount != account.getCustomer()) {
+            return ResponseEntity.badRequest().body("You cannot extend the expiration date of an account that is not associated with you.");
+        }
+
+        if (!account.getExpirationDate().isBefore(expirationDateLimit)) {
+            return ResponseEntity.badRequest().body("You can only extend the expiration date if it is within the next 3 months.");
+        }
+
+        account.setExpirationDate(expirationDateExtension);
+        accountRepository.save(account);
+        return ResponseEntity.ok("The expiration date has been updated to:" + expirationDateExtension);
     }
 }
