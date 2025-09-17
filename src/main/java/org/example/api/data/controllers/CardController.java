@@ -3,6 +3,7 @@ package org.example.api.data.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
+import org.example.api.data.entity.Withdraw;
 import org.example.api.data.request.CardRequest;
 import org.example.api.service.AccountService;
 import org.example.api.service.AuthService;
@@ -44,6 +45,8 @@ public class CardController {
 
     @Autowired
     private Token tokenService;
+
+    @Autowired private WithdrawController withdrawController;
 
     private final CardService card;
 
@@ -131,6 +134,12 @@ public class CardController {
         Optional<Account> account = accountService.findById(accountId);
         if (account.isEmpty())
             return ResponseEntity.badRequest().body("Error: account does not exist");
+
+        //Delete all withdraws of each card
+        List<Card> cards = account.get().getCards();
+        for (Card card: cards){
+            withdrawController.deleteWithdrawsById(card.getCardId());
+        }
 
         // Delete all cards of this account
         this.card.deleteCardsByAccount(accountId);

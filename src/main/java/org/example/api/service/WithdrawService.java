@@ -15,6 +15,11 @@ import java.util.List;
 public class WithdrawService {
 
     private final WithdrawRepository withdrawRepository;
+
+    public void deleteById(Integer cardId) {
+        withdrawRepository.deleteById(cardId);
+    }
+
     private final AccountRepository accountRepository;
 
     public WithdrawService(WithdrawRepository withdrawRepository,

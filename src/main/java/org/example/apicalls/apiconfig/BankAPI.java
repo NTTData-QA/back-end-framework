@@ -184,6 +184,12 @@ public interface BankAPI {
     Response listWithdrawsByAccount(@PathParam("accountId") Integer accountId, @Context HttpServletRequest httpServletRequest);
 
     @DELETE
+    @Path("/api/withdraws/delete/card/{cardId}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response deleteWithdrawsById(@PathParam("cardId") int cardId);
+
+    @DELETE
     @Path("/api/card/delete")
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCardsOfLoggedUser(@Context HttpServletRequest request);

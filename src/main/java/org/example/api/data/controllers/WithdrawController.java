@@ -1,13 +1,12 @@
 package org.example.api.data.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Withdraw;
 import org.example.api.data.repository.CardRepository;
-import org.example.api.service.AuthService;
-import org.example.api.service.CustomerService;
-import org.example.api.service.WithdrawService;
+import org.example.api.service.*;
 import org.example.api.token.Token;
 import org.example.api.data.request.WithdrawRequest;
 import org.springframework.http.ResponseEntity;
@@ -19,22 +18,30 @@ import java.util.Optional;
 @RestController
 public class WithdrawController {
 
+
+
     private final WithdrawService withdrawService;
     private final CardRepository cardRepository;
     private final AuthService authService;
     private final CustomerService customerService;
     private final Token tokenService;
+    private final CardService cardService;
+    private final AccountService accountService;
 
     public WithdrawController(WithdrawService withdrawService,
                               CardRepository cardRepository,
                               AuthService authService,
                               CustomerService customerService,
-                              Token tokenService) {
+                              Token tokenService,
+                              CardService cardService,
+                              AccountService accountService) {
         this.withdrawService = withdrawService;
         this.cardRepository = cardRepository;
         this.authService = authService;
         this.customerService = customerService;
         this.tokenService = tokenService;
+        this.cardService = cardService;
+        this.accountService = accountService;
     }
 
     // Crear withdraw por tarjeta (AUTENTICADO)
@@ -113,5 +120,20 @@ public class WithdrawController {
     @GetMapping("/api/withdraws/account/{accountId}")
     public ResponseEntity<?> listByAccount(@PathVariable Integer accountId) {
         return ResponseEntity.ok(withdrawService.findByAccount(accountId));
+    }
+
+    @DeleteMapping("/api/withdraws/delete/card/{cardId}")
+    public ResponseEntity<String> deleteWithdrawsById(@PathVariable int cardId) {
+        // Check if card exists
+        Optional<Card> card = cardService.findById(cardId);
+        if (card.isEmpty())
+            return ResponseEntity.badRequest().body("Error: customer does not exist");
+
+        // We delete every withdraw of the card
+        List<Withdraw> withdraws = withdrawService.findByCard(cardId);
+        for (Withdraw withdraw : withdraws){
+            this.withdrawService.deleteById(withdraw.getWithdrawId());
+        }
+        return ResponseEntity.ok("Customer cards deleted successfully");
     }
 }
