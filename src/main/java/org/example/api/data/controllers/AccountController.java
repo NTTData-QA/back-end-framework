@@ -390,20 +390,27 @@ public class AccountController {
     }
 
     @PatchMapping("/api/account/accountType/{accountId}")
-    public ResponseEntity<String> accountTypeUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request){
+    public ResponseEntity<String> accountTypeUpdate(
+            @PathVariable Integer accountId,
+            @RequestBody AccountRequest accountRequest,
+            HttpServletRequest request) {
+
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
         Account account = accountOpt.get();
         Customer customerAccount = customerService.getCustomerFromRequest(request);
         Account.AccountType accountType = accountRequest.getAccountType();
-        if (!accountOpt.isPresent()) {
-            return ResponseEntity.badRequest().body("There is no account with ID:" + accountId);
-        }
 
-        if (customerAccount != account.getCustomer()) {
+        if (!customerAccount.equals(account.getCustomer())) {
             return ResponseEntity.badRequest().body("You cannot change accountType of an account that is not associated with you.");
         }
+
         account.setAccountType(accountType);
         accountRepository.save(account);
-        return ResponseEntity.ok("You accountType has been changed");
+        return ResponseEntity.ok("Your accountType has been changed");
     }
+
 }
