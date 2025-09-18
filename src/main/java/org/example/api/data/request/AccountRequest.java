@@ -8,4 +8,5 @@ import org.example.api.data.entity.Account;
 public class AccountRequest {
     private Account.AccountType accountType;
     private Boolean isBlocked;
+    private Boolean isInDebt;
 }

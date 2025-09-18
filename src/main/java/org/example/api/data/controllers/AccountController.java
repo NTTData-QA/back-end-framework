@@ -442,4 +442,44 @@ public class AccountController {
         return ResponseEntity.ok("Your blocked status has been changed");
     }
 
+    @PatchMapping("/api/account/isInDebt/{accountId}")
+    public ResponseEntity<String> isInDebtUpdate(
+            @PathVariable Integer accountId,
+            @RequestBody AccountRequest accountRequest,
+            HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change the debt status of an account that is not associated with you.");
+        }
+
+        Boolean currentDebtStatus = account.getIsInDebt();
+        Boolean requestedDebtStatus = accountRequest.getIsInDebt();
+        Double balance = account.getAmount();
+
+        if (requestedDebtStatus.equals(currentDebtStatus)) {
+            return ResponseEntity.ok("The account already has the requested debt status. No changes were made.");
+        }
+
+        if (Boolean.FALSE.equals(requestedDebtStatus) && balance < 0) {
+            return ResponseEntity.badRequest().body("Account must have a positive balance before removing debt status.");
+        }
+
+        if (Boolean.TRUE.equals(requestedDebtStatus) && balance >= 0) {
+            return ResponseEntity.badRequest().body("Account must have a negative balance before activating debt status.");
+        }
+
+        account.setIsInDebt(requestedDebtStatus);
+        accountRepository.save(account);
+
+        return ResponseEntity.ok("Your debt status has been updated successfully.");
+    }
+
 }
