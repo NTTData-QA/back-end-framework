@@ -415,4 +415,31 @@ public class AccountController {
         return ResponseEntity.ok("Your accountType has been changed");
     }
 
+    @PatchMapping("/api/account/isBlock/{accountId}")
+    public ResponseEntity<String> isBlockUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        Boolean blockedStatus = account.getIsBlocked();
+
+        if (blockedStatus.equals(accountRequest.getIsBlocked())) {
+            return ResponseEntity.ok().body("The account already has the requested blocked status. No changes were made");
+        }
+
+        Boolean isBlocked = accountRequest.getIsBlocked();
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change blocked status of an account that is not associated with you.");
+        }
+
+        account.setIsBlocked(isBlocked);
+        accountRepository.save(account);
+        return ResponseEntity.ok("Your blocked status has been changed");
+    }
+
 }
