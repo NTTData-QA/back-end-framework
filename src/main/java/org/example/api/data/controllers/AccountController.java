@@ -232,14 +232,19 @@ public class AccountController {
         }
         Account account = accountOptional.get();
 
-        // Check if account is in debt
+        String errores = "";
+        boolean enDeuda = false;
         if (account.getIsInDebt()) {
-            return ResponseEntity.badRequest().body("Error: account is in debt");
+            System.out.println(account.getIsInDebt());
+            errores = errores + "Account with id " + account.getAccountId() + " is in debt";
+            enDeuda = true;
         }
-
-        // Chack if account is blocked
         if (account.getIsBlocked()) {
-            return ResponseEntity.badRequest().body("Error: account is blocked");
+            if (enDeuda) errores = errores + " and blocked";
+            else errores = errores + "Account with id " + account.getAccountId() + " is blocked";
+        }
+        if (!errores.isEmpty()) {
+            return ResponseEntity.badRequest().body("Error: " + errores);
         }
 
         // Check if the account's customer exists

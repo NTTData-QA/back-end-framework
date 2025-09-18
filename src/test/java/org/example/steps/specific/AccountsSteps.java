@@ -67,4 +67,41 @@ public class AccountsSteps extends AbstractSteps {
     Response receiverAccountresponse = proxy.accountById(receiverAccountId);
     Assert.assertEquals(200,receiverAccountresponse.getStatus());
   }
+
+  @Given("the customer creates an account with {double} euros with status blocked {string}")
+  public void theCustomerCreatesAnAccountWithEurosWithStatusBlocked(double euros, String stBlocked) {
+    Boolean blocked = Boolean.parseBoolean(stBlocked);
+    System.out.println(blocked);
+
+    Account account = new Account();
+    account.setAmount(euros);
+    account.setAccountType(Account.AccountType.BUSINESS_ACCOUNT);
+    account.setIsBlocked(blocked);
+
+    System.out.println(account.toString());
+    Response accountResponse = bankService.doNewAccount(account,null);
+    Assert.assertEquals(201,accountResponse.getStatus());
+
+    String accountOrigin = accountResponse.readEntity(String.class);
+    String[] parts = accountOrigin.split(": ");
+    String accountIdString = parts[1];
+    int accountId = Integer.parseInt(accountIdString);
+    testContext().setOriginID(accountId);
+  }
+
+  @When("the customer tries to delete the account")
+  public void theCustomerTriesToDeleteTheAccount() {
+    Integer accountId = testContext().getOriginID();
+    Response accountResponse = proxy.accountById(accountId);
+    System.out.println(accountResponse.readEntity(String.class));
+    Response deleteResponse = bankService.doDeleteAccountById(accountId);
+    testContext().setResponse(deleteResponse);
+  }
+
+  @Then("i should receive the code {int} and a message")
+  public void iShouldReceiveTheCodeAndAMessage(int codigo) {
+    response = testContext().getResponse();
+    System.out.println(response.readEntity(String.class));
+    Assert.assertEquals(codigo, response.getStatus());
+  }
 }
