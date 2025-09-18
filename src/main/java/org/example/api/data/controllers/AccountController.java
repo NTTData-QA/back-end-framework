@@ -1,4 +1,3 @@
-
 package org.example.api.data.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -390,10 +389,7 @@ public class AccountController {
     }
 
     @PatchMapping("/api/account/accountType/{accountId}")
-    public ResponseEntity<String> accountTypeUpdate(
-            @PathVariable Integer accountId,
-            @RequestBody AccountRequest accountRequest,
-            HttpServletRequest request) {
+    public ResponseEntity<String> accountTypeUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
 
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
         if (!accountOpt.isPresent()) {
@@ -402,6 +398,12 @@ public class AccountController {
 
         Account account = accountOpt.get();
         Customer customerAccount = customerService.getCustomerFromRequest(request);
+        Account.AccountType oldAccountType = account.getAccountType();
+
+        if (oldAccountType.equals(accountRequest.getAccountType())) {
+            return ResponseEntity.ok().body("The account already has the requested account type. No changes were made");
+        }
+
         Account.AccountType accountType = accountRequest.getAccountType();
 
         if (!customerAccount.equals(account.getCustomer())) {
