@@ -201,4 +201,16 @@ public class BankService {
     public Response getTransferHistory(int accountId) {
         return proxy.getTransferHistory(accountId);
     }
+
+    public Response doDeleteAccountById(int accountId) {
+        return proxy.deleteAccount(accountId);
+    }
+
+    public Response doDeleteAccountsByCustomerId(int customerId) {
+        return proxy.deleteAccountsOfCustomer(customerId);
+    }
+
+    public Response doDeleteAccountsOfLoggedUser() {
+        return proxy.deleteCardsOfLoggedUser(null);
+    }
 }

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +28,7 @@ import java.util.Optional;
 public class AccountController {
 
 
-    @Autowired  private AccountService accountService;
+    @Autowired private AccountService accountService;
     @Autowired private AuthService authService;
     @Autowired private CustomerRepository customerRepository;
     @Autowired private AccountRepository accountRepository;
@@ -171,16 +172,18 @@ public class AccountController {
             return ResponseEntity.status(500).body("Error: Could not create account. " + e.getMessage()); // 500 Internal Server Error
         }
     }
+
+    /*
     //Delete an account with its Id
     @DeleteMapping ("/api/account/delete/{accountId}")
     public ResponseEntity<String> deleteAccount(@PathVariable int accountId){
-         // Check if the account exists
+        // Check if the account exists
         Optional<Account> account = accountRepository.findByAccountId(accountId);
         if (account.isEmpty()){
             return ResponseEntity.badRequest().body("Error: account not found");
         }
 
-        // Check if the accounts customer exists
+        // Check if the account's customer exists
         Customer customer = account.get().getCustomer();
         if (customer == null){
             return ResponseEntity.badRequest().body("Error: client of the account not found");
@@ -218,7 +221,72 @@ public class AccountController {
 
         return ResponseEntity.ok("Account deleted successfully");
     }
+    */
+    //Delete an account with its Id
+    @DeleteMapping ("/api/account/delete/{accountId}")
+    public ResponseEntity<String> deleteAccount(@PathVariable int accountId){
+        // Check if the account exists
+        Optional<Account> accountOptional = accountRepository.findByAccountId(accountId);
+        if (accountOptional.isEmpty()){
+            return ResponseEntity.badRequest().body("Error: account not found");
+        }
+        Account account = accountOptional.get();
 
+        String errores = "";
+        boolean enDeuda = false;
+        if (account.getIsInDebt()) {
+            System.out.println(account.getIsInDebt());
+            errores = errores + "Account with id " + account.getAccountId() + " is in debt";
+            enDeuda = true;
+        }
+        if (account.getIsBlocked()) {
+            if (enDeuda) errores = errores + " and blocked";
+            else errores = errores + "Account with id " + account.getAccountId() + " is blocked";
+        }
+        if (!errores.isEmpty()) {
+            return ResponseEntity.badRequest().body("Error: " + errores);
+        }
+
+        // Check if the account's customer exists
+        Customer customer = account.getCustomer();
+        if (customer == null){
+            return ResponseEntity.badRequest().body("Error: client of the account not found");
+        }
+
+        // Get all the transfers
+        List<Transfer> originTransfers = transferRepository.findByOriginAccount_AccountId(accountId);
+        List<Transfer> receivingTransfers = transferRepository.findByReceivingAccount_AccountId(accountId);
+
+        //Delete origin transfers
+        for (Transfer transfer : originTransfers) {
+            // Delete transfer of origin account
+            Account originAccount = transfer.getOriginAccount();
+            if (originAccount != null) {
+                originAccount.getOriginatingTransfers().remove(transfer);
+            }
+            transferRepository.delete(transfer);
+        }
+
+        //Delete receiving transfers
+        for (Transfer transfer : receivingTransfers) {
+            // Eliminar la transferencia de la cuenta de origen
+            Account receivinAccount = transfer.getReceivingAccount();
+            if (receivinAccount != null) {
+                receivinAccount.getReceivingTransfers().remove(transfer);
+            }
+            transferRepository.delete(transfer);
+        }
+
+        // We try to delete the account from the customer list and from the database
+        if (!customer.deleteAccount(accountId)){
+            return ResponseEntity.badRequest().body("Error: could not delete account from customer");
+        }
+        accountRepository.delete(account);
+
+        return ResponseEntity.ok("Account deleted successfully");
+    }
+
+    /*
     //Delete all the accounts with its customer id
     @Transactional
     @DeleteMapping("/api/account/delete/customer/{customerId}")
@@ -268,8 +336,85 @@ public class AccountController {
             return ResponseEntity.status(500).body("Error: Could not delete accounts. " + e.getMessage());
         }
     }
+    */
+    //Delete all the accounts with its customer id
+    @Transactional
+    @DeleteMapping("/api/account/delete/customer/{customerId}")
+    public ResponseEntity<String> deleteAccountsOfCustomer(@PathVariable int customerId){
+        // Check if the customer exists
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+        if (customerOptional.isEmpty()){
+            return ResponseEntity.badRequest().body("Error: customer not found");
+        }
+        Customer customer = customerOptional.get();
 
+        // We get all customers accounts
+        List<Account> accounts = customer.getAccounts();
+        if (accounts.isEmpty()) {
+            return ResponseEntity.status(404).body("Error: No accounts found for this customer");
+        }
 
+        List<String> errorAccounts = new ArrayList<>();
+        // Try to delete the associated transfers and accounts
+        try {
+            for (Account account : accounts) {
+                // Check if account is in debt or blocked
+                String errores = "";
+                boolean enDeuda = false;
+                if (account.getIsInDebt()) {
+                    errores = errores + "Account with id " + account.getAccountId() + " is in debt";
+                    enDeuda = true;
+                }
+                if (account.getIsBlocked()) {
+                    if (enDeuda) errores = errores + " and blocked";
+                    else errores = errores + "Account with id " + account.getAccountId() + " is blocked";
+                }
+                if (!errores.isEmpty()) {
+                    errorAccounts.add(errores);
+                    continue;
+                }
+
+                // Delete transfers where the account is the origin account
+                List<Transfer> originTransfers = transferRepository.findByOriginAccount_AccountId(account.getAccountId());
+                for (Transfer transfer : originTransfers) {
+                    Account originAccount = transfer.getOriginAccount();
+                    if (originAccount != null) {
+                        originAccount.getOriginatingTransfers().remove(transfer);
+                    }
+                    transferRepository.delete(transfer);
+                }
+
+                // Delete transfers where the account is the receiving account
+                List<Transfer> receivingTransfers = transferRepository.findByReceivingAccount_AccountId(account.getAccountId());
+                for (Transfer transfer : receivingTransfers) {
+                    Account receivingAccount = transfer.getReceivingAccount();
+                    if (receivingAccount != null) {
+                        receivingAccount.getReceivingTransfers().remove(transfer);
+                    }
+                    transferRepository.delete(transfer);
+                }
+
+                customer.deleteAccount(account.getAccountId());
+                accountRepository.delete(account);
+            }
+
+            if (!errorAccounts.isEmpty()) {
+                StringBuilder finalBuilder = new StringBuilder(
+                        "All accounts and associated transfers have been deleted seccesfully EXCEPT FOR THE FOLLOWING:"
+                );
+                for (String e: errorAccounts) {
+                    finalBuilder.append("\n\t").append(e);
+                }
+                String finalMsg = finalBuilder.toString();
+                throw new RuntimeException(finalMsg);
+            }
+            return ResponseEntity.ok("All accounts and associated transfers have been deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    /*
     @DeleteMapping("/api/account/delete")
     public ResponseEntity<String> deleteLoggedUser (HttpServletRequest request){
         // Get JWT token from cookies
@@ -305,10 +450,79 @@ public class AccountController {
             accountRepository.deleteByCustomer_CustomerId(customer.getCustomerId());
 
             return ResponseEntity.ok("All accounts and associated transfers have been deleted successfully."); // 200 OK
-            } catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(500).body("Error: Could not delete accounts. " + e.getMessage()); // 500 Internal Server Error
         }
     }
+    */
+    @DeleteMapping("/api/account/delete")
+    public ResponseEntity<String> deleteLoggedUser (HttpServletRequest request){
+        // Get JWT token from cookies
+        String jwt = authService.getJwtFromCookies(request);
+        System.out.println(jwt);
+
+        // Validate token
+        if (jwt == null || !tokenService.validateToken(jwt)) {
+            return ResponseEntity.status(401).build(); // 401 Unauthorized if token is not valid
+        }
+
+        // Get user email from token
+        String email = tokenService.getCustomerEmailFromJWT(jwt);
+
+        // Get user from email
+        Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
+        if (!customerOpt.isPresent()) {
+            return ResponseEntity.status(404).build(); // 404 Not Found if user is not found
+        }
+
+        // Get logged user´s accounts
+        Customer customer = customerOpt.get();
+        List<Account> accounts = accountService.findByCustomer(customer.getCustomerId());
+
+        List<String> errorAccounts = new ArrayList<>();
+        //Try to delete the associated transfers and the accounts
+        try {
+            for (Account acc : accounts) {
+                String errores = "";
+                boolean enDeuda = false;
+                if (acc.getIsInDebt()) {
+                    errores = errores + "Account with id " + acc.getAccountId() + " is in debt";
+                    enDeuda = true;
+                }
+                if (acc.getIsBlocked()) {
+                    if (enDeuda) errores = errores + " and blocked";
+                    else errores = errores + "Account with id " + acc.getAccountId() + " is blocked";
+                }
+                if (!errores.isEmpty()) {
+                    errorAccounts.add(errores);
+                    continue;
+                }
+
+                // Eliminar las transferencias donde la cuenta es la cuenta de origen
+                transferRepository.deleteByOriginAccount_AccountId(acc.getAccountId());
+                // Eliminar las transferencias donde la cuenta es la cuenta de destino
+                transferRepository.deleteByReceivingAccount_AccountId(acc.getAccountId());
+
+                customer.deleteAccount(acc.getAccountId());
+                accountRepository.delete(acc);
+            }
+
+            if (!errorAccounts.isEmpty()) {
+                StringBuilder finalBuilder = new StringBuilder(
+                        "All accounts and associated transfers have been deleted seccesfully EXCEPT FOR THE FOLLOWING:"
+                );
+                for (String e: errorAccounts) {
+                    finalBuilder.append("\n\t").append(e);
+                }
+                String finalMsg = finalBuilder.toString();
+                throw new RuntimeException(finalMsg);
+            }
+            return ResponseEntity.ok("All accounts and associated transfers have been deleted successfully."); // 200 OK
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage()); // 500 Internal Server Error
+        }
+    }
+
     @PatchMapping("/api/account/deposit/{accountId}")
     public ResponseEntity<String> depositAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest){
 
