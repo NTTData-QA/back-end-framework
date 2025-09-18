@@ -25,6 +25,6 @@ public class Withdraw {
 
     @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "card_id", nullable = false)
+    @JoinColumn(name = "cardId", nullable = false)
     private Card card;
 }

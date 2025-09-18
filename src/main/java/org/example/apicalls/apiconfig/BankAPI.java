@@ -236,6 +236,19 @@ public interface BankAPI {
     @Path("/public/customer/delete/{customerId}")
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteById(@PathParam("customerId") int customerId);
+
+    @PATCH
+    @Path("/api/card/update/dailyLimit/{cardId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response updateDailyLimit(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
+    @PATCH
+    @Path("/api/card/update/monthlyLimit/{cardId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response updateMonthlyLimit(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
 }
 
 

@@ -8,4 +8,6 @@ public class UpdateRequest {
     private String email;
     private String password;
     private Double Amount;
+    private Double DailyLimit;
+    private Double MonthlyLimit;
 }

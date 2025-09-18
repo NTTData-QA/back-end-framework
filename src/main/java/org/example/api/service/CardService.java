@@ -3,6 +3,7 @@ package org.example.api.service;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.repository.CardRepository;
+import org.example.api.data.request.UpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,4 +59,15 @@ public class CardService {
 
         return newCard;
     }
+
+    public void updateDailyLimit(Card card, Double newDailyLimit){
+        card.setDailyLimit(newDailyLimit);
+        cardRepository.save(card);
+    }
+
+    public void updateMonthlyLimit(Card card, Double newMonthlyLimit){
+        card.setMonthlyLimit(newMonthlyLimit);
+        cardRepository.save(card);
+    }
+
 }
