@@ -4,7 +4,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Withdraw;
+import org.example.api.data.repository.AccountRepository;
+import org.example.api.data.repository.CardRepository;
+import org.example.api.data.repository.CustomerRepository;
 import org.example.api.data.request.CardRequest;
+import org.example.api.data.request.UpdateRequest;
 import org.example.api.service.AccountService;
 import org.example.api.service.AuthService;
 import org.example.api.service.CustomerService;
@@ -26,10 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
@@ -47,6 +48,16 @@ public class CardController {
     private Token tokenService;
 
     @Autowired private WithdrawController withdrawController;
+
+    @Autowired private CardRepository cardRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired  private CardService cardService;
+
+    @Autowired
+    private AuthService authService;
 
     private final CardService card;
 
@@ -110,6 +121,76 @@ public class CardController {
         String jsonOutput = jsonConverter.convertListToJson(cards);
         return ResponseEntity.ok().body(jsonOutput);
     }
+
+    @PatchMapping("/api/card/update/dailyLimit/{cardId}")
+    public ResponseEntity<String> updateDailyLimit(@PathVariable Integer cardId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
+
+        Optional<Card> cardOpt = cardRepository.findById(cardId);
+        if (!cardOpt.isPresent()){
+            return ResponseEntity.badRequest().body("There is no card with ID: "+ cardId);
+        }
+
+        Card card = cardOpt.get();
+        Double newDailyLimit = updateRequest.getDailyLimit();
+
+        // Get request client
+        String jwt = authService.getJwtFromCookies(request);
+        String email = Token.getCustomerEmailFromJWT(jwt);
+        Customer customer = customerRepository.findByEmail(email).get();
+
+        Account account = card.getAccount();
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
+            return ResponseEntity.badRequest().body("Card does not belong to the user");
+        }
+
+        if(newDailyLimit <= 0){
+            return ResponseEntity.badRequest().body("The new daily limit must be greater than 0");
+        }
+
+        try{
+            cardService.updateDailyLimit(card, newDailyLimit);
+            return ResponseEntity.ok()
+                    .body("The new daily limit has been updated successfully");}
+        catch (Exception e){
+            return ResponseEntity.badRequest().body("Your daily limit must be valid");
+        }
+    }
+
+
+    @PatchMapping("/api/card/update/monthlyLimit/{cardId}")
+    public ResponseEntity<String> updateMonthlyLimit(@PathVariable Integer cardId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
+
+        Optional<Card> cardOpt = cardRepository.findById(cardId);
+        if (!cardOpt.isPresent()){
+            return ResponseEntity.badRequest().body("There is no card with ID: "+ cardId);
+        }
+
+        Card card = cardOpt.get();
+        Double newMonthlyLimit = updateRequest.getMonthlyLimit();
+
+        // Get request client
+        String jwt = authService.getJwtFromCookies(request);
+        String email = Token.getCustomerEmailFromJWT(jwt);
+        Customer customer = customerRepository.findByEmail(email).get();
+
+        Account account = card.getAccount();
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
+            return ResponseEntity.badRequest().body("Card does not belong to the user");
+        }
+
+        if(newMonthlyLimit <= 0){
+            return ResponseEntity.badRequest().body("The new monthly limit must be greater than 0");
+        }
+
+        try{
+            cardService.updateMonthlyLimit(card, newMonthlyLimit);
+            return ResponseEntity.ok()
+                    .body("The new monthly limit has been updated successfully");}
+        catch (Exception e){
+            return ResponseEntity.badRequest().body("Your monthly limit must be valid");
+        }
+    }
+
 
     @DeleteMapping("/api/card/delete/{cardId}")
     public ResponseEntity<String> deleteCard(@PathVariable int cardId){
