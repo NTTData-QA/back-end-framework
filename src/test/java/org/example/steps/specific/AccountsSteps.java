@@ -70,6 +70,10 @@ public class AccountsSteps extends AbstractSteps {
 
   @Given("the customer creates an account with {double} euros with status blocked {string}")
   public void theCustomerCreatesAnAccountWithEurosWithStatusBlocked(double euros, String stBlocked) {
+    // TODO divide create account function and block account function when available
+    // ==> Given the customer creates an account with 200 euros
+    // When the customer blocks the account
+    // And the customer tries to delete the account
     Boolean blocked = Boolean.parseBoolean(stBlocked);
     System.out.println(blocked);
 
@@ -87,6 +91,8 @@ public class AccountsSteps extends AbstractSteps {
     String accountIdString = parts[1];
     int accountId = Integer.parseInt(accountIdString);
     testContext().setOriginID(accountId);
+
+
   }
 
   @When("the customer tries to delete the account")
