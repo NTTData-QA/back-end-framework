@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven3'       // el nombre  configurado en Jenkins para Maven
-        jdk 'JDK21'          // el nombre JDK configurado en Jenkins
+        maven 'Maven3'
+        jdk 'JDK21'
     }
 
     stages {
@@ -18,11 +18,17 @@ pipeline {
                 sh "mvn clean test"
             }
         }
+
+        stage('Upload to QMetry') {
+            steps {
+                sh "mvn com.qmetry:automation:2.0.11:CucumberFileUpload"
+            }
+        }
     }
 
     post {
         always {
-            junit '**/target/surefire-reports/*.xml'   // recoge resultados de tests JUnit
+            junit '**/target/surefire-reports/*.xml'
         }
     }
 }
