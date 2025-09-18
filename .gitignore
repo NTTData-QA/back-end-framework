@@ -12,6 +12,7 @@ target/
 *.iml
 *.ipr
 *.mv.db
+*.trace.db
 
 
 ### Eclipse ###

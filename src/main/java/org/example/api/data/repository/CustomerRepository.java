@@ -1,6 +1,7 @@
 package org.example.api.data.repository;
 
 import org.example.api.data.entity.Customer;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

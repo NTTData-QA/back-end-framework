@@ -157,11 +157,8 @@ public interface BankAPI {
 
 //    @PATCH
 //    @Path("/api/account/withdraw/{accountId}")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.TEXT_PLAIN)
-//    Response withdrawAccountId(@PathParam("accountId") int accountId, @RequestBody UpdateRequest updateRequest, @Context HttpServletRequest request);
 
-    // Withdraws
+    // Endpoints creados para los Withdraws
     @POST
     @Path("/api/withdraw")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -206,11 +203,6 @@ public interface BankAPI {
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCardsOfAccounts(@PathParam("accountId") int accountId);
 
-    @DELETE
-    @Path("/public/customer/delete/{customerId}")
-    @Produces(MediaType.TEXT_PLAIN)
-    Response deleteById(@PathParam("customerId") int customerId);
-
     @POST
     @Path("/api/transfer/new")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -239,6 +231,11 @@ public interface BankAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response updatePassword(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
+    @DELETE
+    @Path("/public/customer/delete/{customerId}")
+    @Produces(MediaType.TEXT_PLAIN)
+    Response deleteById(@PathParam("customerId") int customerId);
 }
 
 

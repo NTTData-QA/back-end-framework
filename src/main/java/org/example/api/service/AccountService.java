@@ -50,10 +50,4 @@ public class AccountService {
   }
 
 //  public void makeWithdraw(Account account, Double withdraw){
-//    Double accountAmount = account.getAmount();
-//    account.setAmount(accountAmount - withdraw);
-//    accountRepository.save(account);
-//  }
-
-
 }

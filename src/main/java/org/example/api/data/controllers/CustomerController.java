@@ -107,6 +107,7 @@ public class CustomerController {
     }
   }
 
+  // Eliminar un customer por si id
   @DeleteMapping("/public/customer/delete/{customerId}")
   public ResponseEntity<String> deleteById(@PathVariable Integer customerId) {
     Optional<Customer> customer = customerRepository.findById(customerId);

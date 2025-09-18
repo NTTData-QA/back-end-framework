@@ -61,9 +61,6 @@ public class WithdrawController {
         Integer authCustomerId = customerOpt.get().getCustomerId();
 
         // 2) Validaciones básicas
-//        if (req.getAmount() == null || req.getAmount() <= 0) {
-//            return ResponseEntity.badRequest().body("Amount must be greater than 0");
-//        }
         if (req.getCardId() == null) {
             return ResponseEntity.badRequest().body("cardId is required");
         }
@@ -79,9 +76,6 @@ public class WithdrawController {
         if (!ownerId.equals(authCustomerId)) {
             return ResponseEntity.status(403).body("Forbidden: card does not belong to the authenticated customer");
         }
-
-        // (Opcional) Si añadiste isBlocked en Card/Account, valida aquí:
-        // if (Boolean.TRUE.equals(card.getIsBlocked())) return ResponseEntity.badRequest().body("Card is blocked");
 
         try {
             Withdraw w = withdrawService.createWithdraw(card, req.getAmount());

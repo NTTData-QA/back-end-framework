@@ -40,10 +40,6 @@ public class CustomerService {
     return customerRepository.save(cust);
   }
 
-//  public void deleteById(Integer customerId) {
-//    customerRepository.deleteById(customerId);
-//  }
-
   public Optional<Customer> findByEmail(String email) {
     return customerRepository.findByEmail(email);
   }
