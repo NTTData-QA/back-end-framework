@@ -106,7 +106,7 @@ public class CardController {
             return ResponseEntity.badRequest().body("Error creating card: account not found");
         }
 
-        Card newCard = Generator.generateRandomCard(account.get());
+        Card newCard = Generator.generateCardType(account.get(), cardRequest);
         card.save(newCard);
 
         return ResponseEntity.ok("Card created successfully");
