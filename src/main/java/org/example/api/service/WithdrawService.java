@@ -38,12 +38,14 @@ public class WithdrawService {
 
         Account account = card.getAccount();
         Double balance = account.getAmount();
+        String tipo_tarjeta = card.getType();
+
 
         if (account.getIsInDebt() == Boolean.TRUE){
             throw new IllegalArgumentException("Account is in debt");
         }
 
-        if (balance < amount) {
+        if (balance < amount&& tipo_tarjeta.equals("Debit")) {
             throw new IllegalStateException("Insufficient funds");
         }
 
