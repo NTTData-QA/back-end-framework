@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import org.springframework.security.core.userdetails.User;
 
 
 @Data
@@ -32,6 +33,15 @@ public class Customer {
     @NotBlank(message = "La contraseña es obligatoria")
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserType role;
+
+    public enum UserType {
+        ADMIN,          // Administrator
+        USER,           // Default Customer
+    }
 
     @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)    // si se elimina un cliente se eliminan sus cuentas
