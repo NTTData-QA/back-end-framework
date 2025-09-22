@@ -9,6 +9,7 @@ import org.example.api.data.controllers.CustomerController;
 import org.example.api.data.entity.Customer;
 import org.example.api.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
@@ -21,6 +22,7 @@ public class Token {
     private static final String jwtSecret = "yourverylongseaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacretkeythatisatleast64byteslong";
     private final long jwtExpirationInMs = 3600000; // Tiempo de expiración de 1 hora
 
+    @Lazy
     @Autowired
     private CustomerService customerService;
 
