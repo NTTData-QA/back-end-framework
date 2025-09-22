@@ -8,6 +8,7 @@ import org.example.api.data.entity.Transfer;
 import org.example.api.data.repository.AccountRepository;
 import org.example.api.data.repository.CustomerRepository;
 import org.example.api.data.repository.TransferRepository;
+import org.example.api.data.request.AccountRequest;
 import org.example.api.data.request.UpdateRequest;
 import org.example.api.service.AccountService;
 import org.example.api.service.AuthService;
@@ -429,4 +430,123 @@ public class AccountController {
 
         }
     }
+
+    @PatchMapping("/api/account/expirationDate/{accountId}")
+    public ResponseEntity<String> expirationDateUpdate(@PathVariable Integer accountId, HttpServletRequest request) {
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID:" + accountId);
+        }
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        LocalDateTime expirationDateLimit = LocalDateTime.now().plusMonths(3);
+        LocalDateTime expirationDateExtension = LocalDateTime.now().plusYears(5);
+
+        if (customerAccount != account.getCustomer()) {
+            return ResponseEntity.badRequest().body("You cannot extend the expiration date of an account that is not associated with you.");
+        }
+
+        if (!account.getExpirationDate().isBefore(expirationDateLimit)) {
+            return ResponseEntity.badRequest().body("You can only extend the expiration date if it is within the next 3 months.");
+        }
+
+        account.setExpirationDate(expirationDateExtension);
+        accountRepository.save(account);
+        return ResponseEntity.ok("The expiration date has been updated to:" + expirationDateExtension);
+    }
+
+    @PatchMapping("/api/account/accountType/{accountId}")
+    public ResponseEntity<String> accountTypeUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        Account.AccountType oldAccountType = account.getAccountType();
+
+        if (oldAccountType.equals(accountRequest.getAccountType())) {
+            return ResponseEntity.ok().body("The account already has the requested account type. No changes were made");
+        }
+
+        Account.AccountType accountType = accountRequest.getAccountType();
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change accountType of an account that is not associated with you.");
+        }
+
+        account.setAccountType(accountType);
+        accountRepository.save(account);
+        return ResponseEntity.ok("Your accountType has been changed");
+    }
+
+    @PatchMapping("/api/account/isBlock/{accountId}")
+    public ResponseEntity<String> isBlockUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        Boolean blockedStatus = account.getIsBlocked();
+
+        if (blockedStatus.equals(accountRequest.getIsBlocked())) {
+            return ResponseEntity.ok().body("The account already has the requested blocked status. No changes were made");
+        }
+
+        Boolean isBlocked = accountRequest.getIsBlocked();
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change blocked status of an account that is not associated with you.");
+        }
+
+        account.setIsBlocked(isBlocked);
+        accountRepository.save(account);
+        return ResponseEntity.ok("Your blocked status has been changed");
+    }
+
+    @PatchMapping("/api/account/isInDebt/{accountId}")
+    public ResponseEntity<String> isInDebtUpdate(
+            @PathVariable Integer accountId,
+            @RequestBody AccountRequest accountRequest,
+            HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (!accountOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change the debt status of an account that is not associated with you.");
+        }
+
+        Boolean currentDebtStatus = account.getIsInDebt();
+        Boolean requestedDebtStatus = accountRequest.getIsInDebt();
+        Double balance = account.getAmount();
+
+        if (requestedDebtStatus.equals(currentDebtStatus)) {
+            return ResponseEntity.ok("The account already has the requested debt status. No changes were made.");
+        }
+
+        if (Boolean.FALSE.equals(requestedDebtStatus) && balance < 0) {
+            return ResponseEntity.badRequest().body("Account must have a positive balance before removing debt status.");
+        }
+
+        if (Boolean.TRUE.equals(requestedDebtStatus) && balance >= 0) {
+            return ResponseEntity.badRequest().body("Account must have a negative balance before activating debt status.");
+        }
+
+        account.setIsInDebt(requestedDebtStatus);
+        accountRepository.save(account);
+
+        return ResponseEntity.ok("Your debt status has been updated successfully.");
+    }
+
 }
