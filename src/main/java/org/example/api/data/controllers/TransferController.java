@@ -9,6 +9,7 @@ import org.example.api.data.repository.CustomerRepository;
 import org.example.api.data.repository.TransferRepository;
 import org.example.api.data.request.TransferRequest;
 import org.example.api.service.AuthService;
+import org.example.api.service.CustomerService;
 import org.example.api.service.TransferService;
 import org.example.api.token.Token;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class TransferController {
 
     @Autowired
     private TransferService transferService;
+
+    @Autowired
+    private CustomerService customerService;
 
 
     @PostMapping("/api/transfer/new")
@@ -174,22 +178,32 @@ public class TransferController {
         }
     }
 
-    @GetMapping("api/transfers/history/{accountId}") // Obtener el historial de transacciones de una cuenta
-    public ResponseEntity<?> getTransferHistory(@PathVariable Integer accountId) {
+    @GetMapping("api/transfer/history/{accountId}") // Obtener el historial de transacciones de una cuenta
+    public ResponseEntity<?> getTransferHistory(@PathVariable Integer accountId, HttpServletRequest request) {
         // Comprobar que la cuenta exista
         Optional<Account> accountOptional = accountRepository.findByAccountId(accountId);
         if (accountOptional.isEmpty())
             return ResponseEntity.badRequest().body("Account does not exist");
 
         // Verificar usuario loggeado
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer customerId = Integer.valueOf(authentication.getName());
-        Optional<Customer> customer = customerRepository.findById(customerId);
-        if (customer.isEmpty())
-            return ResponseEntity.badRequest().body("You are not logged");
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        Integer customerId = Integer.valueOf(authentication.getName());
+//        Optional<Customer> customer = customerRepository.findById(customerId);
+//        if (customer.isEmpty())
+//            return ResponseEntity.badRequest().body("You are not logged");
+
+        Account account = accountOptional.get();
+
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        if(customerAccount == null)
+            return ResponseEntity.badRequest().body("Login error");
+        if(!customerAccount.getCustomerId().equals(account.getCustomer().getCustomerId()))
+            return ResponseEntity.badRequest().body("Account doesn't belong to logged in user");
+
+        int customerId = customerAccount.getCustomerId();
 
         // Comprobar que el usuario loggeado pueda acceder a la cuenta (evitamos accesos a cuentas de otras personas)
-        Account account = accountOptional.get();
+
         if (!account.getCustomer().getCustomerId().equals(customerId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You cannot access someone else's account");
 
