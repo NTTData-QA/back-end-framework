@@ -174,7 +174,7 @@ public class TransferController {
         }
     }
 
-    @GetMapping("api/transfer/history/{accountId}") // Obtener el historial de transacciones de una cuenta
+    @GetMapping("api/transfers/history/{accountId}") // Obtener el historial de transacciones de una cuenta
     public ResponseEntity<?> getTransferHistory(@PathVariable Integer accountId) {
         // Comprobar que la cuenta exista
         Optional<Account> accountOptional = accountRepository.findByAccountId(accountId);
