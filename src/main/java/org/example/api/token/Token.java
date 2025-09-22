@@ -28,12 +28,11 @@ public class Token {
     public String generateToken(String customerEmail) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
-        // TODO obtener rol del usuario con email customerEmail
+
         Customer customer = customerService.findByEmail(customerEmail)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
         String role = customer.getRole().name();
 
-        // TODO incluir rol en el token
         return Jwts.builder()
                 .setSubject(customerEmail)
                 .claim("role", role)
