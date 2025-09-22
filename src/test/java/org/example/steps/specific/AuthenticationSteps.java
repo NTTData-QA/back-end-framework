@@ -47,7 +47,12 @@ public class AuthenticationSteps extends AbstractSteps {
     public void registerUser(String name, String surname, String email, String password) {
         testContext().setRegisteredEmail(email);
         response = bankService.doRegister(name, surname, email, password);
+        Customer customer = bankService.registerCustomer(342,name, surname, email, password);
+        testContext().setCustomer(customer);
         testContext().setResponse(response);
+        System.out.println("************************************");
+        System.out.println(customer);
+        System.out.println("************************************");
         bankService.doLogin(email,password);
         testContext().setBankService(bankService);
     }
@@ -134,5 +139,20 @@ public class AuthenticationSteps extends AbstractSteps {
         } else {
             System.out.println("No user to delete, registeredEmail is null");
         }
+    }
+
+    @When("The customer deletes his customer registration by id")
+    public void theCustomerDeleteHisCustomerRegistrationById() {
+        Integer customerId = testContext().getCustomer().getCustomerId();
+        proxy = bankService.proxy;
+        if (customerId != null) {
+            Response deleteResponse = proxy.deleteCustomerById(customerId);
+            int statusCode = deleteResponse.getStatus();
+            System.out.println("Delete response status code: " + statusCode);
+            Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+        } else {
+            System.out.println("No user to delete, customerId is null");
+        }
+        testContext().setResponse(response);
     }
 }

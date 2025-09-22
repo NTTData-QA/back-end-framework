@@ -235,7 +235,7 @@ public interface BankAPI {
     @DELETE
     @Path("/public/customer/delete/{customerId}")
     @Produces(MediaType.TEXT_PLAIN)
-    Response deleteById(@PathParam("customerId") int customerId);
+    Response deleteCustomerById(@PathParam("customerId") int customerId);
 
     @PATCH
     @Path("/api/card/update/dailyLimit/{cardId}")

@@ -46,6 +46,18 @@ public class BankService {
         return response;
     }
 
+    public Customer registerCustomer(Integer id, String name, String surname, String email, String password){
+        BankAPI proxy = client.getAPI();
+        Customer customer= new Customer();
+        customer.setName(name);
+        customer.setSurname(surname);
+        customer.setEmail(email);
+        customer.setPassword(password);
+        customer.setCustomerId(id);
+        response = proxy.addCustomer(customer);
+        return customer;
+    }
+
     // Register a new customer randomly generated
     public Customer registerRandomCustomer(){
         Customer customer = Generator.generateRandomCustomer(0,0);

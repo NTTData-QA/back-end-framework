@@ -32,9 +32,15 @@ public class CustomerController {
     this.customerService = customerService;
   }
 
+
   @GetMapping("/api/customer/{id}")   // get 1 customer by customerId
-  public Optional<Customer> customer(@PathVariable Integer id) {
-    return customerService.findById(id);
+  public ResponseEntity<Customer> customer(@PathVariable Integer id) {
+    if (customerRepository.existsById(id)){
+      Optional<Customer> customer = customerService.findById(id);
+      return ResponseEntity.ok(customer.get());
+    } else {
+      return ResponseEntity.status(404).build();
+    }
   }
 
   @GetMapping("/api/customer/email/{email}")   // get 1 customer by customerId

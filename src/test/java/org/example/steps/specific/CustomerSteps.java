@@ -19,6 +19,7 @@ import org.example.context.AbstractSteps;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 
@@ -31,10 +32,12 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CustomerSteps extends AbstractSteps {
+    private Response response;
     private BankService bankService = testContext().getBankService();
     @Autowired private CustomerService customerService;
     private BankAPI proxy = bankService.proxy;
     private Customer randomCustomer = testContext().getCustomer();  // Mantén el cliente como estado de la clase
+    private Integer customerId = testContext().getCustomer().getCustomerId();
 
     @When("The customer updates their name to {string} and surname {string}")
     public void updateCustomerNameAndSurname(String name, String surname) {
@@ -96,4 +99,7 @@ public class CustomerSteps extends AbstractSteps {
             System.out.println("Customer update failed.");
         }
     }
+
+
+
 }
