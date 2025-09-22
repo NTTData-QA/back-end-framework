@@ -41,6 +41,7 @@ public class Customer {
     public enum UserType {
         ADMIN,          // Administrator
         USER,           // Default Customer
+        // Could add minor user, not letting them do transfers and needing a grown-up user as co-owner of account (Account need List as customerIds)
     }
 
     @JsonIgnore
