@@ -140,6 +140,7 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @After
     public void deleteRegisteredUser() {
+
         // NO resetear el contexto todavía: necesitamos email y cards
         String registeredEmail = testContext().getRegisteredEmail();
         proxy = bankService.proxy; // usar el proxy autenticado actual
