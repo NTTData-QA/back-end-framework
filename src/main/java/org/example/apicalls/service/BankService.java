@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
+import org.example.api.data.request.AccountRequest;
 import org.example.api.data.request.CardRequest;
 import org.example.api.data.request.LoginRequest;
 import org.example.api.data.request.TransferRequest;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @ComponentScan(basePackages = "org.example.apicalls.service")
@@ -212,5 +214,27 @@ public class BankService {
 
     public Response doDeleteAccountsOfLoggedUser() {
         return proxy.deleteCardsOfLoggedUser(null);
+    }
+
+    public Response doUpdateExpirationDate(int accountId) {
+        return proxy.expirationDateUpdate(accountId, null);
+    }
+
+    public Response doUpdateAccountType(int accountId, Account.AccountType accountType) {
+        AccountRequest accountRequest = new AccountRequest();
+        accountRequest.setAccountType(accountType);
+        return proxy.accountTypeUpdate(accountId, accountRequest,null);
+    }
+
+    public Response doUpdateBlockStatus(int accountId, boolean setBlocked) {
+        AccountRequest accountRequest = new AccountRequest();
+        accountRequest.setIsBlocked(setBlocked);
+        return proxy.isBlockUpdate(accountId, accountRequest, null);
+    }
+
+    public Response doUpdateDebtStatus(int accountId, boolean setDebt) {
+        AccountRequest accountRequest = new AccountRequest();
+        accountRequest.setIsBlocked(setDebt);
+        return proxy.isInDebtUpdate(accountId, accountRequest, null);
     }
 }
