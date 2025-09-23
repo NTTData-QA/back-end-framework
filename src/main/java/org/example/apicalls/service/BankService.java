@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 @ComponentScan(basePackages = "org.example.apicalls.service")
@@ -98,10 +99,31 @@ public class BankService {
 
 
 
-    public Response doLogin (String email, String password){
+    public Response doLogin ( String email, String password){
 
         proxy = client.getAPI();
         LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(email);
+        loginRequest.setPassword(password);
+        response = proxy.login(loginRequest, null);
+        System.out.println("HTTP Status: "+ response.getStatus());
+
+        if (response.getStatus() == 200) {
+            Map<String, NewCookie> cookies = response.getCookies();
+            NewCookie newCookie = cookies.entrySet().iterator().next().getValue();
+            proxy = client.getAPI(newCookie);
+        }
+
+        return response;
+    }
+
+    public Response doLoginWithId(String email, String password){
+
+        proxy = client.getAPI();
+        LoginRequest loginRequest = new LoginRequest();
+        Random rand = new Random(System.currentTimeMillis());
+        int id = rand.nextInt(999);
+        loginRequest.setId(id);
         loginRequest.setEmail(email);
         loginRequest.setPassword(password);
         response = proxy.login(loginRequest, null);

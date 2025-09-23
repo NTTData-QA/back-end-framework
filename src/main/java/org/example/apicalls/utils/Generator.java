@@ -188,11 +188,11 @@ public class Generator {
 
     public static Customer generateRandomCustomer(int nCards, int nAccounts) {
         Customer customer = new Customer();
+        customer.setCustomerId(generateRandomInt(3, 999));
         customer.setName(generateRandomString(nameLength));
         customer.setSurname(generateRandomString(nameLength));
         customer.setEmail(generateRandomGmail(nameLength));
         customer.setPassword(generateRandomPassword(passwordLength));
-
         List<Account> accounts = new java.util.ArrayList<>(List.of());
         int n = 0;
 

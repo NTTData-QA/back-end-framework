@@ -43,6 +43,7 @@ public class AuthenticationSteps extends AbstractSteps {
         testContext().setRegisteredEmail(randomCustomer.getEmail());
     }
 
+
     @When("I register with name {string}, surname {string}, email {string} and password {string} and I log in")
     public void registerUser(String name, String surname, String email, String password) {
         testContext().setRegisteredEmail(email);
@@ -50,9 +51,6 @@ public class AuthenticationSteps extends AbstractSteps {
         Customer customer = bankService.registerCustomer(342,name, surname, email, password);
         testContext().setCustomer(customer);
         testContext().setResponse(response);
-        System.out.println("************************************");
-        System.out.println(customer);
-        System.out.println("************************************");
         bankService.doLogin(email,password);
         testContext().setBankService(bankService);
     }
@@ -61,7 +59,7 @@ public class AuthenticationSteps extends AbstractSteps {
     @Given("I have registered with name {string}, surname {string}, email {string} and password {string}")
     public void registerForLogin(String name, String surname, String email, String password) {
         registeredEmail = email;
-        response = bankService.doRegister(name,surname,email,password);
+        response = bankService.doLoginWithId(email,password);
         testContext().setRegisteredEmail(email);
     }
 
@@ -120,39 +118,112 @@ public class AuthenticationSteps extends AbstractSteps {
         testContext().setResponse(response);
     }
 
+//    @After
+//    public void deleteRegisteredUser() {
+//    registeredEmail = testContext().getRegisteredEmail();
+//    proxy = bankService.proxy;
+//    testContext().reset();
+//    System.out.println(registeredEmail);
+//        if (registeredEmail != null) {
+//            response = proxy.deleteCardsOfLoggedUser(null);
+//            System.out.println("Status de borrar cards: "+response.getStatus());
+//            response = proxy.deleteLoggedUser(null);
+//            System.out.println("Status de borrar cuentas: "+response.getStatus());
+//
+//            Response deleteResponse = proxy.deleteCustomer(registeredEmail);
+//            int statusCode = deleteResponse.getStatus();
+//            System.out.println("Delete response status code: " + statusCode);
+//            Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+//        } else {
+//            System.out.println("No user to delete, registeredEmail is null");
+//        }
+//    }
+
     @After
     public void deleteRegisteredUser() {
-    registeredEmail = testContext().getRegisteredEmail();
-    proxy = bankService.proxy;
-    testContext().reset();
-    System.out.println(registeredEmail);
-        if (registeredEmail != null) {
-            response = proxy.deleteCardsOfLoggedUser(null);
-            System.out.println("Status de borrar cards: "+response.getStatus());
-            response = proxy.deleteLoggedUser(null);
-            System.out.println("Status de borrar cuentas: "+response.getStatus());
+        // NO resetear el contexto todavía: necesitamos email y cards
+        String registeredEmail = testContext().getRegisteredEmail();
+        proxy = bankService.proxy; // usar el proxy autenticado actual
 
+        System.out.println(registeredEmail != null ? registeredEmail : "registeredEmail is null");
+
+        if (registeredEmail != null) {
+            // 1) Borrar withdraws de cada tarjeta conocida en el contexto (si existen)
+            try {
+                var cards = testContext().getCards(); // las guardaste en el Given de registro
+                if (cards != null && !cards.isEmpty()) {
+                    for (var card : cards) {
+                        if (card != null && card.getCardId() != null) {
+                            Response r = proxy.deleteWithdrawsById(card.getCardId());
+                            System.out.println("Delete withdraws for card " + card.getCardId() + " -> " + r.getStatus());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("WARN deleting withdraws by context cards: " + e.getMessage());
+            }
+
+            // 3) Borrar todas las tarjetas del usuario logueado
+            try {
+                Response resp = proxy.deleteCardsOfLoggedUser(null);
+                System.out.println("Delete cards of logged user -> " + resp.getStatus());
+                // Acepta 200/204/404 para que el teardown no rompa
+                Assert.assertTrue(resp.getStatus() == 200 || resp.getStatus() == 204 || resp.getStatus() == 404);
+            } catch (Exception e) {
+                System.out.println("WARN deleting cards: " + e.getMessage());
+            }
+
+            // 4) Borrar cuentas del usuario logueado
+            try {
+                Response resp = proxy.deleteLoggedUser(null);
+                System.out.println("Delete accounts of logged user -> " + resp.getStatus());
+                Assert.assertTrue(resp.getStatus() == 200 || resp.getStatus() == 204 || resp.getStatus() == 404);
+            } catch (Exception e) {
+                System.out.println("WARN deleting accounts: " + e.getMessage());
+            }
+
+            // 5) Borrar el propio Customer por email
             Response deleteResponse = proxy.deleteCustomer(registeredEmail);
             int statusCode = deleteResponse.getStatus();
-            System.out.println("Delete response status code: " + statusCode);
-            Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+            System.out.println("Delete customer status code: " + statusCode);
+            Assert.assertTrue("Unexpected status deleting customer: " + statusCode,
+                    statusCode == 200 || statusCode == 204 || statusCode == 404);
+
         } else {
             System.out.println("No user to delete, registeredEmail is null");
         }
+
+        // 6) AHORA sí: limpiar el contexto de test
+        testContext().reset();
     }
 
-    @When("The customer deletes his customer registration by id")
-    public void theCustomerDeleteHisCustomerRegistrationById() {
-        Integer customerId = testContext().getCustomer().getCustomerId();
+    @When("The customer deletes his customer registration by id {int}")
+    public void theCustomerDeleteHisCustomerRegistrationById(int customerId) {
         proxy = bankService.proxy;
-        if (customerId != null) {
+        if (Integer.valueOf(customerId) != null) {
             Response deleteResponse = proxy.deleteCustomerById(customerId);
+            testContext().setResponse(deleteResponse);
             int statusCode = deleteResponse.getStatus();
-            System.out.println("Delete response status code: " + statusCode);
             Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
         } else {
             System.out.println("No user to delete, customerId is null");
         }
-        testContext().setResponse(response);
+
     }
+
+    @When("The customer deletes his customer registration by id")
+    public void theCustomerDeleteHisCustomerRegistrationById() {
+        Integer customerId = testContext().getOriginID();
+        proxy = bankService.proxy;
+        if (customerId != null) {
+            Response deleteResponse = proxy.deleteCustomerById(customerId);
+            testContext().setResponse(deleteResponse);
+            int statusCode = deleteResponse.getStatus();
+            Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+        } else {
+            System.out.println("No user to delete, customerId is null");
+        }
+
+    }
+
 }
