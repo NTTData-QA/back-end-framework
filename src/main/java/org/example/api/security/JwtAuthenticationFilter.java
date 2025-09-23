@@ -43,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwt != null && token.validateToken(jwt)) {
             // Si el token es válido, permite la ejecución de la petición
                 String email = Token.getCustomerEmailFromJWT(jwt);
+                String role = Token.getCustomerRoleFromJWT(jwt);
 
             //Verifica si el cliente esta autenticado o no
             if(SecurityContextHolder.getContext().getAuthentication() == null){
@@ -50,11 +51,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (optionalCustomer.isPresent()){
                     Customer customer = optionalCustomer.get();
+                    String authorityName = "ROLE_" + (role == null ? "USER" : role.toUpperCase());
 
                     UserDetails userDetails = new org.springframework.security.core.userdetails.User(
                             customer.getCustomerId().toString(),
                             customer.getPassword(),
-                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                            Collections.singletonList(new SimpleGrantedAuthority(authorityName)));
 
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

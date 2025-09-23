@@ -1,5 +1,6 @@
 package org.example.api.security;
 
+import jakarta.ws.rs.HttpMethod;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 @EnableMethodSecurity
@@ -30,6 +32,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public/**","/api/logout").permitAll()
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
+                        //REGLAS POR ROL - SOLO PRUEBAS
+                        .requestMatchers("api/customer/**").hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/accounts/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/accounts").hasAnyRole("USER","ADMIN")
                         .anyRequest().authenticated() // Permitir todas las solicitudes sin verificación de autenticación.
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado para evitar manejo de sesión
