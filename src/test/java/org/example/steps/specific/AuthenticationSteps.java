@@ -120,25 +120,61 @@ public class AuthenticationSteps extends AbstractSteps {
         testContext().setResponse(response);
     }
 
+//    @After
+//    public void deleteRegisteredUser() {
+//    registeredEmail = testContext().getRegisteredEmail();
+//    proxy = bankService.proxy;
+//    testContext().reset();
+//    System.out.println(registeredEmail);
+//        if (registeredEmail != null) {
+//            response = proxy.deleteCardsOfLoggedUser(null);
+//            System.out.println("Status de borrar cards: "+response.getStatus());
+//            response = proxy.deleteLoggedUser(null);
+//            System.out.println("Status de borrar cuentas: "+response.getStatus());
+//
+//            Response deleteResponse = proxy.deleteCustomer(registeredEmail);
+//            int statusCode = deleteResponse.getStatus();
+//            System.out.println("Delete response status code: " + statusCode);
+//            Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+//        } else {
+//            System.out.println("No user to delete, registeredEmail is null");
+//        }
+//    }
+
     @After
     public void deleteRegisteredUser() {
-    registeredEmail = testContext().getRegisteredEmail();
-    proxy = bankService.proxy;
-    testContext().reset();
-    System.out.println(registeredEmail);
-        if (registeredEmail != null) {
-            response = proxy.deleteCardsOfLoggedUser(null);
-            System.out.println("Status de borrar cards: "+response.getStatus());
-            response = proxy.deleteLoggedUser(null);
-            System.out.println("Status de borrar cuentas: "+response.getStatus());
+        registeredEmail = testContext().getRegisteredEmail();
+        proxy = bankService.proxy;
+        System.out.println(registeredEmail != null ? registeredEmail : "registeredEmail is null");
 
-            Response deleteResponse = proxy.deleteCustomer(registeredEmail);
-            int statusCode = deleteResponse.getStatus();
-            System.out.println("Delete response status code: " + statusCode);
-            Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+        if (registeredEmail != null) {
+            // Borrar withdraws de las tarjetas registradas
+            var cards = testContext().getCards();
+            if (cards != null) {
+                for (var card : cards) {
+                    if (card != null && card.getCardId() != null) {
+                        Response deleteWithdrawsResponse = proxy.deleteWithdrawsById(card.getCardId());
+                        System.out.println("Delete withdraws for card " + card.getCardId() + " -> " + deleteWithdrawsResponse.getStatus());
+                    }
+                }
+            }
+
+            // Ejecuta y loguea cualquier borrado, validando que sea 200
+            Response deleteCardsResponse = proxy.deleteCardsOfLoggedUser(null);
+            System.out.println("Delete cards -> " + deleteCardsResponse.getStatus());
+            assertEquals(200, deleteCardsResponse.getStatus());
+
+            Response deleteLoggedUserResponse = proxy.deleteLoggedUser(null);
+            System.out.println("Delete accounts -> " + deleteLoggedUserResponse.getStatus());
+            assertEquals(200, deleteLoggedUserResponse.getStatus());
+
+            Response deleteCustomerResponse = proxy.deleteCustomer(registeredEmail);
+            System.out.println("Delete customer -> " + deleteCustomerResponse.getStatus());
+            assertEquals(200, deleteCustomerResponse.getStatus());
         } else {
             System.out.println("No user to delete, registeredEmail is null");
         }
+        testContext().reset();
     }
 
     @When("The customer deletes his customer registration by id")
@@ -155,4 +191,5 @@ public class AuthenticationSteps extends AbstractSteps {
         }
         testContext().setResponse(response);
     }
+
 }
