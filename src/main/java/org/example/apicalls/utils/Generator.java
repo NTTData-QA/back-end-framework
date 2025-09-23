@@ -17,6 +17,7 @@ import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
+import org.example.api.data.request.CardRequest;
 import org.jetbrains.annotations.NotNull;
 
 public class Generator {
@@ -175,6 +176,27 @@ public class Generator {
     public static Card generateRandomCard(Account account) {
         Card card = new Card();
         card.setType(randomlyChooseFrom("Credit", "Debit"));
+        card.setCvc(generateRandomInt(100, 999));
+        card.setNumber(generateRandomCardNumber());
+        card.setExpirationDate(generateRandomFutureDate());
+        card.setAccount(account);
+        card.setIsBlocked(Boolean.FALSE);
+        card.setDailyLimit(500.);
+        card.setMonthlyLimit(2000.70);
+
+        return card;
+    }
+
+
+    public static Card generateCardType(Account account, CardRequest cardRequest) {
+        Card card = new Card();
+        String type;
+        if (cardRequest.getType().equals("Credit") || cardRequest.getType().equals("Debit")){
+            type = cardRequest.getType();
+        }else {
+            type = randomlyChooseFrom("Credit", "Debit");
+        }
+        card.setType(type);
         card.setCvc(generateRandomInt(100, 999));
         card.setNumber(generateRandomCardNumber());
         card.setExpirationDate(generateRandomFutureDate());

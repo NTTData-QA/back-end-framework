@@ -242,13 +242,13 @@ public interface BankAPI {
     @Path("/api/card/update/dailyLimit/{cardId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    Response updateDailyLimit(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+    Response updateDailyLimit(@PathParam("cardId") Integer cardId,@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
 
     @PATCH
     @Path("/api/card/update/monthlyLimit/{cardId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    Response updateMonthlyLimit(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+    Response updateMonthlyLimit(@PathParam("cardId") Integer cardId,@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
 
 }
 
