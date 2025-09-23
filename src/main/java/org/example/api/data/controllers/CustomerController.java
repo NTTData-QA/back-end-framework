@@ -44,7 +44,7 @@ public class CustomerController {
     return customerService.findAll();
   }
 
-  @DeleteMapping("/public/customer/{email}")
+  @DeleteMapping("/api/customer/{email}")
   public ResponseEntity<String> deleteCustomer(@PathVariable String email) {
     try {
       boolean isDeleted = customerService.deleteByEmail(email);

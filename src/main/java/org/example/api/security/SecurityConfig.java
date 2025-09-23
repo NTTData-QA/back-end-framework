@@ -1,5 +1,6 @@
 package org.example.api.security;
 
+import jakarta.ws.rs.HttpMethod;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -14,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 @EnableMethodSecurity
@@ -28,8 +30,44 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 // Configuración para permitir ciertas rutas sin verificación
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**","/api/logout").permitAll()
+                        //endpoints públicos
+                        .requestMatchers("/public/**","/public/logout").permitAll()
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
+                        //REGLAS POR ROL
+                        .requestMatchers(new RegexRequestMatcher("^/api/customer/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/customer/email/[^/]+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/account/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/accounts/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/amount/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/card/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/cards/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/transfers/received/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/transfers/sent/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/transfer/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/account/deposit/\\d+$", "PATCH")).hasAnyRole("USER","ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/account/withdraw/\\d+$", "PATCH")).hasAnyRole("USER","ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/customer/[^/]+$", "DELETE")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/account/delete/\\d+$", "DELETE")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/account/delete/customer/\\d+$", "DELETE")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/card/delete/\\d+$", "DELETE")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/card/delete/account/\\d+$", "DELETE")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/card/delete/customer/\\d+$", "DELETE")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/transfer/\\d+$", "DELETE")).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/customers").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/accounts").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/accounts/amount").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/BDcards").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/cards").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/transfers/received/all").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/“/api/account/new”").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/“/api/card/new”").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/“/api/transfer/new”").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/customer/update/email").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/customer/update/password").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/customer/update/nameandsurname").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/account/delete").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/card/delete").hasAnyRole("USER","ADMIN")
+
                         .anyRequest().authenticated() // Permitir todas las solicitudes sin verificación de autenticación.
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin estado para evitar manejo de sesión

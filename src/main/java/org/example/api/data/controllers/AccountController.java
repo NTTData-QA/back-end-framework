@@ -16,6 +16,8 @@ import org.example.api.service.CustomerService;
 import org.example.api.token.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -112,7 +114,7 @@ public class AccountController {
         return account.getAmount() < 0;
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/amount/{accountId}")  // get amount by accountId
     public Double amountOfAccount(@PathVariable Integer accountId) {
         return accountService.findById(accountId).get().getAmount();
