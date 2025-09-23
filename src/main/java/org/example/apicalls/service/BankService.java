@@ -42,18 +42,23 @@ public class BankService {
         customer.setSurname(surname);
         customer.setEmail(email);
         customer.setPassword(password);
+        Random rand = new Random(System.currentTimeMillis());
+        int id = rand.nextInt(999);
+        customer.setCustomerId(id);
 
         response = proxy.addCustomer(customer);
         return response;
     }
 
-    public Customer registerCustomer(Integer id, String name, String surname, String email, String password){
+    public Customer registerCustomer(String name, String surname, String email, String password){
         BankAPI proxy = client.getAPI();
         Customer customer= new Customer();
         customer.setName(name);
         customer.setSurname(surname);
         customer.setEmail(email);
         customer.setPassword(password);
+        Random rand = new Random(System.currentTimeMillis());
+        int id = rand.nextInt(999);
         customer.setCustomerId(id);
         response = proxy.addCustomer(customer);
         return customer;
@@ -121,9 +126,7 @@ public class BankService {
 
         proxy = client.getAPI();
         LoginRequest loginRequest = new LoginRequest();
-        Random rand = new Random(System.currentTimeMillis());
-        int id = rand.nextInt(999);
-        loginRequest.setId(id);
+
         loginRequest.setEmail(email);
         loginRequest.setPassword(password);
         response = proxy.login(loginRequest, null);
