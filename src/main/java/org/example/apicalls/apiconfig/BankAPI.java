@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
+import org.example.api.data.request.AccountRequest;
 import org.example.api.data.request.CardRequest;
 import org.example.api.data.request.LoginRequest;
 import org.example.api.data.request.TransferRequest;
@@ -220,17 +221,17 @@ public interface BankAPI {
     @Path("/api/account/accountType/{accountId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    Response accountTypeUpdate(@PathParam("accountId") int accountId, @Context HttpServletRequest httpServletRequest);
+    Response accountTypeUpdate(@PathParam("accountId") int accountId,AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
 
     @PATCH
     @Path("/api/account/isBlock/{accountId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    Response isBlockUpdate(@PathParam("accountId") int accountId, @Context HttpServletRequest httpServletRequest);
+    Response isBlockUpdate(@PathParam("accountId") int accountId, AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
 
     @PATCH
     @Path("/api/account/isInDebt/{accountId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    Response isInDebtUpdate(@PathParam("accountId") int accountId, @Context HttpServletRequest httpServletRequest);
+    Response isInDebtUpdate(@PathParam("accountId") int accountId,AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
 }
