@@ -54,6 +54,9 @@ public class CardController {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
     @Autowired  private CardService cardService;
 
     @Autowired
@@ -104,6 +107,15 @@ public class CardController {
         // Verifying correct account data
         if (!account.isPresent()) {
             return ResponseEntity.badRequest().body("Error creating card: account not found");
+        }
+        //verificar que la cuenta pertenece al usuario logeado
+        List<Account> lista = accountRepository.findByCustomer_CustomerId(customerId);
+        List<Integer> lista1 = new ArrayList<>();
+        for (Account r : lista){
+            lista1.add(r.getAccountId());
+        }
+        if(!lista1.contains(cardRequest.getAccountId())){
+            return ResponseEntity.badRequest().body("Error creating card: you can only create card to your account");
         }
 
         Card newCard = Generator.generateCardType(account.get(), cardRequest);
