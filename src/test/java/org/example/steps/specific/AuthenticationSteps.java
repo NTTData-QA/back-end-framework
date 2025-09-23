@@ -48,9 +48,10 @@ public class AuthenticationSteps extends AbstractSteps {
     public void registerUser(String name, String surname, String email, String password) {
         testContext().setRegisteredEmail(email);
         response = bankService.doRegister(name, surname, email, password);
+        Customer customer = bankService.registerCustomer(342,name, surname, email, password);
+        testContext().setCustomer(customer);
         testContext().setResponse(response);
-
-        bankService.doLoginWithId(email,password);
+        bankService.doLogin(email,password);
         testContext().setBankService(bankService);
     }
 
@@ -58,7 +59,7 @@ public class AuthenticationSteps extends AbstractSteps {
     @Given("I have registered with name {string}, surname {string}, email {string} and password {string}")
     public void registerForLogin(String name, String surname, String email, String password) {
         registeredEmail = email;
-        response = bankService.doLogin(email,password);
+        response = bankService.doLoginWithId(email,password);
         testContext().setRegisteredEmail(email);
     }
 
@@ -245,9 +246,8 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @When("The customer deletes his customer registration by id")
     public void theCustomerDeleteHisCustomerRegistrationById() {
-        Integer customerId = testContext().getCustomer().getCustomerId();
+        Integer customerId = testContext().getOriginID();
         proxy = bankService.proxy;
-        System.out.println(customerId);
         if (customerId != null) {
             Response deleteResponse = proxy.deleteCustomerById(customerId);
             testContext().setResponse(deleteResponse);

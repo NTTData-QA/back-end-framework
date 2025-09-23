@@ -37,7 +37,7 @@ public class CustomerService {
     if(customerRepository.existsByEmail(cust.getEmail())){
       throw new IllegalArgumentException("Email already registered.");
     }
-    return save(cust);
+    return customerRepository.save(cust);
   }
 
   public Optional<Customer> findByEmail(String email) {

@@ -1,9 +1,10 @@
 Feature: Delete a customer
 
   Scenario: Register a new customer with a new account and delete his customer registration by id
-    Given I register with name "Paula", surname "Calvente", email "paula@example.com" and password "password" and I log in
+    Given I have registered with name "paula", surname "Calvente", email "paula@example.com" and password "password"
+    And I login with email "paula@example.com" and password "password"
     When The customer deletes his customer registration by id
-    Then The customer gets a 204 status response
+    Then The customer gets a 200 status response
 
 
 

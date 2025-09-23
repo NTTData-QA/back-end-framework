@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 @ComponentScan(basePackages = "org.example.apicalls.service")
@@ -41,18 +42,23 @@ public class BankService {
         customer.setSurname(surname);
         customer.setEmail(email);
         customer.setPassword(password);
+        Random rand = new Random(System.currentTimeMillis());
+        int id = rand.nextInt(999);
+        customer.setCustomerId(id);
 
         response = proxy.addCustomer(customer);
         return response;
     }
 
-    public Customer registerCustomer(Integer id, String name, String surname, String email, String password){
+    public Customer registerCustomer(String name, String surname, String email, String password){
         BankAPI proxy = client.getAPI();
         Customer customer= new Customer();
         customer.setName(name);
         customer.setSurname(surname);
         customer.setEmail(email);
         customer.setPassword(password);
+        Random rand = new Random(System.currentTimeMillis());
+        int id = rand.nextInt(999);
         customer.setCustomerId(id);
         response = proxy.addCustomer(customer);
         return customer;
@@ -98,7 +104,7 @@ public class BankService {
 
 
 
-    public Response doLogin (String email, String password){
+    public Response doLogin ( String email, String password){
 
         proxy = client.getAPI();
         LoginRequest loginRequest = new LoginRequest();
