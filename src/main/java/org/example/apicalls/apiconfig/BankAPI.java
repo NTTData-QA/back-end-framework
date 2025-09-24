@@ -193,7 +193,7 @@ public interface BankAPI {
 
     @DELETE
     @Path("/api/card/delete/customer/{customerId}")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCardsOfCustomer(@PathParam("customerId") int customerId);
 
@@ -234,6 +234,7 @@ public interface BankAPI {
 
     @DELETE
     @Path("/public/customer/delete/{customerId}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCustomerById(@PathParam("customerId") int customerId);
 
