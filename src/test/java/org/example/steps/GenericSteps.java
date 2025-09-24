@@ -81,6 +81,7 @@ public class GenericSteps extends AbstractSteps {
         }
 
         testContext().setCards(cards);
+
     }
 
 
