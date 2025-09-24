@@ -61,6 +61,15 @@ public class AuthenticationSteps extends AbstractSteps {
         registeredEmail = email;
         response = bankService.doRegister(name,surname,email,password);
         testContext().setRegisteredEmail(email);
+
+        // --> Hidratar customerId
+        Response r = bankService.proxy.getCustomerByEmail(email);
+        if (r.getStatus() == 200) {
+            Customer c = r.readEntity(Customer.class);
+            if (c != null && c.getCustomerId() != null) {
+                testContext().setOriginID(c.getCustomerId()); // ahora OriginID = customerId
+            }
+        }
     }
 
     @Given("the system is ready and i log with email {string} and password {string}")
@@ -75,6 +84,15 @@ public class AuthenticationSteps extends AbstractSteps {
         response = bankService.doLogin(email,password);
         testContext().setResponse(response);
         testContext().setBankService(bankService);
+
+        // --> Hidratar customerId
+        Response r = bankService.proxy.getCustomerByEmail(email);
+        if (r.getStatus() == 200) {
+            Customer c = r.readEntity(Customer.class);
+            if (c != null && c.getCustomerId() != null) {
+                testContext().setOriginID(c.getCustomerId()); // ahora OriginID = customerId
+            }
+        }
     }
 
     @Given("I have logged in with email {string} and password {string}")
@@ -140,7 +158,7 @@ public class AuthenticationSteps extends AbstractSteps {
 //        }
 //    }
 
-    @After
+    @After("not @NoCleanup")
     public void deleteRegisteredUser() {
 
         // NO resetear el contexto todavía: necesitamos email y cards
