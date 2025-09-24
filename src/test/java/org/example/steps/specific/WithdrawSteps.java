@@ -79,7 +79,7 @@ public class WithdrawSteps extends AbstractSteps {
     }
   }
 
-  @And("I update the daily limit to {double} for the current card")
+  @When("I update the daily limit to {double} for the current card")
   public void iUpdateDailyLimit(double newLimit) {
     assertNotNull("No hay cardId en contexto (usa 'I set the test cardId ...')", currentCardId);
     UpdateRequest ur = new UpdateRequest();
