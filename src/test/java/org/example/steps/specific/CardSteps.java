@@ -1,9 +1,11 @@
 package org.example.steps.specific;
 
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Card;
+import org.example.api.data.request.CardRequest;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.apicalls.utils.JsonConverter;
@@ -34,4 +36,14 @@ public class CardSteps extends AbstractSteps {
 
         testContext().setResponse(response);
     }
+    @When("I create a card to the account: {int}")
+    public void iCreateaCardToTheAccount(int accountId){
+        CardRequest cardRequest = new CardRequest();
+        cardRequest.setType("Debit");
+        cardRequest.setAccountId(accountId);
+        response = proxy.newCard(cardRequest);
+        testContext().setResponse(response);
+
+    }
+
 }
