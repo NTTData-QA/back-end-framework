@@ -48,8 +48,6 @@ public class AuthenticationSteps extends AbstractSteps {
     public void registerUser(String name, String surname, String email, String password) {
         testContext().setRegisteredEmail(email);
         response = bankService.doRegister(name, surname, email, password);
-        Customer customer = bankService.registerCustomer(name, surname, email, password);
-        testContext().setCustomer(customer);
         testContext().setResponse(response);
         bankService.doLogin(email,password);
         testContext().setBankService(bankService);

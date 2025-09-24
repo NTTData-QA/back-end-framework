@@ -50,19 +50,19 @@ public class BankService {
         return response;
     }
 
-    public Customer registerCustomer(String name, String surname, String email, String password){
-        BankAPI proxy = client.getAPI();
-        Customer customer= new Customer();
-        customer.setName(name);
-        customer.setSurname(surname);
-        customer.setEmail(email);
-        customer.setPassword(password);
-        Random rand = new Random(System.currentTimeMillis());
-        int id = rand.nextInt(999);
-        customer.setCustomerId(id);
-        response = proxy.addCustomer(customer);
-        return customer;
-    }
+//    public Customer registerCustomer(String name, String surname, String email, String password){
+//        BankAPI proxy = client.getAPI();
+//        Customer customer= new Customer();
+//        customer.setName(name);
+//        customer.setSurname(surname);
+//        customer.setEmail(email);
+//        customer.setPassword(password);
+//        Random rand = new Random(System.currentTimeMillis());
+//        int id = rand.nextInt(999);
+//        customer.setCustomerId(id);
+//        response = proxy.addCustomer(customer);
+//        return customer;
+//    }
 
     // Register a new customer randomly generated
     public Customer registerRandomCustomer(){
