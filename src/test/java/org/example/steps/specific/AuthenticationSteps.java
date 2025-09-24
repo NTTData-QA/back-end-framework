@@ -48,7 +48,7 @@ public class AuthenticationSteps extends AbstractSteps {
     public void registerUser(String name, String surname, String email, String password) {
         testContext().setRegisteredEmail(email);
         response = bankService.doRegister(name, surname, email, password);
-        Customer customer = bankService.registerCustomer(342,name, surname, email, password);
+        Customer customer = bankService.registerCustomer(name, surname, email, password);
         testContext().setCustomer(customer);
         testContext().setResponse(response);
         bankService.doLogin(email,password);
@@ -59,7 +59,7 @@ public class AuthenticationSteps extends AbstractSteps {
     @Given("I have registered with name {string}, surname {string}, email {string} and password {string}")
     public void registerForLogin(String name, String surname, String email, String password) {
         registeredEmail = email;
-        response = bankService.doLoginWithId(email,password);
+        response = bankService.doRegister(name,surname,email,password);
         testContext().setRegisteredEmail(email);
     }
 
@@ -80,6 +80,7 @@ public class AuthenticationSteps extends AbstractSteps {
     @Given("I have logged in with email {string} and password {string}")
     public void loginUserForLogout(String email, String password) {
         response = bankService.doLogin(email,password);
+        System.out.println(response.readEntity(String.class));
         testContext().setResponse(response);
         testContext().setBankService(bankService);
     }
