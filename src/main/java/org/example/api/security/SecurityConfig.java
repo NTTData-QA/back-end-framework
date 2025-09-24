@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(new RegexRequestMatcher("^/api/cards/\\d+$", "GET")).hasRole("ADMIN")
                         .requestMatchers(new RegexRequestMatcher("^/api/transfers/received/\\d+$", "GET")).hasRole("ADMIN")
                         .requestMatchers(new RegexRequestMatcher("^/api/transfers/sent/\\d+$", "GET")).hasRole("ADMIN")
-                        .requestMatchers(new RegexRequestMatcher("^/api/transfer/\\d+$", "GET")).hasRole("ADMIN")
+                        .requestMatchers(new RegexRequestMatcher("^/api/transfer/\\d+$", "GET")).hasAnyRole("USER","ADMIN")
                         .requestMatchers(new RegexRequestMatcher("^/api/account/deposit/\\d+$", "PATCH")).hasAnyRole("USER","ADMIN")
                         .requestMatchers(new RegexRequestMatcher("^/api/account/withdraw/\\d+$", "PATCH")).hasAnyRole("USER","ADMIN")
                         .requestMatchers(new RegexRequestMatcher("^/api/customer/[^/]+$", "DELETE")).hasRole("ADMIN")
