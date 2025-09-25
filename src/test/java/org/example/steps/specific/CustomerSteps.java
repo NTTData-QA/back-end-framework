@@ -102,15 +102,12 @@ public class CustomerSteps extends AbstractSteps {
         response = testContext().getResponse();
         try {
             assertEquals(200, response.getStatus());
-
             List<Customer> customers = response.readEntity(new GenericType<List<Customer>>() {});
             assertNotNull(customers);
             assertFalse(customers.isEmpty());
             for (Customer c: customers) {
                 System.out.println(c.toString());
             }
-
-            //System.out.println(response.readEntity(String.class));
         } catch (Error e) {
             String mensaje = response.readEntity(String.class);
             System.out.println("Test fallido. Código de error: " + response.getStatus());

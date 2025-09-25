@@ -50,7 +50,9 @@ public class Customer {
 
     @JsonProperty(value = "accountIds", access = JsonProperty.Access.READ_ONLY)
     public List<Integer> getAccountIds() {
-        return accounts == null ? Collections.emptyList() : accounts.stream().map(Account::getAccountId).collect(Collectors.toList());
+        return accounts == null
+                ? Collections.emptyList()
+                : accounts.stream().map(Account::getAccountId).collect(Collectors.toList());
     }
 
     public boolean deleteAccount(int accountId){

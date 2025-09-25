@@ -8,8 +8,8 @@ Feature: Test endpoints filtered by role
 
     Examples:
       | email | pwd | code |
-      | john.doe@example.com | password123 | 200 |
       | jane.smith@example.com | securepass | 403 |
+      | john.doe@example.com | password123 | 200 |
 
 
   Scenario Outline: Delete Customer's account
@@ -19,6 +19,6 @@ Feature: Test endpoints filtered by role
 
     Examples:
       | email | pwd | code |
-      | john.doe@example.com | password123 | 200 |
       | jane.smith@example.com | securepass | 403 |
+      | john.doe@example.com | password123 | 200 |
 
