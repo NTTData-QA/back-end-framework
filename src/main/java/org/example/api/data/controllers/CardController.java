@@ -57,8 +57,8 @@ public class CardController {
     }
 
     @GetMapping("api/card/{cardId}")       // get 1 card by cardId
-    public Optional<Card> card(@PathVariable Integer id) {
-        return card.findById(id);
+    public Optional<Card> cardById (@PathVariable Integer cardId) {
+        return card.findById(cardId);
     }
 
     @GetMapping("api/cards/{accountId}")    // get all cards by accountId
