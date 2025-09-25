@@ -88,9 +88,6 @@ public class BankService {
         }
     }
 
-
-
-
     public Response doLogin (String email, String password){
 
         proxy = client.getAPI();
@@ -237,4 +234,6 @@ public class BankService {
         accountRequest.setIsBlocked(setDebt);
         return proxy.isInDebtUpdate(accountId, accountRequest, null);
     }
+
+    public Response getAllCustomersList() { return proxy.getAllCustomers(); }
 }

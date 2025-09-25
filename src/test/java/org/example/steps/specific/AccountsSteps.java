@@ -4,14 +4,21 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
+import org.example.api.data.entity.Customer;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.junit.Assert;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AccountsSteps extends AbstractSteps {
@@ -105,4 +112,19 @@ public class AccountsSteps extends AbstractSteps {
         Assert.assertEquals(codigo, response.getStatus());
     }
 
+    @When("i try to delete an account with id {int}")
+    public void iTryToDeleteAnAccountWithId(int accountId) {
+        Response deleteResponse = bankService.doDeleteAccountById(accountId);
+        testContext().setResponse(deleteResponse);
+    }
+
+    @Then("i should receive the code {int} and a status message")
+    public void iShouldReceiveTheCodeCodeAndAStatusMessage(Integer code) {
+        response = testContext().getResponse();
+        assertEquals(code, response.getStatus());
+        String mensaje = response.readEntity(String.class);
+        System.out.println("Código: " + response.getStatus());
+        System.out.println("Mensaje: " + mensaje);
+        assertNotNull(mensaje);
+    }
 }
