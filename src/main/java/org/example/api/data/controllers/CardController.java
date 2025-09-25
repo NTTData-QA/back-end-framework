@@ -202,6 +202,37 @@ public class CardController {
             return ResponseEntity.badRequest().body("Your monthly limit must be valid");
         }
     }
+    @PatchMapping("/api/card/update/isBlocked/{cardId}")
+    public ResponseEntity<String> updateisBlocked(@PathVariable Integer cardId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
+
+        Optional<Card> cardOpt = cardRepository.findById(cardId);
+        if (!cardOpt.isPresent()){
+            return ResponseEntity.badRequest().body("There is no card with ID: "+ cardId);
+        }
+
+        Card card = cardOpt.get();
+        Boolean newIsBlocked = updateRequest.getIsBlocked();
+
+        // Get request client
+        String jwt = authService.getJwtFromCookies(request);
+        String email = Token.getCustomerEmailFromJWT(jwt);
+        Customer customer = customerRepository.findByEmail(email).get();
+
+        Account account = card.getAccount();
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
+            return ResponseEntity.badRequest().body("Card does not belong to the user");
+        }
+
+
+        try{
+            cardService.updateIsBlocked(card, newIsBlocked);
+            return ResponseEntity.ok()
+                    .body("The block state has been updated successfully");}
+        catch (Exception e){
+            return ResponseEntity.badRequest().body("Error updating block state");
+        }
+    }
+
 
 
     @DeleteMapping("/api/card/delete/{cardId}")

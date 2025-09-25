@@ -250,6 +250,12 @@ public interface BankAPI {
     @Produces(MediaType.TEXT_PLAIN)
     Response updateMonthlyLimit(@PathParam("cardId") Integer cardId,@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
 
+    @PATCH
+    @Path("/api/card/update/isBlocked/{cardId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response updateisBlocked(@PathParam("cardId") Integer cardId,@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
 }
 
 

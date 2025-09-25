@@ -10,4 +10,5 @@ public class UpdateRequest {
     private Double Amount;
     private Double DailyLimit;
     private Double MonthlyLimit;
+    private Boolean isBlocked;
 }

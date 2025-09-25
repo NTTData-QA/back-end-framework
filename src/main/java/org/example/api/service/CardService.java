@@ -70,4 +70,9 @@ public class CardService {
         cardRepository.save(card);
     }
 
+    public void updateIsBlocked(Card card, Boolean newIsBlocked) {
+        card.setIsBlocked(newIsBlocked);
+        cardRepository.save(card);
+    }
+
 }
