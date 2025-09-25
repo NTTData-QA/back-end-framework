@@ -3,6 +3,8 @@ Feature: Check BOOLEANS before deleting Accounts by accountId
   Background:
     Given the system is ready and i log with email "john.doe@example.com" and password "password123"
 
+# This creates A LOT of accounts
+# TODO: create and delete correct account but have un-deletable accounts already present in db ==> change Script
   Scenario: Delete recently created account
     Given the customer creates an account with 200 euros
     When the customer tries to delete the account
