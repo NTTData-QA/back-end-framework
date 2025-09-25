@@ -48,7 +48,7 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)    // si se elimina un cliente se eliminan sus cuentas
     private List<Account> accounts;
 
-    @JsonProperty("accountIds")
+    @JsonProperty(value = "accountIds", access = JsonProperty.Access.READ_ONLY)
     public List<Integer> getAccountIds() {
         return accounts == null ? Collections.emptyList() : accounts.stream().map(Account::getAccountId).collect(Collectors.toList());
     }
