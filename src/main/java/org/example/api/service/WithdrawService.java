@@ -41,11 +41,11 @@ public class WithdrawService {
         String tipo_tarjeta = card.getType();
 
 
-        if (account.getIsInDebt() == Boolean.TRUE){
+        if (account.getIsInDebt() == Boolean.TRUE && tipo_tarjeta.equals("Debit")){
             throw new IllegalArgumentException("Account is in debt");
         }
 
-        if (balance < amount&& tipo_tarjeta.equals("Debit")) {
+        if (balance < amount && tipo_tarjeta.equals("Debit")) {
             throw new IllegalStateException("Insufficient funds");
         }
 
