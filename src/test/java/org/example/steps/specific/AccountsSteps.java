@@ -10,6 +10,7 @@ import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.junit.Assert;
+import org.opentest4j.AssertionFailedError;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
@@ -127,6 +128,7 @@ public class AccountsSteps extends AbstractSteps {
             System.out.println("Test fallido. Código de error: " + response.getStatus());
             System.out.println("Mensaje de error: " + mensaje);
             assertNotNull(mensaje);
+            throw new AssertionFailedError();
         }
     }
 }
