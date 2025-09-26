@@ -39,13 +39,18 @@ public class BankService {
         return response;
     }
 
-    public Response doRegister(String name, String surname, String email, String password){
+    public Response doRegister(String name, String surname, String email, String password, String role){
         BankAPI proxy = client.getAPI();
         Customer customer= new Customer();
         customer.setName(name);
         customer.setSurname(surname);
         customer.setEmail(email);
         customer.setPassword(password);
+        if (role.equals("ADMIN")) {
+            customer.setRole(Customer.UserType.ADMIN);
+        } else {
+            customer.setRole(Customer.UserType.USER);
+        }
 
         response = proxy.addCustomer(customer);
         return response;
@@ -236,4 +241,8 @@ public class BankService {
     }
 
     public Response getAllCustomersList() { return proxy.getAllCustomers(); }
+
+    public Response doDeleteCustomerByEmail(String email) { return proxy.deleteCustomer(email); }
+
+    public Response getLoggedCustomer() { return proxy.getLoggedCustomer(); }
 }

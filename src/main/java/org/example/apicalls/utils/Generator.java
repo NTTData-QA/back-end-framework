@@ -189,6 +189,7 @@ public class Generator {
         customer.setSurname(generateRandomString(nameLength));
         customer.setEmail(generateRandomGmail(nameLength));
         customer.setPassword(generateRandomPassword(passwordLength));
+        customer.setRole(Customer.UserType.USER);
 
         List<Account> accounts = new java.util.ArrayList<>(List.of());
         int n = 0;
@@ -213,6 +214,7 @@ public class Generator {
         customer.setSurname(generateRandomString(nameLength));
         customer.setEmail(generateRandomGmail(nameLength));
         customer.setPassword(generateRandomPassword(passwordLength));
+        customer.setRole(Customer.UserType.USER);
 
         List<Account> accounts = new java.util.ArrayList<>(List.of());
         int n = 0;
