@@ -69,7 +69,8 @@ INSERT INTO "PUBLIC"."Customer" VALUES
 (385, 'probandoo@example.com', 'John', 'password123', 'Doe', 'USER'),
 (417, 'probando2@example.com', 'John', 'password123', 'Doe', 'USER'),
 (449, 'probando3@example.com', 'John', 'password123', 'Doe', 'USER'),
-(513, 'alice.johnson@example.com', 'Alice2', 'newpassword123', 'Johnson', 'USER');
+(513, 'alice.johnson@example.com', 'Alice2', 'newpassword123', 'Johnson', 'USER'),
+(999, 'admin@admin.com', 'Admin', '1234', 'Admin', 'ADMIN');
 
 
 CREATE CACHED TABLE "PUBLIC"."Transfer"(
