@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(new RegexRequestMatcher("^/api/card/delete/customer/\\d+$", "DELETE")).hasRole("ADMIN")
                         .requestMatchers(new RegexRequestMatcher("^/api/transfer/\\d+$", "DELETE")).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/customers").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/customer").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/accounts").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/accounts/amount").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/BDcards").hasRole("ADMIN")

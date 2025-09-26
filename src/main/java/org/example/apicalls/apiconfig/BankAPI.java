@@ -128,6 +128,11 @@ public interface BankAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response getAllCustomers();
 
+    @GET
+    @Path("/api/customer")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getLoggedCustomer();
+
     @DELETE
     @Path("/api/customer/{email}")
     @Produces(MediaType.TEXT_PLAIN)

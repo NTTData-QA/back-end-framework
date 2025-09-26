@@ -73,7 +73,8 @@ public class CustomerSteps extends AbstractSteps {
         assertNotNull(randomCustomer);
         String email = testContext().getRegisteredEmail();
         System.out.println(email);
-        Response response = proxy.getCustomerByEmail(email);
+        //Response response = proxy.getCustomerByEmail(email);
+        Response response = proxy.getLoggedCustomer();
         System.out.println(response.getStatus());
         Customer updatedCustomer = null;
         try{
