@@ -12,6 +12,7 @@ import org.example.api.data.entity.Customer;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
+import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -62,9 +63,7 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @Given("the system is ready and i log with email {string} and password {string}")
     public void theSystemIsReadyAndILogWithEmailAndPassword(String email, String password) {
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
     @When("I login with email {string} and password {string}")

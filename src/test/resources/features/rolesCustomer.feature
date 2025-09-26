@@ -11,7 +11,7 @@ Feature: Test endpoints filtered by role
       | jane.smith@example.com | securepass | 403 |
       | john.doe@example.com | password123 | 200 |
 
-
+  @createFakeAccountFirst
   Scenario Outline: Delete Customer's account
     Given the system is ready and i log with email "<email>" and password "<pwd>"
     When i try to delete an account with id 33
