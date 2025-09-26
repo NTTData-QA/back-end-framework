@@ -88,6 +88,9 @@ public class WithdrawService {
         }
 
         account.setAmount(balance - amount);
+        if(account.getAmount() < 0){
+            account.setIsInDebt(Boolean.TRUE);
+        }
         accountRepository.save(account);
 
         // 2) Guarda el withdraw
