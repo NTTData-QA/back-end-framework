@@ -19,11 +19,6 @@ pipeline {
             }
         }
 
-        stage('Upload to QMetry') {
-            steps {
-                sh "mvn com.qmetry:automation:2.0.11:CucumberFileUpload"
-            }
-        }
     }
 
     post {
