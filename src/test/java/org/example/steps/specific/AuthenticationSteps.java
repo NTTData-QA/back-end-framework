@@ -1,5 +1,6 @@
 package org.example.steps.specific;
 
+import io.cucumber.core.gherkin.Step;
 import io.cucumber.java.After;
 import io.cucumber.java.AfterAll;
 import io.cucumber.java.en.And;
@@ -68,24 +69,18 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @When("I login with email {string} and password {string}")
     public void loginUser(String email, String password) {
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
     @Given("I have logged in with email {string} and password {string}")
     public void loginUserForLogout(String email, String password) {
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
 
     @When("The customer logins with  email {string} and  password {string}")
     public void theCustomerLoginsWithEmailAndMyPassword(String email,String password){
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
     @And("The customer logging with the register credentials")
@@ -93,9 +88,8 @@ public class AuthenticationSteps extends AbstractSteps {
         Customer randomCustomer = testContext().getCustomer();
         String email = randomCustomer.getEmail();
         String password = randomCustomer.getPassword();
-        Response response = bankService.doLogin(email,password);
-        testContext().setBankService(bankService);
-        assertEquals(200,response.getStatus());
+        StepUtils.doLogin(bankService, testContext(), email, password);
+        assertEquals(200,testContext().getResponse().getStatus());
     }
 
 
@@ -103,15 +97,13 @@ public class AuthenticationSteps extends AbstractSteps {
     public void theCustomerLogsInWithTheirRegisterCredentials() {
         String email = testContext().getCustomer().getEmail();
         String password = testContext().getCustomer().getPassword();
-        response = bankService.doLogin(email,password);
-        testContext().setBankService(bankService);
-        Assert.assertEquals(200,response.getStatus());
+        StepUtils.doLogin(bankService, testContext(), email, password);
+        Assert.assertEquals(200,testContext().getResponse().getStatus());
     }
 
     @When("I log out")
     public void logoutUser() {
-        response = bankService.doLogout();
-        testContext().setResponse(response);
+        StepUtils.doLogout(bankService, testContext());
     }
 
     @After

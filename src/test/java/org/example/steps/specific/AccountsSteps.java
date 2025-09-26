@@ -9,6 +9,7 @@ import org.example.api.data.entity.Account;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
+import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,24 +46,10 @@ public class AccountsSteps extends AbstractSteps {
 
     @And("The customer creates {int} account with {double} euros each")
     public void theCustomerCreatesAccountWithEurosEach(int numberOfAccount, double euros) {
-
         while (numberOfAccount > 0) {
-            Account account = new Account();
-            account.setAmount(euros);
-            account.setAccountType(Account.AccountType.BUSINESS_ACCOUNT);
-            Response accountResponse = bankService.doNewAccount(account, null);
-
-            Assert.assertEquals(201, accountResponse.getStatus());
+            StepUtils.createAccount(bankService, testContext(), euros);
             numberOfAccount--;
-            String accountOrigin = accountResponse.readEntity(String.class);
-            String[] parts = accountOrigin.split(": ");
-
-            // Extraer el número como String y luego convertirlo a un número entero
-            String accountIdString = parts[1];
-            int accountId = Integer.parseInt(accountIdString);
-            testContext().setOriginID(accountId);
         }
-
     }
 
     @And("The receiving customer has an account with id {int}")
@@ -74,19 +61,7 @@ public class AccountsSteps extends AbstractSteps {
 
     @Given("the customer creates an account with {double} euros")
     public void theCustomerCreatesAnAccountWithEuros(double euros) {
-
-        Account account = new Account();
-        account.setAmount(euros);
-        account.setAccountType(Account.AccountType.BUSINESS_ACCOUNT);
-
-        Response accountResponse = bankService.doNewAccount(account, null);
-        Assert.assertEquals(201, accountResponse.getStatus());
-
-        String accountOrigin = accountResponse.readEntity(String.class);
-        String[] parts = accountOrigin.split(": ");
-        String accountIdString = parts[1];
-        int accountId = Integer.parseInt(accountIdString);
-        testContext().setOriginID(accountId);
+        StepUtils.createAccount(bankService, testContext(), euros);
     }
 
     @And("the customer blocks the account")
@@ -121,7 +96,7 @@ public class AccountsSteps extends AbstractSteps {
         String mensaje = response.readEntity(String.class);
         try {
             assertEquals(code, response.getStatus());
-            System.out.println("Código: " + response.getStatus());
+            System.out.println("Resultado correcto. Código: " + response.getStatus());
             System.out.println("Mensaje: " + mensaje);
             assertNotNull(mensaje);
         } catch (Error e) {
