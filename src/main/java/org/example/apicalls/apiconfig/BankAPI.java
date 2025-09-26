@@ -129,7 +129,7 @@ public interface BankAPI {
     Response getAllCustomers();
 
     @DELETE
-    @Path("/public/customer/{email}")
+    @Path("/api/customer/{email}")
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCustomer(@PathParam("email") String email);
 

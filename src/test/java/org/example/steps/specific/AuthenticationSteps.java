@@ -48,7 +48,7 @@ public class AuthenticationSteps extends AbstractSteps {
     @When("I register with name {string}, surname {string}, email {string} and password {string} and I log in")
     public void registerUser(String name, String surname, String email, String password) {
         testContext().setRegisteredEmail(email);
-        response = bankService.doRegister(name, surname, email, password);
+        response = bankService.doRegister(name, surname, email, password, null);
         testContext().setResponse(response);
         bankService.doLogin(email,password);
         testContext().setBankService(bankService);
@@ -58,7 +58,7 @@ public class AuthenticationSteps extends AbstractSteps {
     @Given("I have registered with name {string}, surname {string}, email {string} and password {string}")
     public void registerForLogin(String name, String surname, String email, String password) {
         registeredEmail = email;
-        response = bankService.doRegister(name,surname,email,password);
+        response = bankService.doRegister(name,surname,email,password, null);
         testContext().setRegisteredEmail(email);
     }
 
@@ -118,10 +118,13 @@ public class AuthenticationSteps extends AbstractSteps {
             response = proxy.deleteLoggedUser(null);
             System.out.println("Status de borrar cuentas: "+response.getStatus());
 
-            Response deleteResponse = proxy.deleteCustomer(registeredEmail);
+            StepUtils.doLogout(bankService, testContext());
+            StepUtils.doLogin(bankService, testContext(), "admin@admin.com", "1234");
+            Response deleteResponse = bankService.doDeleteCustomerByEmail(registeredEmail);
             int statusCode = deleteResponse.getStatus();
             System.out.println("Delete response status code: " + statusCode);
             Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+            StepUtils.doLogout(bankService, testContext());
         } else {
             System.out.println("No user to delete, registeredEmail is null");
         }
