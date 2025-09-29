@@ -5,6 +5,7 @@ Feature: Check BOOLEANS before deleting Accounts by accountId
 
 # This creates A LOT of accounts
 # TODO: create and delete correct account but have un-deletable accounts already present in db ==> change Script
+# TODO: create blocked and inDebt accounts in the test database to speed up this tests.
   Scenario: Delete recently created account
     Given the customer creates an account with 200 euros
     When the customer tries to delete the account
