@@ -8,9 +8,13 @@ import org.example.api.service.CustomerService;
 import org.example.api.token.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,8 +35,15 @@ public class CustomerController {
 
   @GetMapping("/api/customer")
   public Customer getLoggedCustomer() {
-    // TODO Get Logged Customer Info
-    return null;
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    Integer customerId = Integer.valueOf(authentication.getName());
+
+    return customer(customerId).get();
   }
 
   @GetMapping("/api/customer/{id}")   // get 1 customer by customerId

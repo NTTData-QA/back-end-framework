@@ -74,7 +74,7 @@ public class CustomerSteps extends AbstractSteps {
         String email = testContext().getRegisteredEmail();
         System.out.println(email);
         //Response response = proxy.getCustomerByEmail(email);
-        Response response = proxy.getLoggedCustomer();
+        Response response = bankService.getLoggedCustomer();
         System.out.println(response.getStatus());
         Customer updatedCustomer = null;
         try{
