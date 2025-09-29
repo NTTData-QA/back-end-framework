@@ -184,28 +184,26 @@ public class TransferController {
         Optional<Account> accountOptional = accountRepository.findByAccountId(accountId);
         if (accountOptional.isEmpty())
             return ResponseEntity.badRequest().body("Account does not exist");
-
-        // Verificar usuario loggeado
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Integer customerId = Integer.valueOf(authentication.getName());
-//        Optional<Customer> customer = customerRepository.findById(customerId);
-//        if (customer.isEmpty())
-//            return ResponseEntity.badRequest().body("You are not logged");
-
         Account account = accountOptional.get();
 
-        Customer customerAccount = customerService.getCustomerFromRequest(request);
-        if(customerAccount == null)
-            return ResponseEntity.badRequest().body("Login error");
-        if(!customerAccount.getCustomerId().equals(account.getCustomer().getCustomerId()))
-            return ResponseEntity.badRequest().body("Account doesn't belong to logged in user");
+        // Comprobar que el usuario esté loggeado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer customerId = Integer.valueOf(authentication.getName());
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+        if (customerOptional.isEmpty())
+            return ResponseEntity.badRequest().body("You are not logged");
+        Customer customer = customerOptional.get();
 
-        int customerId = customerAccount.getCustomerId();
+        String jwt = authService.getJwtFromCookies(request);
+        String role = Token.getCustomerRoleFromJWT(jwt);
 
-        // Comprobar que el usuario loggeado pueda acceder a la cuenta (evitamos accesos a cuentas de otras personas)
+        // Verificar que la cuenta pertenezca al usuario loggeado o que el usuario sea admin
+        if(!role.equals("ROLE_ADMIN")) {
+            if(!customer.getCustomerId().equals(account.getCustomer().getCustomerId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You cannot access someone else's account");
+            }
+        }
 
-        if (!account.getCustomer().getCustomerId().equals(customerId))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You cannot access someone else's account");
 
         // Obtener las transacciones enviadas y recibidas
         List<Transfer> sentTransfers = transferService.getTransferByAccountId(accountId);
