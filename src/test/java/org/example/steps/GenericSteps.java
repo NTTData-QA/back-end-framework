@@ -50,7 +50,6 @@ public class GenericSteps extends AbstractSteps {
         // Comprobamos que el status y el mensaje de la response sean los esperados
         Assert.assertEquals(expectedStatus,receivedStatus);
         Assert.assertEquals(expectedMessage,receivedMessage);
-
     }
 
     @Then("The customer gets a {int} status response")

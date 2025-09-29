@@ -19,8 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 
 
@@ -62,11 +60,10 @@ public class TransferController {
         Integer senderAccountId = transferRequest.getOriginAccountId();
         Optional<Account> senderAccountOpt = accountRepository.findByAccountId(senderAccountId);
         if (!senderAccountOpt.isPresent()) {
-
             // In this scenario, the failed transfer is not stored in the database.
             return ResponseEntity.badRequest().body("Sender account does not exist");
-
         }
+
         Account senderAccount = senderAccountOpt.get();
         transfer.setOriginAccount(senderAccount);
 
@@ -74,20 +71,17 @@ public class TransferController {
         Integer receiverId = transferRequest.getReceivingAccountId();
         Optional<Account> receiverOpt = accountRepository.findByAccountId(receiverId);
         if (!receiverOpt.isPresent()) {
-
             // In this scenario, the failed transfer is not stored in the database.
             return ResponseEntity.badRequest().body("Receiver account does not exist");
         }
+
         Account receiverAccount = receiverOpt.get();
         transfer.setReceivingAccount(receiverAccount);
 
         // Check requesting account belongs to requesting user
         if (senderAccount.getCustomer().equals(customer)) {
-
             return transferService.transferOperation(senderAccount, receiverAccount, transferAmount, transfer);
-
             // In this scenario, the failed transfer is not stored in the database.
-
         }
         System.out.println(senderAccount.getCustomer().equals(customer));
         return ResponseEntity.badRequest().body("Account does not belong to the user");
