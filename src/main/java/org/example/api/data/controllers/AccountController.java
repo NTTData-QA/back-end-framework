@@ -1,4 +1,3 @@
-
 package org.example.api.data.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -260,7 +259,8 @@ public class AccountController {
         List<String> errorAccounts = new ArrayList<>();
         // Try to delete the associated transfers and accounts
         try {
-            for (Account account : accounts) {
+            // Iteramos sobre una copia (evita ConcurrentModificationException)
+            for (Account account : new ArrayList<>(accounts)) {
                 // Check if account is in debt or blocked
                 String errores = "";
                 boolean enDeuda = false;
@@ -309,7 +309,7 @@ public class AccountController {
                     finalBuilder.append("\n\t").append(e);
                 }
                 String finalMsg = finalBuilder.toString();
-                throw new RuntimeException(finalMsg);
+                return ResponseEntity.status(409).body(finalMsg);
             }
             return ResponseEntity.ok("All accounts and associated transfers have been deleted successfully.");
         } catch (Exception e) {
