@@ -46,7 +46,7 @@ public class BankService {
         customer.setSurname(surname);
         customer.setEmail(email);
         customer.setPassword(password);
-        if (role.equals("ADMIN")) {
+        if (role != null && role.equals("ADMIN")) {
             customer.setRole(Customer.UserType.ADMIN);
         } else {
             customer.setRole(Customer.UserType.USER);
@@ -162,7 +162,7 @@ public class BankService {
          transferRequest.setOriginAccountId(transfer.getOriginAccountId());
          transferRequest.setReceivingAccountId(transfer.getReceivingAccountId());
          response = proxy.localTransfer(transferRequest, request);
-         System.out.println(response.getStatus());
+         System.out.println("Status code: " + response.getStatus());
          return response;
      }
 
