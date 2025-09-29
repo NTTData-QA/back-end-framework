@@ -212,7 +212,7 @@ public interface BankAPI {
     Response updatePassword(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
 
     @GET
-    @Path("api/transfer/history/{accountId}")
+    @Path("api/transfers/history/{accountId}")
     @Produces(MediaType.APPLICATION_JSON)
     Response getTransferHistory(@PathParam("accountId") Integer accountId);
     
