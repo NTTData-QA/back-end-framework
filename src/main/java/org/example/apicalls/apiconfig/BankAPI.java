@@ -128,8 +128,13 @@ public interface BankAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response getAllCustomers();
 
+    @GET
+    @Path("/api/customer")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getLoggedCustomer();
+
     @DELETE
-    @Path("/public/customer/{email}")
+    @Path("/api/customer/{email}")
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCustomer(@PathParam("email") String email);
 
@@ -207,7 +212,7 @@ public interface BankAPI {
     Response updatePassword(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
 
     @GET
-    @Path("api/transfer/history/{accountId}")
+    @Path("api/transfers/history/{accountId}")
     @Produces(MediaType.APPLICATION_JSON)
     Response getTransferHistory(@PathParam("accountId") Integer accountId);
     

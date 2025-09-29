@@ -19,8 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 
 
@@ -62,11 +60,10 @@ public class TransferController {
         Integer senderAccountId = transferRequest.getOriginAccountId();
         Optional<Account> senderAccountOpt = accountRepository.findByAccountId(senderAccountId);
         if (!senderAccountOpt.isPresent()) {
-
             // In this scenario, the failed transfer is not stored in the database.
             return ResponseEntity.badRequest().body("Sender account does not exist");
-
         }
+
         Account senderAccount = senderAccountOpt.get();
         transfer.setOriginAccount(senderAccount);
 
@@ -74,20 +71,17 @@ public class TransferController {
         Integer receiverId = transferRequest.getReceivingAccountId();
         Optional<Account> receiverOpt = accountRepository.findByAccountId(receiverId);
         if (!receiverOpt.isPresent()) {
-
             // In this scenario, the failed transfer is not stored in the database.
             return ResponseEntity.badRequest().body("Receiver account does not exist");
         }
+
         Account receiverAccount = receiverOpt.get();
         transfer.setReceivingAccount(receiverAccount);
 
         // Check requesting account belongs to requesting user
         if (senderAccount.getCustomer().equals(customer)) {
-
             return transferService.transferOperation(senderAccount, receiverAccount, transferAmount, transfer);
-
             // In this scenario, the failed transfer is not stored in the database.
-
         }
         System.out.println(senderAccount.getCustomer().equals(customer));
         return ResponseEntity.badRequest().body("Account does not belong to the user");
@@ -178,34 +172,32 @@ public class TransferController {
         }
     }
 
-    @GetMapping("api/transfer/history/{accountId}") // Obtener el historial de transacciones de una cuenta
+    @GetMapping("api/transfers/history/{accountId}") // Obtener el historial de transacciones de una cuenta
     public ResponseEntity<?> getTransferHistory(@PathVariable Integer accountId, HttpServletRequest request) {
         // Comprobar que la cuenta exista
         Optional<Account> accountOptional = accountRepository.findByAccountId(accountId);
         if (accountOptional.isEmpty())
             return ResponseEntity.badRequest().body("Account does not exist");
-
-        // Verificar usuario loggeado
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Integer customerId = Integer.valueOf(authentication.getName());
-//        Optional<Customer> customer = customerRepository.findById(customerId);
-//        if (customer.isEmpty())
-//            return ResponseEntity.badRequest().body("You are not logged");
-
         Account account = accountOptional.get();
 
-        Customer customerAccount = customerService.getCustomerFromRequest(request);
-        if(customerAccount == null)
-            return ResponseEntity.badRequest().body("Login error");
-        if(!customerAccount.getCustomerId().equals(account.getCustomer().getCustomerId()))
-            return ResponseEntity.badRequest().body("Account doesn't belong to logged in user");
+        // Comprobar que el usuario esté loggeado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer customerId = Integer.valueOf(authentication.getName());
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+        if (customerOptional.isEmpty())
+            return ResponseEntity.badRequest().body("You are not logged");
+        Customer customer = customerOptional.get();
 
-        int customerId = customerAccount.getCustomerId();
+        String jwt = authService.getJwtFromCookies(request);
+        String role = Token.getCustomerRoleFromJWT(jwt);
 
-        // Comprobar que el usuario loggeado pueda acceder a la cuenta (evitamos accesos a cuentas de otras personas)
+        // Verificar que la cuenta pertenezca al usuario loggeado o que el usuario sea admin
+        if(!role.equals("ROLE_ADMIN")) {
+            if(!customer.getCustomerId().equals(account.getCustomer().getCustomerId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You cannot access someone else's account");
+            }
+        }
 
-        if (!account.getCustomer().getCustomerId().equals(customerId))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You cannot access someone else's account");
 
         // Obtener las transacciones enviadas y recibidas
         List<Transfer> sentTransfers = transferService.getTransferByAccountId(accountId);

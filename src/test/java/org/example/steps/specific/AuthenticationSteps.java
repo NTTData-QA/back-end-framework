@@ -1,5 +1,6 @@
 package org.example.steps.specific;
 
+import io.cucumber.core.gherkin.Step;
 import io.cucumber.java.After;
 import io.cucumber.java.AfterAll;
 import io.cucumber.java.en.And;
@@ -12,6 +13,7 @@ import org.example.api.data.entity.Customer;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
+import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -46,7 +48,7 @@ public class AuthenticationSteps extends AbstractSteps {
     @When("I register with name {string}, surname {string}, email {string} and password {string} and I log in")
     public void registerUser(String name, String surname, String email, String password) {
         testContext().setRegisteredEmail(email);
-        response = bankService.doRegister(name, surname, email, password);
+        response = bankService.doRegister(name, surname, email, password, null);
         testContext().setResponse(response);
         bankService.doLogin(email,password);
         testContext().setBankService(bankService);
@@ -56,37 +58,29 @@ public class AuthenticationSteps extends AbstractSteps {
     @Given("I have registered with name {string}, surname {string}, email {string} and password {string}")
     public void registerForLogin(String name, String surname, String email, String password) {
         registeredEmail = email;
-        response = bankService.doRegister(name,surname,email,password);
+        response = bankService.doRegister(name,surname,email,password, null);
         testContext().setRegisteredEmail(email);
     }
 
     @Given("the system is ready and i log with email {string} and password {string}")
     public void theSystemIsReadyAndILogWithEmailAndPassword(String email, String password) {
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
     @When("I login with email {string} and password {string}")
     public void loginUser(String email, String password) {
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
     @Given("I have logged in with email {string} and password {string}")
     public void loginUserForLogout(String email, String password) {
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
 
     @When("The customer logins with  email {string} and  password {string}")
     public void theCustomerLoginsWithEmailAndMyPassword(String email,String password){
-        response = bankService.doLogin(email,password);
-        testContext().setResponse(response);
-        testContext().setBankService(bankService);
+        StepUtils.doLogin(bankService, testContext(), email, password);
     }
 
     @And("The customer logging with the register credentials")
@@ -94,9 +88,8 @@ public class AuthenticationSteps extends AbstractSteps {
         Customer randomCustomer = testContext().getCustomer();
         String email = randomCustomer.getEmail();
         String password = randomCustomer.getPassword();
-        Response response = bankService.doLogin(email,password);
-        testContext().setBankService(bankService);
-        assertEquals(200,response.getStatus());
+        StepUtils.doLogin(bankService, testContext(), email, password);
+        assertEquals(200,testContext().getResponse().getStatus());
     }
 
 
@@ -104,15 +97,13 @@ public class AuthenticationSteps extends AbstractSteps {
     public void theCustomerLogsInWithTheirRegisterCredentials() {
         String email = testContext().getCustomer().getEmail();
         String password = testContext().getCustomer().getPassword();
-        response = bankService.doLogin(email,password);
-        testContext().setBankService(bankService);
-        Assert.assertEquals(200,response.getStatus());
+        StepUtils.doLogin(bankService, testContext(), email, password);
+        Assert.assertEquals(200,testContext().getResponse().getStatus());
     }
 
     @When("I log out")
     public void logoutUser() {
-        response = bankService.doLogout();
-        testContext().setResponse(response);
+        StepUtils.doLogout(bankService, testContext());
     }
 
     @After
@@ -127,10 +118,13 @@ public class AuthenticationSteps extends AbstractSteps {
             response = proxy.deleteLoggedUser(null);
             System.out.println("Status de borrar cuentas: "+response.getStatus());
 
-            Response deleteResponse = proxy.deleteCustomer(registeredEmail);
+            StepUtils.doLogout(bankService, testContext());
+            StepUtils.doLogin(bankService, testContext(), "admin@admin.com", "1234");
+            Response deleteResponse = bankService.doDeleteCustomerByEmail(registeredEmail);
             int statusCode = deleteResponse.getStatus();
             System.out.println("Delete response status code: " + statusCode);
             Assert.assertEquals(HttpStatus.OK.value(), statusCode);  // Validar si realmente devolvió un 200 OK
+            StepUtils.doLogout(bankService, testContext());
         } else {
             System.out.println("No user to delete, registeredEmail is null");
         }

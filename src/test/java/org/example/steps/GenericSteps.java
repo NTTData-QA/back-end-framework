@@ -1,5 +1,6 @@
 package org.example.steps;
 
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import jakarta.ws.rs.core.Response;
@@ -14,6 +15,7 @@ import org.example.apicalls.service.BankService;
 import org.example.apicalls.utils.Generator;
 import org.example.apicalls.utils.JsonConverter;
 import org.example.context.AbstractSteps;
+import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,7 +50,6 @@ public class GenericSteps extends AbstractSteps {
         // Comprobamos que el status y el mensaje de la response sean los esperados
         Assert.assertEquals(expectedStatus,receivedStatus);
         Assert.assertEquals(expectedMessage,receivedMessage);
-
     }
 
     @Then("The customer gets a {int} status response")
@@ -81,5 +82,12 @@ public class GenericSteps extends AbstractSteps {
         }
 
         testContext().setCards(cards);
+    }
+
+    @Before("@createFakeAccountFirst")
+    public void createFakeAccount() {
+        StepUtils.doLogin(bankService, testContext(), "jane.smith@example.com", "securepass");
+        StepUtils.createAccount(bankService, testContext(), 1.);
+        StepUtils.doLogout(bankService, testContext());
     }
 }

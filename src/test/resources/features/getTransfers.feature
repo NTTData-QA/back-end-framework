@@ -9,7 +9,7 @@ Feature: Get Transfers History given an account
 
 
   Scenario Outline: All logged customer main account Transfers
-    When i request all of this users transfers with accountId <accId>
+    When i request all transfers with accountId <accId>
     Then i should receive the code <code>
     And i should receive all of the transfers or an error message
     Examples:
