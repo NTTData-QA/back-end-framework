@@ -87,7 +87,7 @@ public class GenericSteps extends AbstractSteps {
 
     @Before("@createFakeAccountFirst")
     public void createFakeAccount() {
-        StepUtils.doLogin(bankService, testContext(), "", "");
+        StepUtils.doLogin(bankService, testContext(), "jane.smith@example.com", "securepass");
         StepUtils.createAccount(bankService, testContext(), 1.);
         StepUtils.doLogout(bankService, testContext());
     }

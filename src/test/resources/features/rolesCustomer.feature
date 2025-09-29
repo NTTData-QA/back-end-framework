@@ -8,17 +8,17 @@ Feature: Test endpoints filtered by role
 
     Examples:
       | email | pwd | code |
-      | jane.smith@example.com | securepass | 403 |
-      | john.doe@example.com | password123 | 200 |
+      | john.doe@example.com | password123 | 403 |
+      | admin@admin.com      | 1234        | 200 |
 
   @createFakeAccountFirst
   Scenario Outline: Delete Customer's account
     Given the system is ready and i log with email "<email>" and password "<pwd>"
-    When i try to delete an account with id 33
+    When i try to delete an another customer's account
     Then i should receive the code <code> and a status message
 
     Examples:
       | email | pwd | code |
-      | jane.smith@example.com | securepass | 403 |
-      | john.doe@example.com | password123 | 200 |
+      | john.doe@example.com | password123 | 403 |
+      | admin@admin.com      | 1234        | 200 |
 

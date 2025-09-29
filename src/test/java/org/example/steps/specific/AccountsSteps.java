@@ -5,7 +5,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.Response;
-import org.example.api.data.entity.Account;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
@@ -84,8 +83,9 @@ public class AccountsSteps extends AbstractSteps {
         Assert.assertEquals(codigo, response.getStatus());
     }
 
-    @When("i try to delete an account with id {int}")
-    public void iTryToDeleteAnAccountWithId(int accountId) {
+    @When("i try to delete an another customer's account")
+    public void iTryToDeleteAnAccountWithId() {
+        int accountId = testContext().getOriginID();
         Response deleteResponse = bankService.doDeleteAccountById(accountId);
         testContext().setResponse(deleteResponse);
     }

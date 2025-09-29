@@ -37,7 +37,7 @@ public class TransferSteps extends AbstractSteps {
         testContext().setResponse(transferResponse);
     }
 
-    @When("i request all of this users transfers with accountId {int}")
+    @When("i request all transfers with accountId {int}")
     public void iRequestAllOfThisUsersTransfersWithAccountIdAccId(int accountId) {
         response = bankService.getTransferHistory(accountId);
         testContext().setResponse(response);
