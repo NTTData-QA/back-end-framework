@@ -33,6 +33,7 @@ public class TransferService {
         return transferAmount;
     }
 
+    @Transactional
     public ResponseEntity<String> transferOperation(Account senderAccount, Account receiverAccount ,Double transferAmount, Transfer transfer){
         // Check - if receiving account is blocked
         //       - if requesting account is in debt
