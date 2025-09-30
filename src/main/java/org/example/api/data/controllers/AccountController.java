@@ -188,7 +188,6 @@ public class AccountController {
         String errores = "";
         boolean enDeuda = false;
         if (account.getIsInDebt()) {
-            System.out.println(account.getIsInDebt());
             errores = errores + "Account with id " + account.getAccountId() + " is in debt";
             enDeuda = true;
         }

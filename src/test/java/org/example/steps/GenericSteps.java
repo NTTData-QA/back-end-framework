@@ -64,7 +64,6 @@ public class GenericSteps extends AbstractSteps {
 
         // Comprobamos que el status y el mensaje de la response sean los esperados
         Assert.assertEquals(expectedStatus,receivedStatus);
-
     }
 
     @Given("The customer registers with {int} accounts, {int} cards and an initial amount of {double}")
