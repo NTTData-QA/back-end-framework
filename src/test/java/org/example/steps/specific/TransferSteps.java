@@ -1,17 +1,14 @@
 package org.example.steps.specific;
 
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Transfer;
 import org.example.api.data.request.TransferRequest;
-import org.example.api.service.TransferService;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
-import org.junit.Assert;
 
 import java.util.List;
 
@@ -48,7 +45,7 @@ public class TransferSteps extends AbstractSteps {
         response = testContext().getResponse();
         try {
             assertEquals(200, response.getStatus());
-            List<Transfer> transfers = response.readEntity(new GenericType<List<Transfer>>() {});
+            List<Transfer> transfers = response.readEntity(new GenericType<>() {});
             assertNotNull(transfers);
             assertFalse(transfers.isEmpty());
             for (Transfer t: transfers) {

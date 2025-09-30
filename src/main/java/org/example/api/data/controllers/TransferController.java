@@ -54,12 +54,12 @@ public class TransferController {
         // Get request client
         String jwt = authService.getJwtFromCookies(request);
         String email = Token.getCustomerEmailFromJWT(jwt);
-        Customer customer = customerRepository.findByEmail(email).get();
+        Customer customer = customerRepository.findByEmail(email).orElseThrow();
 
         // Get sender client info
         Integer senderAccountId = transferRequest.getOriginAccountId();
         Optional<Account> senderAccountOpt = accountRepository.findByAccountId(senderAccountId);
-        if (!senderAccountOpt.isPresent()) {
+        if (senderAccountOpt.isEmpty()) {
             // In this scenario, the failed transfer is not stored in the database.
             return ResponseEntity.badRequest().body("Sender account does not exist");
         }
@@ -70,7 +70,7 @@ public class TransferController {
         // Get receiving account info
         Integer receiverId = transferRequest.getReceivingAccountId();
         Optional<Account> receiverOpt = accountRepository.findByAccountId(receiverId);
-        if (!receiverOpt.isPresent()) {
+        if (receiverOpt.isEmpty()) {
             // In this scenario, the failed transfer is not stored in the database.
             return ResponseEntity.badRequest().body("Receiver account does not exist");
         }
@@ -226,18 +226,18 @@ public class TransferController {
     public ResponseEntity<String> getTransferById(@PathVariable Integer transferId, HttpServletRequest request) {
         // Obtener JWT del cliente logueado
         String jwt = authService.getJwtFromCookies(request);
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Verificar si el cliente está autenticado
         Optional<Customer> customerOpt = customerRepository.findByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in.");
         }
         Customer customer = customerOpt.get();
 
         // Obtener la transferencia
         Optional<Transfer> transferOpt = transferRepository.findById(transferId);
-        if (!transferOpt.isPresent()) {
+        if (transferOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Transfer not found.");
         }
         Transfer transfer = transferOpt.get();
@@ -247,20 +247,19 @@ public class TransferController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not authorized to view this transfer.");
         }
 
-        StringBuilder responseBody = new StringBuilder();
-        responseBody.append("{\n\tid: ")
-                .append(transfer.getTransferId())
-                .append("\n\tdate: ")
-                .append(transfer.getTransferDate())
-                .append("\n\tcurrencyType: ")
-                .append(transfer.getCurrencyType())
-                .append("\n\tamount: ")
-                .append(transfer.getTransferAmount())
-                .append("\n\tstatus: ")
-                .append(transfer.getTransferStatus())
-                .append("\n}\n");
+        String responseBody = "{\n\tid: " +
+                transfer.getTransferId() +
+                "\n\tdate: " +
+                transfer.getTransferDate() +
+                "\n\tcurrencyType: " +
+                transfer.getCurrencyType() +
+                "\n\tamount: " +
+                transfer.getTransferAmount() +
+                "\n\tstatus: " +
+                transfer.getTransferStatus() +
+                "\n}\n";
 
-        return ResponseEntity.ok(responseBody.toString());
+        return ResponseEntity.ok(responseBody);
     }
 
     @DeleteMapping("api/transfer/{id}")

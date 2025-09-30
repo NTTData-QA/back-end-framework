@@ -11,16 +11,11 @@ import org.example.api.service.CustomerService;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CustomerSteps extends AbstractSteps {
@@ -33,7 +28,7 @@ public class CustomerSteps extends AbstractSteps {
     @When("The customer updates their name to {string} and surname {string}")
     public void updateCustomerNameAndSurname(String name, String surname) {
 
-        assertNotNull(randomCustomer);
+        Assert.assertNotNull(randomCustomer);
         randomCustomer.setName(name);
         randomCustomer.setSurname(surname);
         testContext().setCustomer(randomCustomer);
@@ -49,7 +44,7 @@ public class CustomerSteps extends AbstractSteps {
 
     @And("The customer updates their email to {string} and password to {string}")
     public void updateCustomerEmailAndPassword(String email, String password) {
-        assertNotNull(randomCustomer);
+        Assert.assertNotNull(randomCustomer);
         randomCustomer.setEmail(email);
         randomCustomer.setPassword(password);
         testContext().setCustomer(randomCustomer);
@@ -70,24 +65,24 @@ public class CustomerSteps extends AbstractSteps {
     //TODO Debería ser genérico y aceptar una lista de parámetros (no estáticos)
 
     public void verifyCustomerUpdated(String updateStatus) {
-        assertNotNull(randomCustomer);
+        Assert.assertNotNull(randomCustomer);
         String email = testContext().getRegisteredEmail();
         System.out.println(email);
         //Response response = proxy.getCustomerByEmail(email);
         Response response = bankService.getLoggedCustomer();
         System.out.println(response.getStatus());
-        Customer updatedCustomer = null;
+        Customer updatedCustomer;
         try{
             updatedCustomer = response.readEntity(Customer.class);
-        }catch (Exception e){
+        }catch (Exception ignored){
             updatedCustomer = null;
         }
         //Optional<Customer> updatedCustomer = customerService.findByEmail(randomCustomer.getEmail());
         if (updateStatus.equals("successfully")) {
-            assertTrue(updatedCustomer!=null);
+            Assert.assertNotNull(updatedCustomer);
             System.out.println("Customer updated successfully with email: " + updatedCustomer.getEmail());
         } else {
-            assertFalse(updatedCustomer!=null);
+            Assert.assertNull(updatedCustomer);
             System.out.println("Customer update failed.");
         }
     }
@@ -102,10 +97,10 @@ public class CustomerSteps extends AbstractSteps {
     public void ifTheResponseIsSuccessfulIShouldReceiveTheCustomersList() {
         response = testContext().getResponse();
         try {
-            assertEquals(200, response.getStatus());
-            List<Customer> customers = response.readEntity(new GenericType<List<Customer>>() {});
-            assertNotNull(customers);
-            assertFalse(customers.isEmpty());
+            Assert.assertEquals(200, response.getStatus());
+            List<Customer> customers = response.readEntity(new GenericType<>() {});
+            Assert.assertNotNull(customers);
+            Assert.assertFalse(customers.isEmpty());
             for (Customer c: customers) {
                 System.out.println(c.toString());
             }
@@ -113,7 +108,7 @@ public class CustomerSteps extends AbstractSteps {
             String mensaje = response.readEntity(String.class);
             System.out.println("Test fallido. Código de error: " + response.getStatus());
             System.out.println("Mensaje de error: " + mensaje);
-            assertNotNull(mensaje);
+            Assert.assertNotNull(mensaje);
         }
     }
 }

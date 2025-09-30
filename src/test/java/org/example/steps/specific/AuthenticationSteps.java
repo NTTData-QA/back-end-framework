@@ -1,11 +1,8 @@
 package org.example.steps.specific;
 
-import io.cucumber.core.gherkin.Step;
 import io.cucumber.java.After;
-import io.cucumber.java.AfterAll;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import jakarta.ws.rs.core.Response;

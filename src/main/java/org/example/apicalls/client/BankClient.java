@@ -1,21 +1,13 @@
 package org.example.apicalls.client;
 
-import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Cookie;
-import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.NewCookie;
-import lombok.Getter;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import jakarta.ws.rs.core.Response;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 @Configuration
 public class BankClient {
@@ -25,8 +17,7 @@ public class BankClient {
 
         ResteasyClient client = (ResteasyClient)ClientBuilder.newClient();
         ResteasyWebTarget target = client.target("http://localhost:8080/");
-        BankAPI proxy = target.proxy(BankAPI.class);
-        return proxy;
+        return target.proxy(BankAPI.class);
     }
 
     @Bean
@@ -35,8 +26,7 @@ public class BankClient {
         ResteasyClient clientNew = (ResteasyClient)ClientBuilder.newClient();
         ResteasyClient client = (ResteasyClient) clientNew.register(new AddCookieClientFilter(cookie));
         ResteasyWebTarget target = client.target("http://localhost:8080/");
-        BankAPI proxy = target.proxy(BankAPI.class);
-        return proxy;
+        return target.proxy(BankAPI.class);
     }
 
     private Cookie convertNewCookieToCookie(NewCookie newCookie) {

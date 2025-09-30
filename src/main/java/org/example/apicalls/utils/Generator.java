@@ -2,7 +2,6 @@ package org.example.apicalls.utils;
 
 import static org.example.apicalls.utils.Constants.*;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -17,7 +16,6 @@ import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
-import org.jetbrains.annotations.NotNull;
 
 public class Generator {
 

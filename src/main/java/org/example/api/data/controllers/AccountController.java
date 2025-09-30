@@ -13,9 +13,9 @@ import org.example.api.service.AccountService;
 import org.example.api.service.AuthService;
 import org.example.api.service.CustomerService;
 import org.example.api.token.Token;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -61,11 +61,11 @@ public class AccountController {
         }
 
         // Get user mail from token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Get user from email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).build(); // 404 Not Found if error finding user
         }
 
@@ -88,11 +88,11 @@ public class AccountController {
         }
 
         // Get user email from token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Get user from email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).build(); // 404 Not Found if user is not found
         }
 
@@ -116,8 +116,7 @@ public class AccountController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/amount/{accountId}")  // get amount by accountId
     public Double amountOfAccount(@PathVariable Integer accountId) {
-        return accountService.findById(accountId).get().getAmount();
-
+        return accountService.findById(accountId).orElseThrow().getAmount();
     }
 
     @PostMapping("/api/account/new")
@@ -131,11 +130,11 @@ public class AccountController {
         }
 
         // Obtener el email del usuario a partir del token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Obtener el cliente usando el email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).body("Error: User not found."); // 404 Not Found
         }
 
@@ -153,11 +152,8 @@ public class AccountController {
         newAccount.setIsBlocked(false);
 
         // isInDebt depende del amount, si es mayor a 0 se considera que no está en deuda
-        if (newAccount.getAmount() != null && newAccount.getAmount() > 0) {
-            newAccount.setIsInDebt(false); // No está en deuda
-        } else {
-            newAccount.setIsInDebt(true);  // Está en deuda si el amount es 0 o negativo
-        }
+        // Está en deuda si el amount es 0 o negativo
+        newAccount.setIsInDebt(newAccount.getAmount() == null || newAccount.getAmount() <= 0); // No está en deuda
 
         // Asignar el accountType si está presente, de lo contrario, asignar un tipo por defecto
         if (newAccount.getAccountType() != null) {
@@ -185,16 +181,7 @@ public class AccountController {
         }
         Account account = accountOptional.get();
 
-        String errores = "";
-        boolean enDeuda = false;
-        if (account.getIsInDebt()) {
-            errores = errores + "Account with id " + account.getAccountId() + " is in debt";
-            enDeuda = true;
-        }
-        if (account.getIsBlocked()) {
-            if (enDeuda) errores = errores + " and blocked";
-            else errores = errores + "Account with id " + account.getAccountId() + " is blocked";
-        }
+        String errores = checkAccountStatus(account);
         if (!errores.isEmpty()) {
             return ResponseEntity.badRequest().body("Error: " + errores);
         }
@@ -238,6 +225,21 @@ public class AccountController {
         return ResponseEntity.ok("Account deleted successfully");
     }
 
+    @NotNull
+    private static String checkAccountStatus(Account account) {
+        String errores = "";
+        boolean enDeuda = false;
+        if (account.getIsInDebt()) {
+            errores = errores + "Account with id " + account.getAccountId() + " is in debt";
+            enDeuda = true;
+        }
+        if (account.getIsBlocked()) {
+            if (enDeuda) errores = errores + " and blocked";
+            else errores = errores + "Account with id " + account.getAccountId() + " is blocked";
+        }
+        return errores;
+    }
+
     //Delete all the accounts with its customer id
     @Transactional
     @DeleteMapping("/api/account/delete/customer/{customerId}")
@@ -261,16 +263,7 @@ public class AccountController {
             // Iteramos sobre una copia (evita ConcurrentModificationException)
             for (Account account : new ArrayList<>(accounts)) {
                 // Check if account is in debt or blocked
-                String errores = "";
-                boolean enDeuda = false;
-                if (account.getIsInDebt()) {
-                    errores = errores + "Account with id " + account.getAccountId() + " is in debt";
-                    enDeuda = true;
-                }
-                if (account.getIsBlocked()) {
-                    if (enDeuda) errores = errores + " and blocked";
-                    else errores = errores + "Account with id " + account.getAccountId() + " is blocked";
-                }
+                String errores = checkAccountStatus(account);
                 if (!errores.isEmpty()) {
                     errorAccounts.add(errores);
                     continue;
@@ -328,11 +321,11 @@ public class AccountController {
         }
 
         // Get user email from token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Get user from email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).build(); // 404 Not Found if user is not found
         }
 
@@ -344,16 +337,7 @@ public class AccountController {
         //Try to delete the associated transfers and the accounts
         try {
             for (Account acc : accounts) {
-                String errores = "";
-                boolean enDeuda = false;
-                if (acc.getIsInDebt()) {
-                    errores = errores + "Account with id " + acc.getAccountId() + " is in debt";
-                    enDeuda = true;
-                }
-                if (acc.getIsBlocked()) {
-                    if (enDeuda) errores = errores + " and blocked";
-                    else errores = errores + "Account with id " + acc.getAccountId() + " is blocked";
-                }
+                String errores = checkAccountStatus(acc);
                 if (!errores.isEmpty()) {
                     errorAccounts.add(errores);
                     continue;
@@ -388,7 +372,7 @@ public class AccountController {
     public ResponseEntity<String> depositAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest){
 
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()){
+        if (accountOpt.isEmpty()){
             return ResponseEntity.badRequest().body("There is no account with ID: "+ accountId);
         }
 
@@ -410,7 +394,7 @@ public class AccountController {
     @PatchMapping("/api/account/withdraw/{accountId}")
     public ResponseEntity<String> withdrawAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()){
+        if (accountOpt.isEmpty()){
             return ResponseEntity.badRequest().body("There is no account with ID: "+ accountId);
         }
         Account account= accountOpt.get();
@@ -435,7 +419,7 @@ public class AccountController {
     @PatchMapping("/api/account/expirationDate/{accountId}")
     public ResponseEntity<String> expirationDateUpdate(@PathVariable Integer accountId, HttpServletRequest request) {
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()) {
+        if (accountOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("There is no account with ID:" + accountId);
         }
         Account account = accountOpt.get();
@@ -460,7 +444,7 @@ public class AccountController {
     public ResponseEntity<String> accountTypeUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
 
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()) {
+        if (accountOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
         }
 
@@ -487,7 +471,7 @@ public class AccountController {
     public ResponseEntity<String> isBlockUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
 
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()) {
+        if (accountOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
         }
 
@@ -517,7 +501,7 @@ public class AccountController {
             HttpServletRequest request) {
 
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()) {
+        if (accountOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
         }
 
@@ -536,11 +520,11 @@ public class AccountController {
             return ResponseEntity.ok("The account already has the requested debt status. No changes were made.");
         }
 
-        if (Boolean.FALSE.equals(requestedDebtStatus) && balance < 0) {
+        if (!requestedDebtStatus && balance < 0) {
             return ResponseEntity.badRequest().body("Account must have a positive balance before removing debt status.");
         }
 
-        if (Boolean.TRUE.equals(requestedDebtStatus) && balance >= 0) {
+        if (requestedDebtStatus && balance >= 0) {
             return ResponseEntity.badRequest().body("Account must have a negative balance before activating debt status.");
         }
 

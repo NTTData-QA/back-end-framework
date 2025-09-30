@@ -19,9 +19,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @ComponentScan(basePackages = "org.example.apicalls.service")
@@ -35,9 +33,12 @@ public class BankService {
         proxy = client.getAPI();
     }
 
+    /*
     public Response getResponse(){
         return response;
     }
+
+     */
 
     public Response doRegister(String name, String surname, String email, String password, String role){
         BankAPI proxy = client.getAPI();
@@ -79,8 +80,7 @@ public class BankService {
         response = proxy.addCustomer(randCustomer);
         String customerString = response.getHeaderString("NewCustomer");
         System.out.println(customerString);
-        Customer customer = stringToCustomer(customerString);
-        return customer;
+        return stringToCustomer(customerString);
     }
 
     public Customer stringToCustomer(String customerString) {
@@ -154,7 +154,7 @@ public class BankService {
      public Response doNewTransfer (TransferRequest transfer, HttpServletRequest request){
          TransferRequest transferRequest = new TransferRequest();
          transferRequest.setTransferAmount(transfer.getTransferAmount());
-         if(transfer.getCurrencyType().equals("USD")){
+         if(transfer.getCurrencyType().name().equals("USD")){
              transferRequest.setCurrencyType(Transfer.CurrencyType.USD);
          } else{
              transferRequest.setCurrencyType(Transfer.CurrencyType.EUR);

@@ -3,18 +3,13 @@ package org.example.api.token;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import org.example.api.data.controllers.CustomerController;
 import org.example.api.data.entity.Customer;
 import org.example.api.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.WebUtils;
 
 import java.util.Date;
-import java.util.Optional;
 
 @Component
 public class Token {

@@ -43,7 +43,7 @@ public class CustomerController {
 
     Integer customerId = Integer.valueOf(authentication.getName());
 
-    return customer(customerId).get();
+    return customer(customerId).orElseThrow();
   }
 
   @GetMapping("/api/customer/{id}")   // get 1 customer by customerId
@@ -53,7 +53,7 @@ public class CustomerController {
 
   @GetMapping("/api/customer/email/{email}")   // get 1 customer by customerId
   public Customer getCustomerByEmail(@PathVariable String email) {
-    return customerService.findByEmail(email).get();
+    return customerService.findByEmail(email).orElseThrow();
   }
 
   @GetMapping("/api/customers")      // get all customers from DB

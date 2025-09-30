@@ -52,10 +52,7 @@ public class CustomerService {
     String jwt = authService.getJwtFromCookies(request);
     String email = Token.getCustomerEmailFromJWT(jwt);
     Optional<Customer> customerOptional =  customerRepository.findByEmail(email);
-    if (!customerOptional.isPresent()){
-      return null;
-    }
-      return customerOptional.get();
+      return customerOptional.orElse(null);
   }
 
   public ResponseCookie updateEmailAndReturnNewCookie(UpdateRequest updateRequest, Customer customer){

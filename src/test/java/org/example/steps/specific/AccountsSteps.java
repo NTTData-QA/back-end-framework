@@ -10,14 +10,10 @@ import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
-import org.opentest4j.AssertionFailedError;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AccountsSteps extends AbstractSteps {

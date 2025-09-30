@@ -94,10 +94,10 @@ public class TransferService {
 
         newTransfer.setTransferAmount(transfer.getTransferAmount());
         newTransfer.setTransferDate(transfer.getTransferDate());
-        if (transfer.getCurrencyType().equals("USD") || transfer.getCurrencyType().equals("usd")){
+        if (transfer.getCurrencyType().name().equals("USD") || transfer.getCurrencyType().name().equals("usd")){
             newTransfer.setCurrencyType(Transfer.CurrencyType.USD);
         }
-        else if (transfer.getCurrencyType().equals("EUR") || transfer.getCurrencyType().equals("eur"))
+        else if (transfer.getCurrencyType().name().equals("EUR") || transfer.getCurrencyType().name().equals("eur"))
             newTransfer.setCurrencyType(Transfer.CurrencyType.EUR);
         else    // invalid currency type
             return null;

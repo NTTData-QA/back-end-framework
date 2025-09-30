@@ -13,7 +13,6 @@ import org.example.api.data.request.LoginRequest;
 import org.example.api.data.request.TransferRequest;
 import org.example.api.data.request.UpdateRequest;
 import jakarta.ws.rs.core.Response;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
