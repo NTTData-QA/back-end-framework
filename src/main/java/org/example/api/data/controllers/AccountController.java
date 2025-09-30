@@ -1,4 +1,3 @@
-
 package org.example.api.data.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,17 +7,21 @@ import org.example.api.data.entity.Transfer;
 import org.example.api.data.repository.AccountRepository;
 import org.example.api.data.repository.CustomerRepository;
 import org.example.api.data.repository.TransferRepository;
+import org.example.api.data.request.AccountRequest;
 import org.example.api.data.request.UpdateRequest;
 import org.example.api.service.AccountService;
 import org.example.api.service.AuthService;
 import org.example.api.service.CustomerService;
 import org.example.api.token.Token;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +30,7 @@ import java.util.Optional;
 public class AccountController {
 
 
-    @Autowired  private AccountService accountService;
+    @Autowired private AccountService accountService;
     @Autowired private AuthService authService;
     @Autowired private CustomerRepository customerRepository;
     @Autowired private AccountRepository accountRepository;
@@ -59,11 +62,11 @@ public class AccountController {
         }
 
         // Get user mail from token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Get user from email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).build(); // 404 Not Found if error finding user
         }
 
@@ -86,11 +89,11 @@ public class AccountController {
         }
 
         // Get user email from token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Get user from email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).build(); // 404 Not Found if user is not found
         }
 
@@ -111,11 +114,10 @@ public class AccountController {
         return account.getAmount() < 0;
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/api/amount/{accountId}")  // get amount by accountId
     public Double amountOfAccount(@PathVariable Integer accountId) {
-        return accountService.findById(accountId).get().getAmount();
-
+        return accountService.findById(accountId).orElseThrow().getAmount();
     }
 
     @PostMapping("/api/account/new")
@@ -129,11 +131,11 @@ public class AccountController {
         }
 
         // Obtener el email del usuario a partir del token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Obtener el cliente usando el email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).body("Error: User not found."); // 404 Not Found
         }
 
@@ -151,11 +153,8 @@ public class AccountController {
         newAccount.setIsBlocked(false);
 
         // isInDebt depende del amount, si es mayor a 0 se considera que no está en deuda
-        if (newAccount.getAmount() != null && newAccount.getAmount() > 0) {
-            newAccount.setIsInDebt(false); // No está en deuda
-        } else {
-            newAccount.setIsInDebt(true);  // Está en deuda si el amount es 0 o negativo
-        }
+        // Está en deuda si el amount es 0 o negativo
+        newAccount.setIsInDebt(newAccount.getAmount() == null || newAccount.getAmount() <= 0); // No está en deuda
 
         // Asignar el accountType si está presente, de lo contrario, asignar un tipo por defecto
         if (newAccount.getAccountType() != null) {
@@ -172,17 +171,24 @@ public class AccountController {
             return ResponseEntity.status(500).body("Error: Could not create account. " + e.getMessage()); // 500 Internal Server Error
         }
     }
+
     //Delete an account with its Id
     @DeleteMapping ("/api/account/delete/{accountId}")
     public ResponseEntity<String> deleteAccount(@PathVariable int accountId){
-         // Check if the account exists
-        Optional<Account> account = accountRepository.findByAccountId(accountId);
-        if (account.isEmpty()){
+        // Check if the account exists
+        Optional<Account> accountOptional = accountRepository.findByAccountId(accountId);
+        if (accountOptional.isEmpty()){
             return ResponseEntity.badRequest().body("Error: account not found");
         }
+        Account account = accountOptional.get();
 
-        // Check if the accounts customer exists
-        Customer customer = account.get().getCustomer();
+        String errores = checkAccountStatus(account);
+        if (!errores.isEmpty()) {
+            return ResponseEntity.badRequest().body("Error: " + errores);
+        }
+
+        // Check if the account's customer exists
+        Customer customer = account.getCustomer();
         if (customer == null){
             return ResponseEntity.badRequest().body("Error: client of the account not found");
         }
@@ -198,7 +204,7 @@ public class AccountController {
             if (originAccount != null) {
                 originAccount.getOriginatingTransfers().remove(transfer);
             }
-                transferRepository.delete(transfer);
+            transferRepository.delete(transfer);
         }
 
         //Delete receiving transfers
@@ -208,7 +214,7 @@ public class AccountController {
             if (receivinAccount != null) {
                 receivinAccount.getReceivingTransfers().remove(transfer);
             }
-                transferRepository.delete(transfer);
+            transferRepository.delete(transfer);
         }
 
 
@@ -216,9 +222,24 @@ public class AccountController {
         if (!customer.deleteAccount(accountId)){
             return ResponseEntity.badRequest().body("Error: could not delete account from customer");
         }
-        accountRepository.delete(account.get());
+        accountRepository.delete(account);
 
         return ResponseEntity.ok("Account deleted successfully");
+    }
+
+    @NotNull
+    private static String checkAccountStatus(Account account) {
+        String errores = "";
+        boolean enDeuda = false;
+        if (account.getIsInDebt()) {
+            errores = errores + "Account with id " + account.getAccountId() + " is in debt";
+            enDeuda = true;
+        }
+        if (account.getIsBlocked()) {
+            if (enDeuda) errores = errores + " and blocked";
+            else errores = errores + "Account with id " + account.getAccountId() + " is blocked";
+        }
+        return errores;
     }
 
     //Delete all the accounts with its customer id
@@ -226,20 +247,30 @@ public class AccountController {
     @DeleteMapping("/api/account/delete/customer/{customerId}")
     public ResponseEntity<String> deleteAccountsOfCustomer(@PathVariable int customerId){
         // Check if the customer exists
-        Optional<Customer> customer = customerRepository.findById(customerId);
-        if (customer.isEmpty()){
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+        if (customerOptional.isEmpty()){
             return ResponseEntity.badRequest().body("Error: customer not found");
         }
+        Customer customer = customerOptional.get();
 
         // We get all customers accounts
-        List<Account> accounts = customer.get().getAccounts();
+        List<Account> accounts = customer.getAccounts();
         if (accounts.isEmpty()) {
             return ResponseEntity.status(404).body("Error: No accounts found for this customer");
         }
 
+        List<String> errorAccounts = new ArrayList<>();
         // Try to delete the associated transfers and accounts
         try {
-            for (Account account : accounts) {
+            // Iteramos sobre una copia (evita ConcurrentModificationException)
+            for (Account account : new ArrayList<>(accounts)) {
+                // Check if account is in debt or blocked
+                String errores = checkAccountStatus(account);
+                if (!errores.isEmpty()) {
+                    errorAccounts.add(errores);
+                    continue;
+                }
+
                 // Delete transfers where the account is the origin account
                 List<Transfer> originTransfers = transferRepository.findByOriginAccount_AccountId(account.getAccountId());
                 for (Transfer transfer : originTransfers) {
@@ -263,18 +294,25 @@ public class AccountController {
                 // Delete cards of the account. This also remove the witdraws of each card
                 cardController.deleteCardsOfAccounts(account.getAccountId());
 
+                customer.deleteAccount(account.getAccountId());
+                accountRepository.delete(account);
             }
 
-            // Delete all the accounts associated with the customer
-            accountRepository.deleteByCustomer_CustomerId(customerId);
-            customer.get().deleteAllAccounts();
-
+            if (!errorAccounts.isEmpty()) {
+                StringBuilder finalBuilder = new StringBuilder(
+                        "All accounts and associated transfers have been deleted seccesfully EXCEPT FOR THE FOLLOWING:"
+                );
+                for (String e: errorAccounts) {
+                    finalBuilder.append("\n\t").append(e);
+                }
+                String finalMsg = finalBuilder.toString();
+                return ResponseEntity.status(409).body(finalMsg);
+            }
             return ResponseEntity.ok("All accounts and associated transfers have been deleted successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: Could not delete accounts. " + e.getMessage());
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
         }
     }
-
 
     @DeleteMapping("/api/account/delete")
     public ResponseEntity<String> deleteLoggedUser (HttpServletRequest request){
@@ -288,11 +326,11 @@ public class AccountController {
         }
 
         // Get user email from token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Get user from email
         Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent()) {
+        if (customerOpt.isEmpty()) {
             return ResponseEntity.status(404).build(); // 404 Not Found if user is not found
         }
 
@@ -300,26 +338,46 @@ public class AccountController {
         Customer customer = customerOpt.get();
         List<Account> accounts = accountService.findByCustomer(customer.getCustomerId());
 
+        List<String> errorAccounts = new ArrayList<>();
         //Try to delete the associated transfers and the accounts
         try {
             for (Account acc : accounts) {
+                String errores = checkAccountStatus(acc);
+                if (!errores.isEmpty()) {
+                    errorAccounts.add(errores);
+                    continue;
+                }
+
                 // Eliminar las transferencias donde la cuenta es la cuenta de origen
                 transferRepository.deleteByOriginAccount_AccountId(acc.getAccountId());
                 // Eliminar las transferencias donde la cuenta es la cuenta de destino
                 transferRepository.deleteByReceivingAccount_AccountId(acc.getAccountId());
-            }
-            accountRepository.deleteByCustomer_CustomerId(customer.getCustomerId());
 
+                customer.deleteAccount(acc.getAccountId());
+                accountRepository.delete(acc);
+            }
+
+            if (!errorAccounts.isEmpty()) {
+                StringBuilder finalBuilder = new StringBuilder(
+                        "All accounts and associated transfers have been deleted seccesfully EXCEPT FOR THE FOLLOWING:"
+                );
+                for (String e: errorAccounts) {
+                    finalBuilder.append("\n\t").append(e);
+                }
+                String finalMsg = finalBuilder.toString();
+                throw new RuntimeException(finalMsg);
+            }
             return ResponseEntity.ok("All accounts and associated transfers have been deleted successfully."); // 200 OK
-            } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: Could not delete accounts. " + e.getMessage()); // 500 Internal Server Error
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage()); // 500 Internal Server Error
         }
     }
+
     @PatchMapping("/api/account/deposit/{accountId}")
     public ResponseEntity<String> depositAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest){
 
         Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (!accountOpt.isPresent()){
+        if (accountOpt.isEmpty()){
             return ResponseEntity.badRequest().body("There is no account with ID: "+ accountId);
         }
 
@@ -341,4 +399,146 @@ public class AccountController {
 //    @PatchMapping("/api/account/withdraw/{accountId}")
 //    public ResponseEntity<String> withdrawAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
     // DOCUMENTACIÓN: Sustituido por otro endpoint
+    @PatchMapping("/api/account/withdraw/{accountId}")
+    public ResponseEntity<String> withdrawAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (accountOpt.isEmpty()){
+            return ResponseEntity.badRequest().body("There is no account with ID: "+ accountId);
+        }
+        Account account= accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        if(customerAccount != account.getCustomer()){
+            return ResponseEntity.badRequest().body("You cannot withdraw money from an account that is not associated with you");
+        }
+        Double deposit = updateRequest.getAmount();
+        if (deposit <= 0){
+            return ResponseEntity.badRequest().body("The withdraw must be greater than 0");
+        }
+        try{
+            accountService.makeWithdraw(account,deposit);
+            return ResponseEntity.ok().body("The withdraw was made successfully");
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().body("The withdraw could not be done");
+
+        }
+    }
+
+    @PatchMapping("/api/account/expirationDate/{accountId}")
+    public ResponseEntity<String> expirationDateUpdate(@PathVariable Integer accountId, HttpServletRequest request) {
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("There is no account with ID:" + accountId);
+        }
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        LocalDateTime expirationDateLimit = LocalDateTime.now().plusMonths(3);
+        LocalDateTime expirationDateExtension = LocalDateTime.now().plusYears(5);
+
+        if (customerAccount != account.getCustomer()) {
+            return ResponseEntity.badRequest().body("You cannot extend the expiration date of an account that is not associated with you.");
+        }
+
+        if (!account.getExpirationDate().isBefore(expirationDateLimit)) {
+            return ResponseEntity.badRequest().body("You can only extend the expiration date if it is within the next 3 months.");
+        }
+
+        account.setExpirationDate(expirationDateExtension);
+        accountRepository.save(account);
+        return ResponseEntity.ok("The expiration date has been updated to:" + expirationDateExtension);
+    }
+
+    @PatchMapping("/api/account/accountType/{accountId}")
+    public ResponseEntity<String> accountTypeUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        Account.AccountType oldAccountType = account.getAccountType();
+
+        if (oldAccountType.equals(accountRequest.getAccountType())) {
+            return ResponseEntity.ok().body("The account already has the requested account type. No changes were made");
+        }
+
+        Account.AccountType accountType = accountRequest.getAccountType();
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change accountType of an account that is not associated with you.");
+        }
+
+        account.setAccountType(accountType);
+        accountRepository.save(account);
+        return ResponseEntity.ok("Your accountType has been changed");
+    }
+
+    @PatchMapping("/api/account/isBlock/{accountId}")
+    public ResponseEntity<String> isBlockUpdate(@PathVariable Integer accountId, @RequestBody AccountRequest accountRequest, HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+        Boolean blockedStatus = account.getIsBlocked();
+
+        if (blockedStatus.equals(accountRequest.getIsBlocked())) {
+            return ResponseEntity.ok().body("The account already has the requested blocked status. No changes were made");
+        }
+
+        Boolean isBlocked = accountRequest.getIsBlocked();
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change blocked status of an account that is not associated with you.");
+        }
+
+        account.setIsBlocked(isBlocked);
+        accountRepository.save(account);
+        return ResponseEntity.ok("Your blocked status has been changed");
+    }
+
+    @PatchMapping("/api/account/isInDebt/{accountId}")
+    public ResponseEntity<String> isInDebtUpdate(
+            @PathVariable Integer accountId,
+            @RequestBody AccountRequest accountRequest,
+            HttpServletRequest request) {
+
+        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("There is no account with ID: " + accountId);
+        }
+
+        Account account = accountOpt.get();
+        Customer customerAccount = customerService.getCustomerFromRequest(request);
+
+        if (!customerAccount.equals(account.getCustomer())) {
+            return ResponseEntity.badRequest().body("You cannot change the debt status of an account that is not associated with you.");
+        }
+
+        Boolean currentDebtStatus = account.getIsInDebt();
+        Boolean requestedDebtStatus = accountRequest.getIsInDebt();
+        Double balance = account.getAmount();
+
+        if (requestedDebtStatus.equals(currentDebtStatus)) {
+            return ResponseEntity.ok("The account already has the requested debt status. No changes were made.");
+        }
+
+        if (!requestedDebtStatus && balance < 0) {
+            return ResponseEntity.badRequest().body("Account must have a positive balance before removing debt status.");
+        }
+
+        if (requestedDebtStatus && balance >= 0) {
+            return ResponseEntity.badRequest().body("Account must have a negative balance before activating debt status.");
+        }
+
+        account.setIsInDebt(requestedDebtStatus);
+        accountRepository.save(account);
+
+        return ResponseEntity.ok("Your debt status has been updated successfully.");
+    }
 }

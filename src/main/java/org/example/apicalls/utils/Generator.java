@@ -2,7 +2,6 @@ package org.example.apicalls.utils;
 
 import static org.example.apicalls.utils.Constants.*;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -215,6 +214,8 @@ public class Generator {
         customer.setSurname(generateRandomString(nameLength));
         customer.setEmail(generateRandomGmail(nameLength));
         customer.setPassword(generateRandomPassword(passwordLength));
+        customer.setRole(Customer.UserType.USER);
+
         List<Account> accounts = new java.util.ArrayList<>(List.of());
         int n = 0;
 
@@ -238,6 +239,7 @@ public class Generator {
         customer.setSurname(generateRandomString(nameLength));
         customer.setEmail(generateRandomGmail(nameLength));
         customer.setPassword(generateRandomPassword(passwordLength));
+        customer.setRole(Customer.UserType.USER);
 
         List<Account> accounts = new java.util.ArrayList<>(List.of());
         int n = 0;

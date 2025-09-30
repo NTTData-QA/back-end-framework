@@ -1,19 +1,14 @@
 package org.example.steps.specific;
 
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.NewCookie;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.request.UpdateRequest;
-import org.example.api.service.AuthService;
 import org.example.api.service.CustomerService;
 import org.example.apicalls.apiconfig.BankAPI;
-import org.example.apicalls.client.BankClient;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.junit.Assert;
@@ -23,18 +18,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
-import java.util.Optional;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CustomerSteps extends AbstractSteps {
     private Response response;
     private BankService bankService = testContext().getBankService();
     @Autowired private CustomerService customerService;
+    private Response response;
     private BankAPI proxy = bankService.proxy;
     private Customer randomCustomer = testContext().getCustomer();  // Mantén el cliente como estado de la clase
     private Integer customerId = testContext().getCustomer().getCustomerId();
@@ -42,7 +33,7 @@ public class CustomerSteps extends AbstractSteps {
     @When("The customer updates their name to {string} and surname {string}")
     public void updateCustomerNameAndSurname(String name, String surname) {
 
-        assertNotNull(randomCustomer);
+        Assert.assertNotNull(randomCustomer);
         randomCustomer.setName(name);
         randomCustomer.setSurname(surname);
         testContext().setCustomer(randomCustomer);
@@ -58,7 +49,7 @@ public class CustomerSteps extends AbstractSteps {
 
     @And("The customer updates their email to {string} and password to {string}")
     public void updateCustomerEmailAndPassword(String email, String password) {
-        assertNotNull(randomCustomer);
+        Assert.assertNotNull(randomCustomer);
         randomCustomer.setEmail(email);
         randomCustomer.setPassword(password);
         testContext().setCustomer(randomCustomer);
@@ -79,27 +70,50 @@ public class CustomerSteps extends AbstractSteps {
     //TODO Debería ser genérico y aceptar una lista de parámetros (no estáticos)
 
     public void verifyCustomerUpdated(String updateStatus) {
-        assertNotNull(randomCustomer);
+        Assert.assertNotNull(randomCustomer);
         String email = testContext().getRegisteredEmail();
         System.out.println(email);
-        Response response = proxy.getCustomerByEmail(email);
+        //Response response = proxy.getCustomerByEmail(email);
+        Response response = bankService.getLoggedCustomer();
         System.out.println(response.getStatus());
-        Customer updatedCustomer = null;
+        Customer updatedCustomer;
         try{
             updatedCustomer = response.readEntity(Customer.class);
-        }catch (Exception e){
+        }catch (Exception ignored){
             updatedCustomer = null;
         }
         //Optional<Customer> updatedCustomer = customerService.findByEmail(randomCustomer.getEmail());
         if (updateStatus.equals("successfully")) {
-            assertTrue(updatedCustomer!=null);
+            Assert.assertNotNull(updatedCustomer);
             System.out.println("Customer updated successfully with email: " + updatedCustomer.getEmail());
         } else {
-            assertFalse(updatedCustomer!=null);
+            Assert.assertNull(updatedCustomer);
             System.out.println("Customer update failed.");
         }
     }
 
+    @When("i request all Customers list")
+    public void iRequestAllCustomersList() {
+        response = bankService.getAllCustomersList();
+        testContext().setResponse(response);
+    }
 
-
+    @And("if the response is successful, i should receive the customers list")
+    public void ifTheResponseIsSuccessfulIShouldReceiveTheCustomersList() {
+        response = testContext().getResponse();
+        try {
+            Assert.assertEquals(200, response.getStatus());
+            List<Customer> customers = response.readEntity(new GenericType<>() {});
+            Assert.assertNotNull(customers);
+            Assert.assertFalse(customers.isEmpty());
+            for (Customer c: customers) {
+                System.out.println(c.toString());
+            }
+        } catch (Error e) {
+            String mensaje = response.readEntity(String.class);
+            System.out.println("Test fallido. Código de error: " + response.getStatus());
+            System.out.println("Mensaje de error: " + mensaje);
+            Assert.assertNotNull(mensaje);
+        }
+    }
 }

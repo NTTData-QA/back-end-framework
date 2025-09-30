@@ -8,6 +8,11 @@ import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
 import org.example.api.data.request.*;
+import org.example.api.data.request.AccountRequest;
+import org.example.api.data.request.CardRequest;
+import org.example.api.data.request.LoginRequest;
+import org.example.api.data.request.TransferRequest;
+import org.example.api.data.request.UpdateRequest;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.client.BankClient;
 import org.example.apicalls.utils.Generator;
@@ -15,7 +20,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -31,20 +35,25 @@ public class BankService {
         proxy = client.getAPI();
     }
 
+    /*
     public Response getResponse(){
         return response;
     }
 
-    public Response doRegister(String name, String surname, String email, String password){
+     */
+
+    public Response doRegister(String name, String surname, String email, String password, String role){
         BankAPI proxy = client.getAPI();
         Customer customer= new Customer();
         customer.setName(name);
         customer.setSurname(surname);
         customer.setEmail(email);
         customer.setPassword(password);
-        Random rand = new Random(System.currentTimeMillis());
-        int id = rand.nextInt(999);
-        customer.setCustomerId(id);
+        if (role != null && role.equals("ADMIN")) {
+            customer.setRole(Customer.UserType.ADMIN);
+        } else {
+            customer.setRole(Customer.UserType.USER);
+        }
 
         response = proxy.addCustomer(customer);
         return response;
@@ -87,8 +96,7 @@ public class BankService {
         response = proxy.addCustomer(randCustomer);
         String customerString = response.getHeaderString("NewCustomer");
         System.out.println(customerString);
-        Customer customer = stringToCustomer(customerString);
-        return customer;
+        return stringToCustomer(customerString);
     }
 
     public Customer stringToCustomer(String customerString) {
@@ -101,11 +109,7 @@ public class BankService {
         }
     }
 
-
-
-
-    public Response doLogin ( String email, String password){
-
+    public Response doLogin (String email, String password){
         proxy = client.getAPI();
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail(email);
@@ -165,7 +169,7 @@ public class BankService {
      public Response doNewTransfer (TransferRequest transfer, HttpServletRequest request){
          TransferRequest transferRequest = new TransferRequest();
          transferRequest.setTransferAmount(transfer.getTransferAmount());
-         if(transfer.getCurrencyType().equals("USD")){
+         if(transfer.getCurrencyType().name().equals("USD")){
              transferRequest.setCurrencyType(Transfer.CurrencyType.USD);
          } else{
              transferRequest.setCurrencyType(Transfer.CurrencyType.EUR);
@@ -173,7 +177,7 @@ public class BankService {
          transferRequest.setOriginAccountId(transfer.getOriginAccountId());
          transferRequest.setReceivingAccountId(transfer.getReceivingAccountId());
          response = proxy.localTransfer(transferRequest, request);
-         System.out.println(response.getStatus());
+         System.out.println("Status code: " + response.getStatus());
          return response;
      }
 
@@ -239,4 +243,50 @@ public class BankService {
         response = proxy.listWithdrawsByAccount(accountId, request);
         return response;
     }
+
+    public Response getTransferHistory(int accountId) {
+        return proxy.getTransferHistory(accountId);
+    }
+
+    public Response doDeleteAccountById(int accountId) {
+        return proxy.deleteAccount(accountId);
+    }
+
+    public Response doDeleteAccountsByCustomerId(int customerId) {
+        return proxy.deleteAccountsOfCustomer(customerId);
+    }
+
+    public Response doDeleteAccountsOfLoggedUser() {
+        return proxy.deleteCardsOfLoggedUser(null);
+    }
+
+    public Response doUpdateExpirationDate(int accountId) {
+        return proxy.expirationDateUpdate(accountId, null);
+    }
+
+    public Response doUpdateAccountType(int accountId, Account.AccountType accountType) {
+        AccountRequest accountRequest = new AccountRequest();
+        accountRequest.setAccountType(accountType);
+        return proxy.accountTypeUpdate(accountId, accountRequest,null);
+    }
+
+    public Response doUpdateBlockStatus(int accountId, boolean setBlocked) {
+        AccountRequest accountRequest = new AccountRequest();
+        accountRequest.setIsBlocked(setBlocked);
+        return proxy.isBlockUpdate(accountId, accountRequest, null);
+    }
+
+    public Response doUpdateDebtStatus(int accountId, boolean setDebt) {
+        AccountRequest accountRequest = new AccountRequest();
+        accountRequest.setIsBlocked(setDebt);
+        return proxy.isInDebtUpdate(accountId, accountRequest, null);
+    }
+
+    public Response getAllCustomersList() { return proxy.getAllCustomers(); }
+
+    public Response doDeleteCustomerByEmail(String email) { return proxy.deleteCustomer(email); }
+
+    public Response getLoggedCustomer() { return proxy.getLoggedCustomer(); }
+
+    public Response getAccountById(Integer accountId) { return proxy.accountById(accountId); }
 }

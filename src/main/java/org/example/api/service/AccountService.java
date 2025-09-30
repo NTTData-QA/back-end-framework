@@ -1,14 +1,11 @@
 package org.example.api.service;
 
 import org.example.api.data.entity.Account;
-import org.example.api.data.entity.Card;
 import org.example.api.data.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

@@ -9,9 +9,13 @@ import org.example.api.service.CustomerService;
 import org.example.api.token.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +36,18 @@ public class CustomerController {
     this.customerService = customerService;
   }
 
+  @GetMapping("/api/customer")
+  public Customer getLoggedCustomer() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    Integer customerId = Integer.valueOf(authentication.getName());
+
+    return customer(customerId).orElseThrow();
+  }
 
   @GetMapping("/api/customer/{id}")   // get 1 customer by customerId
   public ResponseEntity<Customer> customer(@PathVariable Integer id) {
@@ -45,7 +61,7 @@ public class CustomerController {
 
   @GetMapping("/api/customer/email/{email}")   // get 1 customer by customerId
   public Customer getCustomerByEmail(@PathVariable String email) {
-    return customerService.findByEmail(email).get();
+    return customerService.findByEmail(email).orElseThrow();
   }
 
   @GetMapping("/api/customers")      // get all customers from DB
@@ -53,7 +69,7 @@ public class CustomerController {
     return customerService.findAll();
   }
 
-  @DeleteMapping("/public/customer/{email}")
+  @DeleteMapping("/api/customer/{email}")
   public ResponseEntity<String> deleteCustomer(@PathVariable String email) {
     try {
       boolean isDeleted = customerService.deleteByEmail(email);

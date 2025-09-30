@@ -22,16 +22,14 @@ import org.springframework.web.bind.annotation.*;
 import org.example.api.data.entity.Customer;
 import org.example.api.service.CardService;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class CardController {
@@ -74,8 +72,8 @@ public class CardController {
     }
 
     @GetMapping("api/card/{cardId}")       // get 1 card by cardId
-    public Optional<Card> card(@PathVariable Integer id) {
-        return card.findById(id);
+    public Optional<Card> cardById (@PathVariable Integer cardId) {
+        return card.findById(cardId);
     }
 
     @GetMapping("api/cards/{accountId}")    // get all cards by accountId
@@ -92,7 +90,7 @@ public class CardController {
         Integer customerId = Integer.valueOf(authentication.getName());
 
         // If we could not find the customer -> you are not logged
-        if(!customerService.findById(customerId).isPresent()){
+        if(customerService.findById(customerId).isEmpty()){
             return ResponseEntity.badRequest().body("Error creating card: You must be logged");
         }
 
@@ -105,7 +103,7 @@ public class CardController {
         Optional<Account> account = accountService.findById(cardRequest.getAccountId());
 
         // Verifying correct account data
-        if (!account.isPresent()) {
+        if (account.isEmpty()) {
             return ResponseEntity.badRequest().body("Error creating card: account not found");
         }
         //verificar que la cuenta pertenece al usuario logeado
@@ -299,11 +297,11 @@ public class CardController {
         }
 
         // Get user email from token
-        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        String email = Token.getCustomerEmailFromJWT(jwt);
 
         // Get user from email
         Optional<Customer> customerOpt = authenticationService.findCustomerByEmail(email);
-        if (!customerOpt.isPresent())
+        if (customerOpt.isEmpty())
             return ResponseEntity.status(404).build(); // 404 Not Found if user is not found
 
         ResponseEntity<String> response = deleteCardsOfCustomer(customerOpt.get().getCustomerId());

@@ -11,10 +11,6 @@ import org.example.apicalls.service.BankService;
 import org.example.apicalls.utils.JsonConverter;
 import org.example.context.AbstractSteps;
 import org.junit.Assert;
-import org.springframework.security.core.Authentication;
-
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 

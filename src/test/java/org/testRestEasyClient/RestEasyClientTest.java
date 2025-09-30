@@ -1,10 +1,7 @@
 package org.testRestEasyClient;
 
-import io.cucumber.cienvironment.internal.com.eclipsesource.json.Json;
-import jakarta.servlet.http.Cookie;
 import jakarta.ws.rs.core.NewCookie;
 import org.example.api.Application;
-import org.example.api.data.entity.Account;
 import org.example.api.data.request.LoginRequest;
 import org.example.apicalls.apiconfig.BankAPI;
 import jakarta.ws.rs.core.Response;
