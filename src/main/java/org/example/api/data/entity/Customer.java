@@ -36,6 +36,7 @@ public class Customer {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UserType role;
 
     public enum UserType {
