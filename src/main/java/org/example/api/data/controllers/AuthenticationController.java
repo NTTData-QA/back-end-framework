@@ -3,6 +3,7 @@ package org.example.api.data.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.example.api.data.entity.Customer;
+import org.example.api.data.entity.Customer.UserType;
 import org.example.api.data.request.LoginRequest;
 import org.example.api.service.AuthService;
 import org.example.api.service.CustomerService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +37,24 @@ public class AuthenticationController {
     @PostMapping("/public/register")
     public ResponseEntity<String> addCustomer(@Valid @RequestBody Customer nuevoCust) {
         try {
+            nuevoCust.setRole(UserType.USER);
+            customerService.register(nuevoCust);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("You have registered successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Email already registered.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Failed to register. Please try again.");
+        }
+    }
+
+    @PostMapping("/admin/register")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> addAdmin (@Valid @RequestBody Customer nuevoCust) {
+        try {
+            nuevoCust.setRole(UserType.ADMIN);
             customerService.register(nuevoCust);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("You have registered successfully.");

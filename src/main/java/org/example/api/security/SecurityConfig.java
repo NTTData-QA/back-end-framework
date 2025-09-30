@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/customer/update/nameandsurname").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/account/delete").hasAnyRole("USER","ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/card/delete").hasAnyRole("USER","ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/admin/register").hasRole("ADMIN")
 
                         .anyRequest().authenticated() // Permitir todas las solicitudes sin verificación de autenticación.
                 )
