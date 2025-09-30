@@ -16,6 +16,9 @@ public class Card {
     private Long number;
     private int cvc;
     private Date expirationDate;
+    private Boolean isBlocked;
+    private Double dailyLimit;
+    private Double monthlyLimit;
 
     @JsonIgnore
     @ManyToOne

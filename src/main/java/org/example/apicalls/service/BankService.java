@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
+import org.example.api.data.request.*;
 import org.example.api.data.request.AccountRequest;
 import org.example.api.data.request.CardRequest;
 import org.example.api.data.request.LoginRequest;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 @ComponentScan(basePackages = "org.example.apicalls.service")
@@ -56,6 +58,20 @@ public class BankService {
         response = proxy.addCustomer(customer);
         return response;
     }
+
+//    public Customer registerCustomer(String name, String surname, String email, String password){
+//        BankAPI proxy = client.getAPI();
+//        Customer customer= new Customer();
+//        customer.setName(name);
+//        customer.setSurname(surname);
+//        customer.setEmail(email);
+//        customer.setPassword(password);
+//        Random rand = new Random(System.currentTimeMillis());
+//        int id = rand.nextInt(999);
+//        customer.setCustomerId(id);
+//        response = proxy.addCustomer(customer);
+//        return customer;
+//    }
 
     // Register a new customer randomly generated
     public Customer registerRandomCustomer(){
@@ -94,7 +110,6 @@ public class BankService {
     }
 
     public Response doLogin (String email, String password){
-
         proxy = client.getAPI();
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail(email);
@@ -200,6 +215,33 @@ public class BankService {
         responses.add(responseEmail);
         responses.add(responsePassword);
         return responses;
+    }
+
+    public Response createWithdraw(Integer cardId, double amount, HttpServletRequest request) {
+        WithdrawRequest wr = new WithdrawRequest();
+        wr.setCardId(cardId);
+        wr.setAmount(amount);
+        proxy = client.getAPI();
+        response = proxy.createWithdraw(wr, request);
+        return response;
+    }
+
+    public Response listMyWithdraws(Integer cardId,HttpServletRequest request) {
+        proxy = client.getAPI();
+        response = proxy.listMyWithdraws(request);
+        return response;
+    }
+
+    public Response listWithdrawsByCard(Integer cardId, HttpServletRequest request) {
+        proxy = client.getAPI();
+        response = proxy.listWithdrawsByCard(cardId, request);
+        return response;
+    }
+
+    public Response listWithdrawsByAccount(Integer accountId, HttpServletRequest request) {
+        proxy = client.getAPI();
+        response = proxy.listWithdrawsByAccount(accountId, request);
+        return response;
     }
 
     public Response getTransferHistory(int accountId) {

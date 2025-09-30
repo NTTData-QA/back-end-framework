@@ -2,6 +2,7 @@ package org.example.api.data.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.api.data.entity.Customer;
+import org.example.api.data.repository.CustomerRepository;
 import org.example.api.data.request.UpdateRequest;
 import org.example.api.service.AuthService;
 import org.example.api.service.CustomerService;
@@ -22,6 +23,8 @@ import java.util.Optional;
 @RestController
 public class CustomerController {
   private final CustomerService customerService;
+  @Autowired private CustomerRepository customerRepository;
+  @Autowired private AccountController accountController;
 
   @Autowired
   private AuthService authService;
@@ -47,8 +50,13 @@ public class CustomerController {
   }
 
   @GetMapping("/api/customer/{id}")   // get 1 customer by customerId
-  public Optional<Customer> customer(@PathVariable Integer id) {
-    return customerService.findById(id);
+  public ResponseEntity<Customer> customer(@PathVariable Integer id) {
+    if (customerRepository.existsById(id)){
+      Optional<Customer> customer = customerService.findById(id);
+      return ResponseEntity.ok(customer.get());
+    } else {
+      return ResponseEntity.status(404).build();
+    }
   }
 
   @GetMapping("/api/customer/email/{email}")   // get 1 customer by customerId
@@ -119,6 +127,19 @@ public class CustomerController {
     catch (Exception e){
       return ResponseEntity.badRequest().body("Your name or surname must be valid");
     }
+  }
+
+  // Eliminar un customer por si id
+  @DeleteMapping("/public/customer/delete/{customerId}")
+  public ResponseEntity<String> deleteById(@PathVariable Integer customerId) {
+    Optional<Customer> customer = customerRepository.findById(customerId);
+    if (customer.isEmpty()){
+      return ResponseEntity.badRequest().body("Error: customer not found");
+    }
+    accountController.deleteAccountsOfCustomer(customerId);
+    customerRepository.deleteById(customerId);
+    return ResponseEntity.ok("The customer has been deleted successfully.");
+
   }
 }
 
