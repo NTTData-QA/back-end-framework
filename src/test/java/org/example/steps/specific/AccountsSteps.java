@@ -77,12 +77,6 @@ public class AccountsSteps extends AbstractSteps {
         testContext().setResponse(deleteResponse);
     }
 
-    @Then("the customer should receive the code {int} and a message")
-    public void theCustomerShouldReceiveTheCodeAndAMessage(int codigo) {
-        response = testContext().getResponse();
-        Assert.assertEquals(codigo, response.getStatus());
-    }
-
     @When("i try to delete an another customer's account")
     public void iTryToDeleteAnAccountWithId() {
         int accountId = testContext().getOriginID();
@@ -90,20 +84,11 @@ public class AccountsSteps extends AbstractSteps {
         testContext().setResponse(deleteResponse);
     }
 
-    @Then("i should receive the code {int} and a status message")
-    public void iShouldReceiveTheCodeCodeAndAStatusMessage(Integer code) {
-        response = testContext().getResponse();
-        String mensaje = response.readEntity(String.class);
-        try {
-            assertEquals(code, response.getStatus());
-            System.out.println("Resultado correcto. Código: " + response.getStatus());
-            System.out.println("Mensaje: " + mensaje);
-            assertNotNull(mensaje);
-        } catch (Error e) {
-            System.out.println("Test fallido. Código de error: " + response.getStatus());
-            System.out.println("Mensaje de error: " + mensaje);
-            assertNotNull(mensaje);
-            throw new AssertionFailedError();
-        }
+    @Given("a customer has an account with id {int}")
+    public void aCustomerHasAnAccountWithId(int accountId) {
+        response = bankService.getAccountById(accountId);
+        assertEquals(200, response.getStatus());
+        testContext().setOriginID(accountId);
     }
+
 }

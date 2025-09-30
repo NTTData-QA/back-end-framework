@@ -17,10 +17,14 @@ import org.example.apicalls.utils.JsonConverter;
 import org.example.context.AbstractSteps;
 import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
+import org.opentest4j.AssertionFailedError;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GenericSteps extends AbstractSteps {
     private Response response;
@@ -89,5 +93,28 @@ public class GenericSteps extends AbstractSteps {
         StepUtils.doLogin(bankService, testContext(), "jane.smith@example.com", "securepass");
         StepUtils.createAccount(bankService, testContext(), 1.);
         StepUtils.doLogout(bankService, testContext());
+    }
+
+    @Then("i should receive the code {int} and a status message")
+    public void iShouldReceiveTheCodeCodeAndAStatusMessage(Integer code) {
+        response = testContext().getResponse();
+        String mensaje = response.readEntity(String.class);
+        try {
+            assertEquals(code, response.getStatus());
+            System.out.println("Resultado correcto. Código: " + response.getStatus());
+            System.out.println("Mensaje: " + mensaje);
+            assertNotNull(mensaje);
+        } catch (Error e) {
+            System.out.println("Test fallido. Código de error: " + response.getStatus());
+            System.out.println("Mensaje de error: " + mensaje);
+            assertNotNull(mensaje);
+            throw new AssertionFailedError();
+        }
+    }
+
+    @Then("the customer should receive the code {int} and a message")
+    public void theCustomerShouldReceiveTheCodeAndAMessage(int codigo) {
+        response = testContext().getResponse();
+        Assert.assertEquals(codigo, response.getStatus());
     }
 }

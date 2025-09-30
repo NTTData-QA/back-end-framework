@@ -245,4 +245,6 @@ public class BankService {
     public Response doDeleteCustomerByEmail(String email) { return proxy.deleteCustomer(email); }
 
     public Response getLoggedCustomer() { return proxy.getLoggedCustomer(); }
+
+    public Response getAccountById(Integer accountId) { return proxy.accountById(accountId); }
 }
