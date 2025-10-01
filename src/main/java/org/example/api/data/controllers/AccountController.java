@@ -398,31 +398,7 @@ public class AccountController {
 
 //    @PatchMapping("/api/account/withdraw/{accountId}")
 //    public ResponseEntity<String> withdrawAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
-    // DOCUMENTACIÓN: Sustituido por otro endpoint
-    @PatchMapping("/api/account/withdraw/{accountId}")
-    public ResponseEntity<String> withdrawAccountId(@PathVariable Integer accountId, @RequestBody UpdateRequest updateRequest, HttpServletRequest request){
-        Optional<Account> accountOpt = accountRepository.findByAccountId(accountId);
-        if (accountOpt.isEmpty()){
-            return ResponseEntity.badRequest().body("There is no account with ID: "+ accountId);
-        }
-        Account account= accountOpt.get();
-        Customer customerAccount = customerService.getCustomerFromRequest(request);
-        if(customerAccount != account.getCustomer()){
-            return ResponseEntity.badRequest().body("You cannot withdraw money from an account that is not associated with you");
-        }
-        Double deposit = updateRequest.getAmount();
-        if (deposit <= 0){
-            return ResponseEntity.badRequest().body("The withdraw must be greater than 0");
-        }
-        try{
-            accountService.makeWithdraw(account,deposit);
-            return ResponseEntity.ok().body("The withdraw was made successfully");
-        }
-        catch (Exception e) {
-            return ResponseEntity.badRequest().body("The withdraw could not be done");
-
-        }
-    }
+//    DOCUMENTACIÓN: Sustituido por otro endpoint
 
     @PatchMapping("/api/account/expirationDate/{accountId}")
     public ResponseEntity<String> expirationDateUpdate(@PathVariable Integer accountId, HttpServletRequest request) {

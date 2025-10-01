@@ -46,14 +46,14 @@ public class CustomerController {
 
     Integer customerId = Integer.valueOf(authentication.getName());
 
-    return customer(customerId).orElseThrow();
+    return customer(customerId).getBody();
   }
 
   @GetMapping("/api/customer/{id}")   // get 1 customer by customerId
   public ResponseEntity<Customer> customer(@PathVariable Integer id) {
     if (customerRepository.existsById(id)){
       Optional<Customer> customer = customerService.findById(id);
-      return ResponseEntity.ok(customer.get());
+      return ResponseEntity.ok(customer.orElseThrow());
     } else {
       return ResponseEntity.status(404).build();
     }

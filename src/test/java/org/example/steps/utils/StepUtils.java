@@ -2,6 +2,7 @@ package org.example.steps.utils;
 
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
+import org.example.api.data.entity.Customer;
 import org.example.apicalls.service.BankService;
 import org.example.context.TestContext;
 import org.junit.Assert;
@@ -13,6 +14,9 @@ public class StepUtils {
         Response response = bankService.doLogin(email,password);
         testContext.setResponse(response);
         testContext.setBankService(bankService);
+        if (response.getStatus() == 200) {
+            testContext.setCustomer(bankService.getLoggedCustomer().readEntity(Customer.class));
+        }
     }
 
     public static void createAccount(BankService bankService, TestContext testContext, Double amount) {

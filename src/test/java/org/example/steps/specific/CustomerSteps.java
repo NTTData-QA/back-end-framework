@@ -25,7 +25,6 @@ public class CustomerSteps extends AbstractSteps {
     private Response response;
     private BankService bankService = testContext().getBankService();
     @Autowired private CustomerService customerService;
-    private Response response;
     private BankAPI proxy = bankService.proxy;
     private Customer randomCustomer = testContext().getCustomer();  // Mantén el cliente como estado de la clase
     private Integer customerId = testContext().getCustomer().getCustomerId();
