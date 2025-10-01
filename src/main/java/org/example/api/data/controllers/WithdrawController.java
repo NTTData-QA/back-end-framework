@@ -78,8 +78,7 @@ public class WithdrawController {
         }
 
         try {
-            Withdraw w = withdrawService.createWithdraw(card, req.getAmount());
-            return ResponseEntity.ok(w);
+            return withdrawService.createWithdraw(card, req.getAmount());
         } catch (IllegalStateException ise) {
             return ResponseEntity.badRequest().body(ise.getMessage());
         } catch (IllegalArgumentException iae) {

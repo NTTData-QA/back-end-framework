@@ -6,6 +6,7 @@ import org.example.api.data.entity.Withdraw;
 import org.example.api.data.repository.AccountRepository;
 import org.example.api.data.repository.WithdrawRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +34,7 @@ public class WithdrawService {
     }
 
     @Transactional
-    public Withdraw createWithdraw(Card card, Double amount) {
+    public ResponseEntity<String> createWithdraw(Card card, Double amount) {
         if (amount == null || amount <= 0) {
             throw new IllegalArgumentException("Amount must be > 0");
         }
@@ -100,7 +101,8 @@ public class WithdrawService {
         w.setCard(card);
         w.setAmount(amount);
         w.setWithdrawDate(now);
-        return withdrawRepository.save(w);
+        withdrawRepository.save(w);
+        return ResponseEntity.ok().body("Withdraw made successfully");
     }
 
     public List<Withdraw> findByCard(Integer cardId) {
