@@ -420,7 +420,7 @@ public class AccountController {
         }
 
         account.setExpirationDate(expirationDateExtension);
-        accountRepository.save(account);
+        accountService.save(account);
         return ResponseEntity.ok("The expiration date has been updated to:" + expirationDateExtension);
     }
 
@@ -447,7 +447,7 @@ public class AccountController {
         }
 
         account.setAccountType(accountType);
-        accountRepository.save(account);
+        accountService.save(account);
         return ResponseEntity.ok("Your accountType has been changed");
     }
 
@@ -474,7 +474,7 @@ public class AccountController {
         }
 
         account.setIsBlocked(isBlocked);
-        accountRepository.save(account);
+        accountService.save(account);
         return ResponseEntity.ok("Your blocked status has been changed");
     }
 
@@ -513,7 +513,7 @@ public class AccountController {
         }
 
         account.setIsInDebt(requestedDebtStatus);
-        accountRepository.save(account);
+        accountService.save(account);
 
         return ResponseEntity.ok("Your debt status has been updated successfully.");
     }

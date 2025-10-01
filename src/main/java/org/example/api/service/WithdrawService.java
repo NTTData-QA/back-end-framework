@@ -15,6 +15,8 @@ import java.util.List;
 
 @Service
 public class WithdrawService {
+    @Autowired
+    private AccountService accountService;
 
     private final WithdrawRepository withdrawRepository;
 
@@ -91,7 +93,7 @@ public class WithdrawService {
         if(account.getAmount() < 0){
             account.setIsInDebt(Boolean.TRUE);
         }
-        accountRepository.save(account);
+        accountService.save(account);
 
         // 2) Guarda el withdraw
         Withdraw w = new Withdraw();
