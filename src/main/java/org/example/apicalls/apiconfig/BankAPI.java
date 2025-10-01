@@ -171,7 +171,7 @@ public interface BankAPI {
 
     // Endpoints creados para los Withdraws
     @POST
-    @Path("/api/withdraw")
+    @Path("/api/withdraw/new")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     Response createWithdraw(WithdrawRequest request, @Context HttpServletRequest httpServletRequest);

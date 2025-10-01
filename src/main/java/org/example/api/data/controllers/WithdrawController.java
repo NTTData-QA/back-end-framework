@@ -45,7 +45,7 @@ public class WithdrawController {
     }
 
     // Crear withdraw por tarjeta (AUTENTICADO)
-    @PostMapping("/api/withdraw")
+    @PostMapping("/api/withdraw/new")
     public ResponseEntity<?> create(@RequestBody WithdrawRequest req,
                                     HttpServletRequest request) {
         // 1) Autenticación por cookie JWT (como en otros controladores)
