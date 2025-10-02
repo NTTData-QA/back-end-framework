@@ -161,7 +161,7 @@ public class WithdrawController {
         // Check if card exists
         Optional<Card> card = cardService.findById(cardId);
         if (card.isEmpty())
-            return ResponseEntity.badRequest().body("Error: customer does not exist");
+            return ResponseEntity.status(404).body("Error: customer does not exist");
 
         // We delete every withdraw of the card
         List<Withdraw> withdraws = withdrawService.findByCard(cardId);
