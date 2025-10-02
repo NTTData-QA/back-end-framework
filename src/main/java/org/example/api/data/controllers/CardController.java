@@ -150,7 +150,7 @@ public class CardController {
 
         Account account = card.getAccount();
         if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
-            return ResponseEntity.badRequest().body("Card does not belong to the user");
+            return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
         if(newDailyLimit <= 0){
@@ -185,7 +185,7 @@ public class CardController {
 
         Account account = card.getAccount();
         if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
-            return ResponseEntity.badRequest().body("Card does not belong to the user");
+            return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
         if(newMonthlyLimit <= 0){
@@ -205,7 +205,7 @@ public class CardController {
 
         Optional<Card> cardOpt = cardRepository.findById(cardId);
         if (!cardOpt.isPresent()){
-            return ResponseEntity.badRequest().body("There is no card with ID: "+ cardId);
+            return ResponseEntity.status(404).body("There is no card with ID: "+ cardId);
         }
 
         Card card = cardOpt.get();
@@ -218,7 +218,7 @@ public class CardController {
 
         Account account = card.getAccount();
         if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
-            return ResponseEntity.badRequest().body("Card does not belong to the user");
+            return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
 
