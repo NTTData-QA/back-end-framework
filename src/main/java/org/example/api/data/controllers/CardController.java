@@ -149,7 +149,7 @@ public class CardController {
         Customer customer = customerRepository.findByEmail(email).get();
 
         Account account = card.getAccount();
-        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId()) && !customer.getRole().equals(Customer.UserType.ADMIN)){
             return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
@@ -184,7 +184,7 @@ public class CardController {
         Customer customer = customerRepository.findByEmail(email).get();
 
         Account account = card.getAccount();
-        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId()) && !customer.getRole().equals(Customer.UserType.ADMIN)){
             return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
@@ -217,7 +217,7 @@ public class CardController {
         Customer customer = customerRepository.findByEmail(email).get();
 
         Account account = card.getAccount();
-        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId()) && !customer.getRole().equals(Customer.UserType.ADMIN)){
             return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
