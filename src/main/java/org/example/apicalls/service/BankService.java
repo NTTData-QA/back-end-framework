@@ -276,12 +276,6 @@ public class BankService {
         return proxy.isBlockUpdate(accountId, accountRequest, null);
     }
 
-    public Response doUpdateDebtStatus(int accountId, boolean setDebt) {
-        AccountRequest accountRequest = new AccountRequest();
-        accountRequest.setIsBlocked(setDebt);
-        return proxy.isInDebtUpdate(accountId, accountRequest, null);
-    }
-
     public Response getAllCustomersList() { return proxy.getAllCustomers(); }
 
     public Response doDeleteCustomerByEmail(String email) { return proxy.deleteCustomer(email); }
