@@ -221,6 +221,9 @@ public class CardController {
             return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
+        if (newIsBlocked == null) {
+            return ResponseEntity.badRequest().body("Blocked status cannot be null.");
+        }
 
         try{
             cardService.updateIsBlocked(card, newIsBlocked);
