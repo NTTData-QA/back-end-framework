@@ -273,26 +273,20 @@ public interface BankAPI {
     Response getTransferHistory(@PathParam("accountId") Integer accountId);
     
     @PATCH
-    @Path("/api/account/expirationDate/{accountId}")
+    @Path("/api/account/update/expirationDate/{accountId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response expirationDateUpdate(@PathParam("accountId") int accountId, @Context HttpServletRequest httpServletRequest);
 
     @PATCH
-    @Path("/api/account/accountType/{accountId}")
+    @Path("/api/account/update/accountType/{accountId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response accountTypeUpdate(@PathParam("accountId") int accountId,AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
 
     @PATCH
-    @Path("/api/account/isBlock/{accountId}")
+    @Path("/api/account/update/isBlocked/{accountId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response isBlockUpdate(@PathParam("accountId") int accountId, AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
-
-    @PATCH
-    @Path("/api/account/isInDebt/{accountId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    Response isInDebtUpdate(@PathParam("accountId") int accountId,AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
 }
