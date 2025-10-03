@@ -244,7 +244,7 @@ public interface BankAPI {
     Response updatePassword(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
 
     @DELETE
-    @Path("/public/customer/delete/{customerId}")
+    @Path("/api/customer/delete/{customerId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCustomerById(@PathParam("customerId") int customerId);
