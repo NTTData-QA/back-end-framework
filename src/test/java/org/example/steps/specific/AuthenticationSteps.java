@@ -59,14 +59,10 @@ public class AuthenticationSteps extends AbstractSteps {
         response = bankService.doRegister(name,surname,email,password, null);
         testContext().setRegisteredEmail(email);
 
-        // --> Hidratar customerId
         Response r = bankService.proxy.getCustomerByEmail(email);
-        if (r.getStatus() == 200) {
-            Customer c = r.readEntity(Customer.class);
-            if (c != null && c.getCustomerId() != null) {
-                testContext().setOriginID(c.getCustomerId()); // ahora OriginID = customerId
-            }
-        }
+        Customer c = r.readEntity(Customer.class);
+        testContext().setCustomer(c);
+
     }
 
     @Given("the system is ready and i log with email {string} and password {string}")
@@ -77,15 +73,6 @@ public class AuthenticationSteps extends AbstractSteps {
     @When("I login with email {string} and password {string}")
     public void loginUser(String email, String password) {
         StepUtils.doLogin(bankService, testContext(), email, password);
-
-        // --> Hidratar customerId
-        Response r = bankService.proxy.getCustomerByEmail(email);
-        if (r.getStatus() == 200) {
-            Customer c = r.readEntity(Customer.class);
-            if (c != null && c.getCustomerId() != null) {
-                testContext().setOriginID(c.getCustomerId()); // ahora OriginID = customerId
-            }
-        }
     }
 
     @Given("I have logged in with email {string} and password {string}")
@@ -254,7 +241,7 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @When("The customer deletes his customer registration by id")
     public void theCustomerDeleteHisCustomerRegistrationById() {
-        Integer customerId = testContext().getOriginID();
+        Integer customerId = testContext().getCustomer().getCustomerId();
         proxy = bankService.proxy;
         if (customerId != null) {
             Response deleteResponse = proxy.deleteCustomerById(customerId);
