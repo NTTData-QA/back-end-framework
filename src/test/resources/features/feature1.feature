@@ -3,7 +3,7 @@ Feature: User authentication
 
   Background:
     Given the system is ready for user authentication
-
+  @NoCleanup
   Scenario: Register a new customer
     When I register with name "John", surname "Doe", email "probando4@example.com" and password "password123" and I log in
     Then I should receive a message "You have registered successfully."
@@ -13,10 +13,11 @@ Feature: User authentication
     When I login with email "probando4@example.com" and password "password123"
     Then I should receive a message "Correct authentication"
 
+  @NoCleanup
   Scenario: Login with invalid credentials
     When I login with email "invalid@example.com" and password "wrongpassword"
     Then I should receive a message "Invalid credentials"
-
+  @NoCleanup
   Scenario: Logout after logging in
     Given I have logged in with email "probando3@example.com" and password "password123"
     When I log out
