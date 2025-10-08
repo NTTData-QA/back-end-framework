@@ -1,5 +1,5 @@
 Feature: Test endpoints filtered by role
-
+  @NoCleanup
   Scenario Outline: Obtain Customer list
     Given the system is ready and i log with email "<email>" and password "<pwd>"
     When i request all Customers list
@@ -11,7 +11,7 @@ Feature: Test endpoints filtered by role
       | john.doe@example.com | password123 | 403 |
       | admin@admin.com      | 1234        | 200 |
 
-  @createFakeAccountFirst
+  @createFakeAccountFirst @NoCleanup
   Scenario Outline: Delete Customer's account
     Given the system is ready and i log with email "<email>" and password "<pwd>"
     When i try to delete an another customer's account
