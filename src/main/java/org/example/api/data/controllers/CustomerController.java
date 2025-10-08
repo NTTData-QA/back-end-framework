@@ -136,6 +136,9 @@ public class CustomerController {
     if (customer.isEmpty()){
       return ResponseEntity.badRequest().body("Error: customer not found");
     }
+    if(customerId==999){
+        return ResponseEntity.badRequest().body("Error: customer admin can not delete");
+    }
     accountController.deleteAccountsOfCustomer(customerId);
     customerRepository.deleteById(customerId);
     return ResponseEntity.ok("The customer has been deleted successfully.");
