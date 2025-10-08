@@ -77,7 +77,6 @@ public class AccountsSteps extends AbstractSteps {
 
     @When("i try to delete an another customer's account")
     public void iTryToDeleteAnAccountWithId() {
-        //esto que mierda de borrado es, reportable
         int accountId = testContext().getOriginID();
         Response deleteResponse = bankService.doDeleteAccountById(accountId);
         testContext().setResponse(deleteResponse);
