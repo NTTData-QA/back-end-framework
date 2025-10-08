@@ -7,11 +7,13 @@ import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Customer;
+import org.example.api.data.repository.CustomerRepository;
 import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
@@ -26,6 +28,8 @@ public class AuthenticationSteps extends AbstractSteps {
     private  String registeredEmail = testContext().getRegisteredEmail();
     private final String baseUrl = "http://localhost:8080";
     private static BankAPI proxy = bankService.proxy;
+    @Autowired private CustomerRepository customerRepository;
+
 
 
     @Given("the system is ready for user authentication")
@@ -131,39 +135,35 @@ public class AuthenticationSteps extends AbstractSteps {
 //        }
 //    }
 
-    @After("not @NoCleanup")
+    @After()
     public void deleteRegisteredUser() {
-
-        //guardar los datos del usuario logeado y logearse con el admin para poder realizar los borrados
-
-        // NO resetear el contexto todavía: necesitamos email y cards
         String registeredEmail = testContext().getRegisteredEmail();
-        proxy = bankService.proxy; // usar el proxy autenticado actual
 
-
-        Response response = bankService.getLoggedCustomer();
-        Customer updatedCustomer = response.readEntity(Customer.class);
-        Integer CustomerId = updatedCustomer.getCustomerId();
-
-        System.out.println(registeredEmail != null ? registeredEmail : "registeredEmail is null");
-       // Response customerRegistrado = proxy.getCustomerByEmail(registeredEmail);
-       // Customer customer = customerRegistrado.readEntity(Customer.class);
-        //System.out.println("Respuesta:\n---------------------------\n" + customerRegistrado+"\n ---------------------------\n");
-        //System.out.println(customer);
-        //Integer clienteIdRegistrado = customer.getCustomerId();
-
-        StepUtils.doLogout(bankService, testContext());
-        StepUtils.doLogin(bankService, testContext(), "admin@admin.com", "1234");
-
-
-        if (registeredEmail != null) {
-            //llamada a funcion de Paula para borrar todo por id
-            proxy.deleteCustomerById(CustomerId);
-        } else {
-            System.out.println("No user to delete, registeredEmail is null");
+        // If there's no registered email in the context, there's nothing to clean up.
+        if (registeredEmail == null) {
+            System.out.println("No registered email in test context, skipping cleanup.");
+            testContext().reset();
+            return;
         }
 
-        // 6) AHORA sí: limpiar el contexto de test
+        // Log out any active session to ensure a clean state.
+        StepUtils.doLogout(bankService, testContext());
+
+        // Log in as admin to get deletion permissions.
+        StepUtils.doLogin(bankService, testContext(), "admin@admin.com", "1234");
+        proxy = bankService.proxy; // Proxy is now authenticated as admin.
+
+        Response customerResponse = proxy.getCustomerByEmail(registeredEmail);
+
+        if (customerResponse.getStatus() == HttpStatus.OK.value()) {
+            Customer customerToDelete = customerResponse.readEntity(Customer.class);
+            proxy.deleteCustomerById(customerToDelete.getCustomerId());
+            System.out.println("Successfully deleted user: " + registeredEmail);
+        } else {
+            System.out.println("Could not find user by email '" + registeredEmail + "' to delete. Status: " + customerResponse.getStatus());
+        }
+
+        // Clean up the test context for the next run.
         testContext().reset();
     }
 
@@ -216,7 +216,7 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @When("The customer deletes his customer registration by id")
     public void theCustomerDeleteHisCustomerRegistrationById() {
-        Integer customerId = testContext().getCustomer().getCustomerId();
+        Integer customerId = customerRepository.findByEmail("paula@example.com").get().getCustomerId();
         proxy = bankService.proxy;
         if (customerId != null) {
             Response deleteResponse = proxy.deleteCustomerById(customerId);
