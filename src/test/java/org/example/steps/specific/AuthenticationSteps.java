@@ -7,13 +7,10 @@ import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Customer;
-import org.example.api.data.repository.CustomerRepository;
-import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.example.steps.utils.StepUtils;
 import org.junit.Assert;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 
@@ -23,18 +20,12 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AuthenticationSteps extends AbstractSteps {
 
-    private Response response;
     public static BankService bankService = new BankService();
-    private  String registeredEmail = testContext().getRegisteredEmail();
-    private final String baseUrl = "http://localhost:8080";
-    private static BankAPI proxy = bankService.proxy;
-    @Autowired private CustomerRepository customerRepository;
-
 
 
     @Given("the system is ready for user authentication")
     public void systemIsReady() {
-        RestAssured.baseURI = baseUrl;
+        RestAssured.baseURI = "http://localhost:8080";
     }
 
     @Given("The customer registers with random email, name, surname and password")
@@ -49,11 +40,7 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @When("I register with name {string}, surname {string}, email {string} and password {string}")
     public void registerUser(String name, String surname, String email, String password) {
-        testContext().setRegisteredEmail(email);
-        response = bankService.doRegister(name, surname, email, password, null);
-        testContext().setResponse(response);
-        bankService.doLogin(email,password);
-        testContext().setBankService(bankService);
+        StepUtils.doRegister(bankService, testContext(), name, surname, email, password);
     }
 
 
@@ -168,7 +155,7 @@ public class AuthenticationSteps extends AbstractSteps {
 
         StepUtils.doLogout(bankService, testContext());
 
-        registeredEmail = testContext().getRegisteredEmail();
+        String registeredEmail = testContext().getRegisteredEmail();
         System.out.println(registeredEmail != null ? registeredEmail : "registeredEmail is null");
 
         if (registeredEmail != null) {
@@ -203,7 +190,7 @@ public class AuthenticationSteps extends AbstractSteps {
 
     @When("The customer deletes his customer registration by id")
     public void theCustomerDeleteHisCustomerRegistrationById() {
-        Integer customerId = customerRepository.findByEmail("paula@example.com").get().getCustomerId();
+        Integer customerId = bankService.getCustomerByEmail("paula@example.com").readEntity(Customer.class).getCustomerId();
         if (customerId != null) {
             Response deleteResponse = bankService.doDeleteCustomerById(customerId);
             testContext().setResponse(deleteResponse);

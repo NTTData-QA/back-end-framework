@@ -42,6 +42,7 @@ public class StepUtils {
 
     public static void doRegister(BankService bankService, TestContext testContext,
                                   String name, String surname, String email, String password) {
+
         Response response = bankService.doRegister(name, surname, email, password, null);
         testContext.setRegisteredEmail(email);
         testContext.setResponse(response);
