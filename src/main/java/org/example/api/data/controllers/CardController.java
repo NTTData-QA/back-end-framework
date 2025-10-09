@@ -289,7 +289,7 @@ public class CardController {
     }
 
     @DeleteMapping("/api/card/delete")
-    public ResponseEntity<String> deleteCardsOfLoggedUser(HttpServletRequest request){
+    public ResponseEntity<String> deleteLoggedUserCards(HttpServletRequest request){
         // Get the customer logged
         String jwt = authenticationService.getJwtFromCookies(request);
         System.out.println(jwt);

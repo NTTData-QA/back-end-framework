@@ -315,7 +315,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/api/account/delete")
-    public ResponseEntity<String> deleteLoggedUser (HttpServletRequest request){
+    public ResponseEntity<String> deleteLoggedUserAccounts (HttpServletRequest request){
         // Get JWT token from cookies
         String jwt = authService.getJwtFromCookies(request);
         System.out.println(jwt);

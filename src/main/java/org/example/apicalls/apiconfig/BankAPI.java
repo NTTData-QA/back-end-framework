@@ -5,13 +5,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import org.example.api.data.request.*;
-import org.springframework.security.core.context.SecurityContext;
-import org.example.api.data.entity.Account;
-import org.example.api.data.entity.Card;
-import org.example.api.data.entity.Customer;
-import org.example.api.service.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
@@ -164,7 +157,7 @@ public interface BankAPI {
     @DELETE
     @Path("/api/account/delete")
     @Produces(MediaType.TEXT_PLAIN)
-    Response deleteLoggedUser(@Context HttpServletRequest request);
+    Response deleteLoggedUserAccounts(@Context HttpServletRequest request);
 
 //    @PATCH
 //    @Path("/api/account/withdraw/{accountId}")
@@ -200,7 +193,7 @@ public interface BankAPI {
     @DELETE
     @Path("/api/card/delete")
     @Produces(MediaType.TEXT_PLAIN)
-    Response deleteCardsOfLoggedUser(@Context HttpServletRequest request);
+    Response deleteLoggedUserCards(@Context HttpServletRequest request);
 
     @DELETE
     @Path("/api/card/delete/customer/{customerId}")

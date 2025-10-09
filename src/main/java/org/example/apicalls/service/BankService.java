@@ -255,8 +255,8 @@ public class BankService {
         return proxy.deleteAccountsOfCustomer(customerId);
     }
 
-    public Response doDeleteAccountsOfLoggedUser() {
-        return proxy.deleteCardsOfLoggedUser(null);
+    public Response doDeleteLoggedUserAccounts() {
+        return proxy.deleteLoggedUserAccounts(null);
     }
 
     public Response doUpdateExpirationDate(int accountId) {
@@ -286,4 +286,12 @@ public class BankService {
     public Response getLoggedUserAccounts() { return proxy.getUserAccounts(null); }
 
     public Response getLoggedUserAmount() { return proxy.getUserAmount(null); }
+
+    public Response getCustomerByEmail(String email) { return proxy.getCustomerByEmail(email); }
+
+    public Response doDeleteCustomerById(Integer customerId) { return proxy.deleteCustomerById(customerId); }
+
+    public Response doDeleteWithdrawsByCardId(Integer cardId) { return proxy.deleteWithdrawsById(cardId); }
+
+    public Response doDeleteLoggedUserCards() { return proxy.deleteLoggedUserCards(null); }
 }
