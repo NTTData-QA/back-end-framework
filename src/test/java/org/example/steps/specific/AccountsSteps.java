@@ -19,19 +19,19 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AccountsSteps extends AbstractSteps {
     private Response response;
     private static String jwt;
-    private BankService bankService = testContext().getBankService();
+    private final BankService bankService = testContext().getBankService();
     private BankAPI proxy = bankService.proxy;
 
 
     @When("i request this users account information")
     public void iRequestThisUsersAccountInformation() {
-        response = proxy.getUserAccounts(null);
+        response = bankService.getLoggedUserAccounts();
         testContext().setResponse(response);
     }
 
     @When("i request this users account amount")
     public void iRequestThisUsersAccountAmount() {
-        response = proxy.getUserAmount(null);
+        response = bankService.getLoggedUserAccounts();
         Assert.assertEquals(HttpStatus.OK.value(), response.getStatus());
     }
 
@@ -51,8 +51,7 @@ public class AccountsSteps extends AbstractSteps {
 
     @And("The receiving customer has an account with id {int}")
     public void theReceivingCustomerHasAnAccountWithId(int receiverAccountId) {
-        proxy = bankService.proxy;
-        Response receiverAccountresponse = proxy.accountById(receiverAccountId);
+        Response receiverAccountresponse = bankService.getAccountById(receiverAccountId);
         Assert.assertEquals(200, receiverAccountresponse.getStatus());
     }
 

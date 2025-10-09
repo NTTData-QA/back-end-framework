@@ -13,7 +13,6 @@ Feature: User authentication
     When I login with email "probando6@example.com" and password "password123"
     Then I should receive a message "Correct authentication"
 
-
   Scenario: Login with invalid credentials
     When I login with email "invalid@example.com" and password "wrongpassword"
     Then I should receive a message "Invalid credentials"

@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
 
 @Service
 @ComponentScan(basePackages = "org.example.apicalls.service")
@@ -283,4 +282,8 @@ public class BankService {
     public Response getLoggedCustomer() { return proxy.getLoggedCustomer(); }
 
     public Response getAccountById(Integer accountId) { return proxy.accountById(accountId); }
+
+    public Response getLoggedUserAccounts() { return proxy.getUserAccounts(null); }
+
+    public Response getLoggedUserAmount() { return proxy.getUserAmount(null); }
 }
