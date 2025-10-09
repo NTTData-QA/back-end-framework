@@ -39,4 +39,15 @@ public class StepUtils {
         Response response = bankService.doLogout();
         testContext.setResponse(response);
     }
+
+    public static void doRegister(BankService bankService, TestContext testContext,
+                                  String name, String surname, String email, String password) {
+        Response response = bankService.doRegister(name, surname, email, password, null);
+        testContext.setRegisteredEmail(email);
+        testContext.setResponse(response);
+
+        response = bankService.getCustomerByEmail(email);
+        Customer c = response.readEntity(Customer.class);
+        testContext.setCustomer(c);
+    }
 }
