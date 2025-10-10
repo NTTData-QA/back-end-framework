@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AuthenticationSteps extends AbstractSteps {
 
-    public static BankService bankService = new BankService();
+    private final BankService bankService = new BankService();
 
 
     @Given("the system is ready for user authentication")
@@ -199,7 +199,5 @@ public class AuthenticationSteps extends AbstractSteps {
         } else {
             System.out.println("No user to delete, customerId is null");
         }
-
     }
-
 }

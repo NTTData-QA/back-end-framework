@@ -17,26 +17,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AccountsSteps extends AbstractSteps {
-    private Response response;
-    private static String jwt;
+
     private final BankService bankService = testContext().getBankService();
-    private BankAPI proxy = bankService.proxy;
 
 
     @When("i request this users account information")
     public void iRequestThisUsersAccountInformation() {
-        response = bankService.getLoggedUserAccounts();
+        Response response = bankService.getLoggedUserAccounts();
         testContext().setResponse(response);
     }
 
     @When("i request this users account amount")
     public void iRequestThisUsersAccountAmount() {
-        response = bankService.getLoggedUserAccounts();
+        Response response = bankService.getLoggedUserAmount();
         Assert.assertEquals(HttpStatus.OK.value(), response.getStatus());
+        testContext().setResponse(response);
     }
 
     @Then("i should receive the amount")
     public void iShouldReceiveTheAmount() {
+        Response response = testContext().getResponse();
         String amount = response.readEntity(String.class);
         System.out.println("The amount of the logged user is ".concat(amount).concat(" euros"));
     }
@@ -83,9 +83,8 @@ public class AccountsSteps extends AbstractSteps {
 
     @Given("a customer has an account with id {int}")
     public void aCustomerHasAnAccountWithId(int accountId) {
-        response = bankService.getAccountById(accountId);
+        Response response = bankService.getAccountById(accountId);
         assertEquals(200, response.getStatus());
         testContext().setOriginID(accountId);
     }
-
 }

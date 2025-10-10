@@ -16,9 +16,8 @@ import java.util.List;
 
 public class CardSteps extends AbstractSteps {
 
-    private Response response;
-    private BankService bankService = testContext().getBankService();
-    private BankAPI proxy = bankService.proxy;
+    private final BankService bankService = testContext().getBankService();
+
 
     @And("The customer checks their cards")
     public void theCustomerChecksTheirCards(){
