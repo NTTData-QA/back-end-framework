@@ -43,7 +43,6 @@ public class BankService {
      */
 
     public Response doRegister(String name, String surname, String email, String password, String role){
-        BankAPI proxy = client.getAPI();
         Customer customer= new Customer();
         customer.setName(name);
         customer.setSurname(surname);

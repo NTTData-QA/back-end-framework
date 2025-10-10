@@ -46,9 +46,5 @@ public class StepUtils {
         Response response = bankService.doRegister(name, surname, email, password, null);
         testContext.setRegisteredEmail(email);
         testContext.setResponse(response);
-
-        response = bankService.getCustomerByEmail(email);
-        Customer c = response.readEntity(Customer.class);
-        testContext.setCustomer(c);
     }
 }
