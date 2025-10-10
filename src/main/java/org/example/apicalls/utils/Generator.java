@@ -190,7 +190,7 @@ public class Generator {
     public static Card generateCardType(Account account, CardRequest cardRequest) {
         Card card = new Card();
         Card.CardType type;
-        if (cardRequest.getType().equals("Credit") || cardRequest.getType().equals("Debit")){
+        if (cardRequest.getType().equals(Card.CardType.CREDIT) || cardRequest.getType().equals(Card.CardType.DEBIT)){
             type = cardRequest.getType();
         }else {
             type = randomlyChooseFrom(Card.CardType.CREDIT, Card.CardType.DEBIT);
