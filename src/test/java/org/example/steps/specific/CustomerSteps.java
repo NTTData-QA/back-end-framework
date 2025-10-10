@@ -22,46 +22,24 @@ import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class CustomerSteps extends AbstractSteps {
-    private Response response;
-    private BankService bankService = testContext().getBankService();
-    @Autowired private CustomerService customerService;
-    private BankAPI proxy = bankService.proxy;
-    private Customer randomCustomer = testContext().getCustomer();  // Mantén el cliente como estado de la clase
-    private Integer customerId = testContext().getCustomer().getCustomerId();
+
+    private final BankService bankService = testContext().getBankService();
+
 
     @When("The customer updates their name to {string} and surname {string}")
     public void updateCustomerNameAndSurname(String name, String surname) {
-
-        Assert.assertNotNull(randomCustomer);
-        randomCustomer.setName(name);
-        randomCustomer.setSurname(surname);
-        testContext().setCustomer(randomCustomer);
-
-        UpdateRequest nameUpdateRequest = new UpdateRequest();
-        nameUpdateRequest.setName(name);
-        nameUpdateRequest.setSurname(surname);
-
-        Response response = proxy.updateNameAndSurname(nameUpdateRequest, null);
+        Response response = bankService.doUpdateNameAndSurname(name, surname);
         System.out.println("Customer name updated to: " + name + " " + surname);
+        testContext().setCustomer(bankService.getLoggedCustomer().readEntity(Customer.class));
         testContext().setResponse(response);
     }
 
     @And("The customer updates their email to {string} and password to {string}")
     public void updateCustomerEmailAndPassword(String email, String password) {
-        Assert.assertNotNull(randomCustomer);
-        randomCustomer.setEmail(email);
-        randomCustomer.setPassword(password);
-        testContext().setCustomer(randomCustomer);
-        testContext().setRegisteredEmail(email);
-
-        // Crear el request para actualizar email y contraseña
-        UpdateRequest emailPasswordUpdateRequest = new UpdateRequest();
-        emailPasswordUpdateRequest.setEmail(email);
-        emailPasswordUpdateRequest.setPassword(password);
-
-        bankService.updateEmailAndPassword(emailPasswordUpdateRequest);
+        Response response = bankService.updateEmailAndPassword(email, password);
         testContext().setBankService(bankService);
-        proxy = bankService.proxy;
+        testContext().setCustomer(bankService.getLoggedCustomer().readEntity(Customer.class));
+        testContext().setResponse(response);
     }
 
     @Then("The customer’s name, surname, email and password have been updated {string}") //
@@ -69,12 +47,7 @@ public class CustomerSteps extends AbstractSteps {
     //TODO Debería ser genérico y aceptar una lista de parámetros (no estáticos)
 
     public void verifyCustomerUpdated(String updateStatus) {
-        Assert.assertNotNull(randomCustomer);
-        String email = testContext().getRegisteredEmail();
-        System.out.println(email);
-        //Response response = proxy.getCustomerByEmail(email);
         Response response = bankService.getLoggedCustomer();
-        System.out.println(response.getStatus());
         Customer updatedCustomer;
         try{
             updatedCustomer = response.readEntity(Customer.class);
