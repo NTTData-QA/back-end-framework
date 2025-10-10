@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
+import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
 import org.example.api.data.request.*;
@@ -156,10 +157,10 @@ public class BankService {
      }
 
      // Creates a new Card (if it is for a random account, set the id on the card before calling this method)
-     public Response doNewCard(CardRequest newCard){
+     public Response doNewCard(Integer accountId, Card.CardType type){
          CardRequest cardRequest = new CardRequest();
-         cardRequest.setAccountId(newCard.getAccountId());
-         cardRequest.setType(newCard.getType());
+         cardRequest.setAccountId(accountId);
+         cardRequest.setType(type);
          response = proxy.newCard(cardRequest);
          System.out.println(response.getStatus());
          return response;
@@ -294,4 +295,6 @@ public class BankService {
     public Response doDeleteWithdrawsByCardId(Integer cardId) { return proxy.deleteWithdrawsById(cardId); }
 
     public Response doDeleteLoggedUserCards() { return proxy.deleteLoggedUserCards(null); }
+
+    public Response doGetLoggedUserCards() { return proxy.getLoggedUserCards(); }
 }

@@ -15,13 +15,14 @@ import org.junit.Assert;
 import java.util.List;
 
 public class CardSteps extends AbstractSteps {
+
     private Response response;
     private BankService bankService = testContext().getBankService();
     private BankAPI proxy = bankService.proxy;
 
     @And("The customer checks their cards")
     public void theCustomerChecksTheirCards(){
-        response = proxy.getCards();
+        Response response = bankService.doGetLoggedUserCards();
         List<Card> cards = testContext().getCards();
 
         JsonConverter jsonConverter = new JsonConverter();
@@ -34,12 +35,8 @@ public class CardSteps extends AbstractSteps {
     }
     @When("I create a card to the account: {int}")
     public void iCreateaCardToTheAccount(int accountId){
-        CardRequest cardRequest = new CardRequest();
-        cardRequest.setType("Debit");
-        cardRequest.setAccountId(accountId);
-        response = proxy.newCard(cardRequest);
+        Response response = bankService.doNewCard(accountId, Card.CardType.DEBIT);
         testContext().setResponse(response);
-
     }
 
 }

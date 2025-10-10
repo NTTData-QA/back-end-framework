@@ -111,7 +111,7 @@ public interface BankAPI {
     @GET
     @Path("/api/cards")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getCards();
+    Response getLoggedUserCards();
 
     @GET
     @Path("/api/customer/{id}")
