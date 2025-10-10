@@ -174,7 +174,7 @@ public class Generator {
 
     public static Card generateRandomCard(Account account) {
         Card card = new Card();
-        card.setType(randomlyChooseFrom("Credit", "Debit"));
+        card.setType(randomlyChooseFrom(Card.CardType.CREDIT, Card.CardType.DEBIT));
         card.setCvc(generateRandomInt(100, 999));
         card.setNumber(generateRandomCardNumber());
         card.setExpirationDate(generateRandomFutureDate());
@@ -189,11 +189,11 @@ public class Generator {
 
     public static Card generateCardType(Account account, CardRequest cardRequest) {
         Card card = new Card();
-        String type;
+        Card.CardType type;
         if (cardRequest.getType().equals("Credit") || cardRequest.getType().equals("Debit")){
             type = cardRequest.getType();
         }else {
-            type = randomlyChooseFrom("Credit", "Debit");
+            type = randomlyChooseFrom(Card.CardType.CREDIT, Card.CardType.DEBIT);
         }
         card.setType(type);
         card.setCvc(generateRandomInt(100, 999));

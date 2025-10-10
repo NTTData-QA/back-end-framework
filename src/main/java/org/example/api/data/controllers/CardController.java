@@ -95,7 +95,7 @@ public class CardController {
         }
 
         // Verifying correct data from user
-        if (!cardRequest.getType().equals("Debit") && !cardRequest.getType().equals("Credit")) {
+        if (!cardRequest.getType().equals(Card.CardType.CREDIT) && !cardRequest.getType().equals(Card.CardType.DEBIT)) {
             return ResponseEntity.badRequest().body("Error creating card: card type not valid");
         }
 
@@ -121,8 +121,9 @@ public class CardController {
 
         return ResponseEntity.ok("Card created successfully");
     }
-    @GetMapping("/api/cards")   // get all cards from a customer
-    public ResponseEntity<String> getCards() {
+    
+    @GetMapping("/api/cards")   // get all cards from logged user
+    public ResponseEntity<String> getLoggedUserCards() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // Assuming username contains customerId
         Integer customerId = Integer.valueOf(authentication.getName());
