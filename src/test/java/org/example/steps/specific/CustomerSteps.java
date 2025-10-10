@@ -6,17 +6,10 @@ import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Customer;
-import org.example.api.data.request.UpdateRequest;
-import org.example.api.service.CustomerService;
-import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.junit.Assert;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -43,15 +36,13 @@ public class CustomerSteps extends AbstractSteps {
     }
 
     @Then("The customer’s name, surname, email and password have been updated {string}") //
-
     //TODO Debería ser genérico y aceptar una lista de parámetros (no estáticos)
-
     public void verifyCustomerUpdated(String updateStatus) {
         Response response = bankService.getLoggedCustomer();
         Customer updatedCustomer;
-        try{
+        try {
             updatedCustomer = response.readEntity(Customer.class);
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
             updatedCustomer = null;
         }
         //Optional<Customer> updatedCustomer = customerService.findByEmail(randomCustomer.getEmail());
@@ -66,13 +57,13 @@ public class CustomerSteps extends AbstractSteps {
 
     @When("i request all Customers list")
     public void iRequestAllCustomersList() {
-        response = bankService.getAllCustomersList();
+        Response response = bankService.getAllCustomersList();
         testContext().setResponse(response);
     }
 
     @And("if the response is successful, i should receive the customers list")
     public void ifTheResponseIsSuccessfulIShouldReceiveTheCustomersList() {
-        response = testContext().getResponse();
+        Response response = testContext().getResponse();
         try {
             Assert.assertEquals(200, response.getStatus());
             List<Customer> customers = response.readEntity(new GenericType<>() {});

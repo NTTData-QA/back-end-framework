@@ -5,7 +5,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.Response;
-import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.example.steps.utils.StepUtils;

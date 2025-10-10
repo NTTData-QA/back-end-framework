@@ -148,36 +148,36 @@ public class BankService {
     }
 
     // Creates a new Account (if it is for a random user, set the id on the account before calling this method)
-     public Response doNewAccount (Account newAccount, HttpServletRequest request){
+    public Response doNewAccount (Account newAccount, HttpServletRequest request){
         response = proxy.createAccount(newAccount, request);
-         System.out.println(response.getStatus());
-         return response;
-     }
+        System.out.println(response.getStatus());
+        return response;
+    }
 
-     // Creates a new Card (if it is for a random account, set the id on the card before calling this method)
-     public Response doNewCard(Integer accountId, Card.CardType type){
-         CardRequest cardRequest = new CardRequest();
-         cardRequest.setAccountId(accountId);
-         cardRequest.setType(type);
-         response = proxy.newCard(cardRequest);
-         System.out.println(response.getStatus());
-         return response;
-     }
+    // Creates a new Card (if it is for a random account, set the id on the card before calling this method)
+    public Response doNewCard(Integer accountId, Card.CardType type){
+        CardRequest cardRequest = new CardRequest();
+        cardRequest.setAccountId(accountId);
+        cardRequest.setType(type);
+        response = proxy.newCard(cardRequest);
+        System.out.println(response.getStatus());
+        return response;
+    }
 
-     public Response doNewTransfer (TransferRequest transfer, HttpServletRequest request){
-         TransferRequest transferRequest = new TransferRequest();
-         transferRequest.setTransferAmount(transfer.getTransferAmount());
-         if(transfer.getCurrencyType().name().equals("USD")){
-             transferRequest.setCurrencyType(Transfer.CurrencyType.USD);
-         } else{
-             transferRequest.setCurrencyType(Transfer.CurrencyType.EUR);
-         }
-         transferRequest.setOriginAccountId(transfer.getOriginAccountId());
-         transferRequest.setReceivingAccountId(transfer.getReceivingAccountId());
-         response = proxy.localTransfer(transferRequest, request);
-         System.out.println("Status code: " + response.getStatus());
-         return response;
-     }
+    public Response doNewTransfer (TransferRequest transfer, HttpServletRequest request){
+        TransferRequest transferRequest = new TransferRequest();
+        transferRequest.setTransferAmount(transfer.getTransferAmount());
+        if(transfer.getCurrencyType().name().equals("USD")){
+            transferRequest.setCurrencyType(Transfer.CurrencyType.USD);
+        } else{
+            transferRequest.setCurrencyType(Transfer.CurrencyType.EUR);
+        }
+        transferRequest.setOriginAccountId(transfer.getOriginAccountId());
+        transferRequest.setReceivingAccountId(transfer.getReceivingAccountId());
+        response = proxy.localTransfer(transferRequest, request);
+        System.out.println("Status code: " + response.getStatus());
+        return response;
+    }
 
     public Response doDeleteTransfer(Integer transferId) {
         response = proxy.deleteTransfer(transferId);
