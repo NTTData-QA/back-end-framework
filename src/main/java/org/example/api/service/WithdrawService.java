@@ -6,15 +6,17 @@ import org.example.api.data.entity.Withdraw;
 import org.example.api.data.repository.AccountRepository;
 import org.example.api.data.repository.WithdrawRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Service
 public class WithdrawService {
+    @Autowired
+    private AccountService accountService;
 
     private final WithdrawRepository withdrawRepository;
 
@@ -31,21 +33,21 @@ public class WithdrawService {
     }
 
     @Transactional
-    public Withdraw createWithdraw(Card card, Double amount) {
+    public ResponseEntity<String> createWithdraw(Card card, Double amount) {
         if (amount == null || amount <= 0) {
             throw new IllegalArgumentException("Amount must be > 0");
         }
 
         Account account = card.getAccount();
         Double balance = account.getAmount();
-        String tipo_tarjeta = card.getType();
+        Card.CardType type = card.getType();
 
 
-        if (account.getIsInDebt() == Boolean.TRUE && tipo_tarjeta.equals("Debit")){
+        if (account.getIsInDebt() == Boolean.TRUE && type.equals(Card.CardType.DEBIT)){
             throw new IllegalArgumentException("Account is in debt");
         }
 
-        if (balance < amount && tipo_tarjeta.equals("Debit")) {
+        if (balance < amount && type.equals(Card.CardType.DEBIT)) {
             throw new IllegalStateException("Insufficient funds");
         }
 
@@ -91,14 +93,15 @@ public class WithdrawService {
         if(account.getAmount() < 0){
             account.setIsInDebt(Boolean.TRUE);
         }
-        accountRepository.save(account);
+        accountService.save(account);
 
         // 2) Guarda el withdraw
         Withdraw w = new Withdraw();
         w.setCard(card);
         w.setAmount(amount);
         w.setWithdrawDate(now);
-        return withdrawRepository.save(w);
+        withdrawRepository.save(w);
+        return ResponseEntity.ok().body("Withdraw made successfully");
     }
 
     public List<Withdraw> findByCard(Integer cardId) {

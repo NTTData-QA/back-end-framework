@@ -95,7 +95,7 @@ public class CardController {
         }
 
         // Verifying correct data from user
-        if (!cardRequest.getType().equals("Debit") && !cardRequest.getType().equals("Credit")) {
+        if (!cardRequest.getType().equals(Card.CardType.CREDIT) && !cardRequest.getType().equals(Card.CardType.DEBIT)) {
             return ResponseEntity.badRequest().body("Error creating card: card type not valid");
         }
 
@@ -121,8 +121,9 @@ public class CardController {
 
         return ResponseEntity.ok("Card created successfully");
     }
-    @GetMapping("/api/cards")   // get all cards from a customer
-    public ResponseEntity<String> getCards() {
+    
+    @GetMapping("/api/cards")   // get all cards from logged user
+    public ResponseEntity<String> getLoggedUserCards() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // Assuming username contains customerId
         Integer customerId = Integer.valueOf(authentication.getName());
@@ -149,8 +150,8 @@ public class CardController {
         Customer customer = customerRepository.findByEmail(email).get();
 
         Account account = card.getAccount();
-        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
-            return ResponseEntity.badRequest().body("Card does not belong to the user");
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId()) && !customer.getRole().equals(Customer.UserType.ADMIN)){
+            return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
         if(newDailyLimit <= 0){
@@ -184,8 +185,8 @@ public class CardController {
         Customer customer = customerRepository.findByEmail(email).get();
 
         Account account = card.getAccount();
-        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
-            return ResponseEntity.badRequest().body("Card does not belong to the user");
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId()) && !customer.getRole().equals(Customer.UserType.ADMIN)){
+            return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
         if(newMonthlyLimit <= 0){
@@ -205,7 +206,7 @@ public class CardController {
 
         Optional<Card> cardOpt = cardRepository.findById(cardId);
         if (!cardOpt.isPresent()){
-            return ResponseEntity.badRequest().body("There is no card with ID: "+ cardId);
+            return ResponseEntity.status(404).body("There is no card with ID: "+ cardId);
         }
 
         Card card = cardOpt.get();
@@ -217,10 +218,13 @@ public class CardController {
         Customer customer = customerRepository.findByEmail(email).get();
 
         Account account = card.getAccount();
-        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId())){
-            return ResponseEntity.badRequest().body("Card does not belong to the user");
+        if(!Objects.equals(account.getCustomer().getCustomerId(), customer.getCustomerId()) && !customer.getRole().equals(Customer.UserType.ADMIN)){
+            return ResponseEntity.status(403).body("Card does not belong to the user");
         }
 
+        if (newIsBlocked == null) {
+            return ResponseEntity.badRequest().body("Blocked status cannot be null.");
+        }
 
         try{
             cardService.updateIsBlocked(card, newIsBlocked);
@@ -286,7 +290,7 @@ public class CardController {
     }
 
     @DeleteMapping("/api/card/delete")
-    public ResponseEntity<String> deleteCardsOfLoggedUser(HttpServletRequest request){
+    public ResponseEntity<String> deleteLoggedUserCards(HttpServletRequest request){
         // Get the customer logged
         String jwt = authenticationService.getJwtFromCookies(request);
         System.out.println(jwt);

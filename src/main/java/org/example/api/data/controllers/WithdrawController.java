@@ -5,6 +5,7 @@ import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Withdraw;
+import org.example.api.data.repository.AccountRepository;
 import org.example.api.data.repository.CardRepository;
 import org.example.api.service.*;
 import org.example.api.token.Token;
@@ -22,6 +23,7 @@ public class WithdrawController {
 
     private final WithdrawService withdrawService;
     private final CardRepository cardRepository;
+    private final AccountRepository accountRepository;
     private final AuthService authService;
     private final CustomerService customerService;
     private final Token tokenService;
@@ -30,6 +32,7 @@ public class WithdrawController {
 
     public WithdrawController(WithdrawService withdrawService,
                               CardRepository cardRepository,
+                              AccountRepository accountRepository,
                               AuthService authService,
                               CustomerService customerService,
                               Token tokenService,
@@ -37,6 +40,7 @@ public class WithdrawController {
                               AccountService accountService) {
         this.withdrawService = withdrawService;
         this.cardRepository = cardRepository;
+        this.accountRepository = accountRepository;
         this.authService = authService;
         this.customerService = customerService;
         this.tokenService = tokenService;
@@ -45,7 +49,7 @@ public class WithdrawController {
     }
 
     // Crear withdraw por tarjeta (AUTENTICADO)
-    @PostMapping("/api/withdraw")
+    @PostMapping("/api/withdraw/new")
     public ResponseEntity<?> create(@RequestBody WithdrawRequest req,
                                     HttpServletRequest request) {
         // 1) Autenticación por cookie JWT (como en otros controladores)
@@ -78,8 +82,7 @@ public class WithdrawController {
         }
 
         try {
-            Withdraw w = withdrawService.createWithdraw(card, req.getAmount());
-            return ResponseEntity.ok(w);
+            return withdrawService.createWithdraw(card, req.getAmount());
         } catch (IllegalStateException ise) {
             return ResponseEntity.badRequest().body(ise.getMessage());
         } catch (IllegalArgumentException iae) {
@@ -106,13 +109,50 @@ public class WithdrawController {
     // Listar por tarjeta (requiere que la tarjeta sea del cliente autenticado)
     @GetMapping("/api/withdraws/card/{cardId}")
     public ResponseEntity<?> listByCard(@PathVariable Integer cardId, HttpServletRequest request) {
-        // (Puedes reutilizar misma verificación de propiedad que en create)
+
+        String jwt = authService.getJwtFromCookies(request);
+        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
+
+        Integer authCustomerId = customerOpt.get().getCustomerId();
+
+        // 3) Cargar la tarjeta y verificar propiedad
+        Optional<Card> cardOpt = cardRepository.findById(cardId);
+        if (cardOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Card not found");
+        }
+        Card card = cardOpt.get();
+
+        Integer ownerId = card.getAccount().getCustomer().getCustomerId();
+        if (!ownerId.equals(authCustomerId)) {
+            return ResponseEntity.status(403).body("Forbidden: card does not belong to the authenticated customer");
+        }
+
         return ResponseEntity.ok(withdrawService.findByCard(cardId));
     }
 
     // Listar por cuenta (útil si quieres ver todos los withdraws de todas sus tarjetas)
     @GetMapping("/api/withdraws/account/{accountId}")
-    public ResponseEntity<?> listByAccount(@PathVariable Integer accountId) {
+    public ResponseEntity<?> listByAccount(@PathVariable Integer accountId, HttpServletRequest request) {
+
+        String jwt = authService.getJwtFromCookies(request);
+        String email = tokenService.getCustomerEmailFromJWT(jwt);
+        Optional<Customer> customerOpt = authService.findCustomerByEmail(email);
+
+        Integer authCustomerId = customerOpt.get().getCustomerId();
+
+        // 3) Cargar la tarjeta y verificar propiedad
+        Optional<Account> accountOpt = accountRepository.findById(accountId);
+        if (accountOpt.isEmpty()) {
+            return ResponseEntity.status(404).body("Account not found");
+        }
+        Account account = accountOpt.get();
+
+        Integer ownerId = account.getCustomer().getCustomerId();
+        if (!ownerId.equals(authCustomerId)) {
+            return ResponseEntity.status(403).body("Forbidden: Account does not belong to the authenticated customer");
+        }
+
         return ResponseEntity.ok(withdrawService.findByAccount(accountId));
     }
 
@@ -121,7 +161,7 @@ public class WithdrawController {
         // Check if card exists
         Optional<Card> card = cardService.findById(cardId);
         if (card.isEmpty())
-            return ResponseEntity.badRequest().body("Error: customer does not exist");
+            return ResponseEntity.status(404).body("Error: customer does not exist");
 
         // We delete every withdraw of the card
         List<Withdraw> withdraws = withdrawService.findByCard(cardId);

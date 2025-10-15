@@ -130,11 +130,14 @@ public class CustomerController {
   }
 
   // Eliminar un customer por si id
-  @DeleteMapping("/public/customer/delete/{customerId}")
+  @DeleteMapping("/api/customer/delete/{customerId}")
   public ResponseEntity<String> deleteById(@PathVariable Integer customerId) {
     Optional<Customer> customer = customerRepository.findById(customerId);
     if (customer.isEmpty()){
       return ResponseEntity.badRequest().body("Error: customer not found");
+    }
+    if(customerId==999){
+        return ResponseEntity.badRequest().body("Error: customer admin can not delete");
     }
     accountController.deleteAccountsOfCustomer(customerId);
     customerRepository.deleteById(customerId);

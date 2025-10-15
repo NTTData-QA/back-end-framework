@@ -59,8 +59,8 @@ public class TransferService {
         senderAccount.setIsInDebt(accountService.checkAccountInDebt(senderAccount));
         receiverAccount.setIsInDebt(accountService.checkAccountInDebt(receiverAccount));
 
-        accountRepository.save(senderAccount);
-        accountRepository.save(receiverAccount);
+        accountService.save(senderAccount);
+        accountService.save(receiverAccount);
 
         // Save transfer in database
         transfer.setTransferStatus(Transfer.TransferStatus.SUCCESSFUL);

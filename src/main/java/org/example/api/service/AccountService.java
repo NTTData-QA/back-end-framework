@@ -23,6 +23,11 @@ public class AccountService {
   }
 
   public Account save(Account account) {
+    if (account.getAmount()>0){
+      account.setIsInDebt(Boolean.FALSE);
+    }else {
+      account.setIsInDebt(Boolean.TRUE);
+    }
     return accountRepository.save(account);
   }
 
@@ -43,7 +48,7 @@ public class AccountService {
   public void makeDeposit(Account account, Double deposit){
     Double accountAmount = account.getAmount();
     account.setAmount(accountAmount + deposit);
-    accountRepository.save(account);
+    this.save(account);
   }
 
 //  public void makeWithdraw(Account account, Double withdraw){
