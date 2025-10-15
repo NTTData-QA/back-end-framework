@@ -1,14 +1,9 @@
 package org.example.context;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
-import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

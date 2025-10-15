@@ -5,12 +5,12 @@ Feature: User authentication
     Given the system is ready for user authentication
 
   Scenario: Register a new customer
-    When I register with name "John", surname "Doe", email "probando4@example.com" and password "password123" and I log in
+    When I register with name "John", surname "Doe", email "probando5@example.com" and password "password123"
     Then I should receive a message "You have registered successfully."
 
   Scenario: Login with valid credentials
-    Given I have registered with name "John", surname "Doe", email "probando4@example.com" and password "password123"
-    When I login with email "probando4@example.com" and password "password123"
+    Given I have registered with name "John", surname "Doe", email "probando6@example.com" and password "password123"
+    When I login with email "probando6@example.com" and password "password123"
     Then I should receive a message "Correct authentication"
 
   Scenario: Login with invalid credentials

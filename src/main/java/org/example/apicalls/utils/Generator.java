@@ -2,7 +2,6 @@ package org.example.apicalls.utils;
 
 import static org.example.apicalls.utils.Constants.*;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -17,6 +16,7 @@ import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
+import org.example.api.data.request.CardRequest;
 import org.jetbrains.annotations.NotNull;
 
 public class Generator {
@@ -174,21 +174,47 @@ public class Generator {
 
     public static Card generateRandomCard(Account account) {
         Card card = new Card();
-        card.setType(randomlyChooseFrom("Credit", "Debit"));
+        card.setType(randomlyChooseFrom(Card.CardType.CREDIT, Card.CardType.DEBIT));
         card.setCvc(generateRandomInt(100, 999));
         card.setNumber(generateRandomCardNumber());
         card.setExpirationDate(generateRandomFutureDate());
         card.setAccount(account);
+        card.setIsBlocked(Boolean.FALSE);
+        card.setDailyLimit(500.);
+        card.setMonthlyLimit(2000.70);
+
+        return card;
+    }
+
+
+    public static Card generateCardType(Account account, CardRequest cardRequest) {
+        Card card = new Card();
+        Card.CardType type;
+        if (cardRequest.getType().equals(Card.CardType.CREDIT) || cardRequest.getType().equals(Card.CardType.DEBIT)){
+            type = cardRequest.getType();
+        }else {
+            type = randomlyChooseFrom(Card.CardType.CREDIT, Card.CardType.DEBIT);
+        }
+        card.setType(type);
+        card.setCvc(generateRandomInt(100, 999));
+        card.setNumber(generateRandomCardNumber());
+        card.setExpirationDate(generateRandomFutureDate());
+        card.setAccount(account);
+        card.setIsBlocked(Boolean.FALSE);
+        card.setDailyLimit(500.);
+        card.setMonthlyLimit(2000.70);
 
         return card;
     }
 
     public static Customer generateRandomCustomer(int nCards, int nAccounts) {
         Customer customer = new Customer();
+        customer.setCustomerId(generateRandomInt(3, 999));
         customer.setName(generateRandomString(nameLength));
         customer.setSurname(generateRandomString(nameLength));
         customer.setEmail(generateRandomGmail(nameLength));
         customer.setPassword(generateRandomPassword(passwordLength));
+        customer.setRole(Customer.UserType.USER);
 
         List<Account> accounts = new java.util.ArrayList<>(List.of());
         int n = 0;
@@ -213,6 +239,7 @@ public class Generator {
         customer.setSurname(generateRandomString(nameLength));
         customer.setEmail(generateRandomGmail(nameLength));
         customer.setPassword(generateRandomPassword(passwordLength));
+        customer.setRole(Customer.UserType.USER);
 
         List<Account> accounts = new java.util.ArrayList<>(List.of());
         int n = 0;

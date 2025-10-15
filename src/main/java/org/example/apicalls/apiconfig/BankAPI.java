@@ -4,23 +4,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import org.springframework.security.core.context.SecurityContext;
+import org.example.api.data.request.*;
 import org.example.api.data.entity.Account;
 import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
+import org.example.api.data.request.AccountRequest;
 import org.example.api.data.request.CardRequest;
 import org.example.api.data.request.LoginRequest;
 import org.example.api.data.request.TransferRequest;
 import org.example.api.data.request.UpdateRequest;
-import org.example.api.service.AccountService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import jakarta.ws.rs.core.Response;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
-import java.util.Optional;
 
 public interface BankAPI {
 
@@ -115,7 +111,7 @@ public interface BankAPI {
     @GET
     @Path("/api/cards")
     @Produces(MediaType.APPLICATION_JSON)
-    Response getCards();
+    Response getLoggedUserCards();
 
     @GET
     @Path("/api/customer/{id}")
@@ -132,8 +128,13 @@ public interface BankAPI {
     @Produces(MediaType.APPLICATION_JSON)
     Response getAllCustomers();
 
+    @GET
+    @Path("/api/customer")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getLoggedCustomer();
+
     @DELETE
-    @Path("/public/customer/{email}")
+    @Path("/api/customer/{email}")
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCustomer(@PathParam("email") String email);
 
@@ -156,22 +157,47 @@ public interface BankAPI {
     @DELETE
     @Path("/api/account/delete")
     @Produces(MediaType.TEXT_PLAIN)
-    Response deleteLoggedUser(@Context HttpServletRequest request);
+    Response deleteLoggedUserAccounts(@Context HttpServletRequest request);
 
-    @PATCH
-    @Path("/api/account/withdraw/{accountId}")
+//    @PATCH
+//    @Path("/api/account/withdraw/{accountId}")
+
+    // Endpoints creados para los Withdraws
+    @POST
+    @Path("/api/withdraw/new")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Response createWithdraw(WithdrawRequest request, @Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("/api/withdraws")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listMyWithdraws(@Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("/api/withdraws/card/{cardId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listWithdrawsByCard(@PathParam("cardId") Integer cardId, @Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("/api/withdraws/account/{accountId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response listWithdrawsByAccount(@PathParam("accountId") Integer accountId, @Context HttpServletRequest httpServletRequest);
+
+    @DELETE
+    @Path("/api/withdraws/delete/card/{cardId}")
+    @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    Response withdrawAccountId(@PathParam("accountId") int accountId, @RequestBody UpdateRequest updateRequest, @Context HttpServletRequest request);
+    Response deleteWithdrawsById(@PathParam("cardId") int cardId);
 
     @DELETE
     @Path("/api/card/delete")
     @Produces(MediaType.TEXT_PLAIN)
-    Response deleteCardsOfLoggedUser(@Context HttpServletRequest request);
+    Response deleteLoggedUserCards(@Context HttpServletRequest request);
 
     @DELETE
     @Path("/api/card/delete/customer/{customerId}")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response deleteCardsOfCustomer(@PathParam("customerId") int customerId);
 
@@ -209,6 +235,51 @@ public interface BankAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     Response updatePassword(@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
+    @DELETE
+    @Path("/api/customer/delete/{customerId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response deleteCustomerById(@PathParam("customerId") int customerId);
+
+    @PATCH
+    @Path("/api/card/update/dailyLimit/{cardId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response updateDailyLimit(@PathParam("cardId") Integer cardId,@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
+    @PATCH
+    @Path("/api/card/update/monthlyLimit/{cardId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response updateMonthlyLimit(@PathParam("cardId") Integer cardId,@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
+    @PATCH
+    @Path("/api/card/update/isBlocked/{cardId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response updateisBlocked(@PathParam("cardId") Integer cardId,@RequestBody UpdateRequest updateRequest, @Context HttpServletRequest httpServletRequest);
+
+    @GET
+    @Path("api/transfers/history/{accountId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    Response getTransferHistory(@PathParam("accountId") Integer accountId);
+    
+    @PATCH
+    @Path("/api/account/update/expirationDate/{accountId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response expirationDateUpdate(@PathParam("accountId") int accountId, @Context HttpServletRequest httpServletRequest);
+
+    @PATCH
+    @Path("/api/account/update/accountType/{accountId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response accountTypeUpdate(@PathParam("accountId") int accountId,AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
+
+    @PATCH
+    @Path("/api/account/update/isBlocked/{accountId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
+    Response isBlockUpdate(@PathParam("accountId") int accountId, AccountRequest accountRequest, @Context HttpServletRequest httpServletRequest);
 }
-
-

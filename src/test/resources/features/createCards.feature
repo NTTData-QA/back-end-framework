@@ -12,3 +12,14 @@ Feature: Testing the cards creation registering a new user with random parameter
     |1            |0      |20       |200      |
     |1            |4      |130      |200      |
     |2            |2      |231      |200      |
+
+  Scenario: Creating a card to your own account
+    Given I have logged in with email "john.doe@example.com" and password "password123"
+    When I create a card to the account: 1
+    Then The customer gets a 200 status response and message: "Card created successfully"
+
+
+  Scenario: Creating a card to other one account
+    Given I have logged in with email "john.doe@example.com" and password "password123"
+    When I create a card to the account: 2
+    Then The customer gets a 400 status response and message: "Error creating card: you can only create card to your account"
