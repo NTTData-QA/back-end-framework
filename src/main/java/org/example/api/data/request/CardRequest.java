@@ -1,11 +1,10 @@
 package org.example.api.data.request;
 
 import lombok.Data;
-
-import java.util.Date;
+import org.example.api.data.entity.Card;
 
 @Data
 public class CardRequest {
-    private String type;
+    private Card.CardType type;
     private int accountId;
 }

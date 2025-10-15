@@ -5,5 +5,6 @@ git reset --hard                                      #Volver al estado original
 SCRIPT TO 'src/main/resources/copia.sql';             #Script SQL
 
 RUNSCRIPT FROM 'src/main/resources/archivo.sql';      #Restaurar base de datos con el script
+RUNSCRIPT FROM 'src/main/resources/archivo2admins.sql';      #Idem incluyendo rol de usuario (DEPRECATED)
 
 BACKUP TO 'src/main/resources/copia.zip';             #Alternativa a guardarlo en SCRIPT.

@@ -12,7 +12,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
-
 @Data
 @Entity
 public class Customer {
@@ -33,17 +32,26 @@ public class Customer {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private UserType role;
+
+    public enum UserType {
+        ADMIN,          // Administrator
+        USER,           // Default Customer
+        // Could add minor user, not letting them do transfers and needing a grown-up user as co-owner of account (Account need List as customerIds)
+    }
+
     @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)    // si se elimina un cliente se eliminan sus cuentas
     private List<Account> accounts;
 
-    public Integer getCustomerId() {
-        return customerId;
-    }
-
-    @JsonProperty("accountIds")
+    @JsonProperty(value = "accountIds", access = JsonProperty.Access.READ_ONLY)
     public List<Integer> getAccountIds() {
-        return accounts == null ? Collections.emptyList() : accounts.stream().map(Account::getAccountId).collect(Collectors.toList());
+        return accounts == null
+                ? Collections.emptyList()
+                : accounts.stream().map(Account::getAccountId).collect(Collectors.toList());
     }
 
     public boolean deleteAccount(int accountId){

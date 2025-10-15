@@ -1,6 +1,5 @@
 package org.example.api.data.request;
 
-import jakarta.persistence.*;
 import lombok.Data;
 
 @Data

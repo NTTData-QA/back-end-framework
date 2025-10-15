@@ -33,6 +33,7 @@ public class TransferService {
         return transferAmount;
     }
 
+    @Transactional
     public ResponseEntity<String> transferOperation(Account senderAccount, Account receiverAccount ,Double transferAmount, Transfer transfer){
         // Check - if receiving account is blocked
         //       - if requesting account is in debt
@@ -58,8 +59,8 @@ public class TransferService {
         senderAccount.setIsInDebt(accountService.checkAccountInDebt(senderAccount));
         receiverAccount.setIsInDebt(accountService.checkAccountInDebt(receiverAccount));
 
-        accountRepository.save(senderAccount);
-        accountRepository.save(receiverAccount);
+        accountService.save(senderAccount);
+        accountService.save(receiverAccount);
 
         // Save transfer in database
         transfer.setTransferStatus(Transfer.TransferStatus.SUCCESSFUL);
@@ -93,10 +94,10 @@ public class TransferService {
 
         newTransfer.setTransferAmount(transfer.getTransferAmount());
         newTransfer.setTransferDate(transfer.getTransferDate());
-        if (transfer.getCurrencyType().equals("USD") || transfer.getCurrencyType().equals("usd")){
+        if (transfer.getCurrencyType().name().equals("USD") || transfer.getCurrencyType().name().equals("usd")){
             newTransfer.setCurrencyType(Transfer.CurrencyType.USD);
         }
-        else if (transfer.getCurrencyType().equals("EUR") || transfer.getCurrencyType().equals("eur"))
+        else if (transfer.getCurrencyType().name().equals("EUR") || transfer.getCurrencyType().name().equals("eur"))
             newTransfer.setCurrencyType(Transfer.CurrencyType.EUR);
         else    // invalid currency type
             return null;
