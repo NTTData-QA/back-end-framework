@@ -5,7 +5,6 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import jakarta.ws.rs.core.Response;
-import org.example.apicalls.apiconfig.BankAPI;
 import org.example.apicalls.service.BankService;
 import org.example.context.AbstractSteps;
 import org.example.steps.utils.StepUtils;
@@ -17,26 +16,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class AccountsSteps extends AbstractSteps {
-    private Response response;
-    private static String jwt;
-    private BankService bankService = testContext().getBankService();
-    private BankAPI proxy = bankService.proxy;
+
+    private final BankService bankService = testContext().getBankService();
 
 
     @When("i request this users account information")
     public void iRequestThisUsersAccountInformation() {
-        response = proxy.getUserAccounts(null);
+        Response response = bankService.getLoggedUserAccounts();
         testContext().setResponse(response);
     }
 
     @When("i request this users account amount")
     public void iRequestThisUsersAccountAmount() {
-        response = proxy.getUserAmount(null);
+        Response response = bankService.getLoggedUserAmount();
         Assert.assertEquals(HttpStatus.OK.value(), response.getStatus());
+        testContext().setResponse(response);
     }
 
     @Then("i should receive the amount")
     public void iShouldReceiveTheAmount() {
+        Response response = testContext().getResponse();
         String amount = response.readEntity(String.class);
         System.out.println("The amount of the logged user is ".concat(amount).concat(" euros"));
     }
@@ -51,8 +50,7 @@ public class AccountsSteps extends AbstractSteps {
 
     @And("The receiving customer has an account with id {int}")
     public void theReceivingCustomerHasAnAccountWithId(int receiverAccountId) {
-        proxy = bankService.proxy;
-        Response receiverAccountresponse = proxy.accountById(receiverAccountId);
+        Response receiverAccountresponse = bankService.getAccountById(receiverAccountId);
         Assert.assertEquals(200, receiverAccountresponse.getStatus());
     }
 
@@ -84,9 +82,8 @@ public class AccountsSteps extends AbstractSteps {
 
     @Given("a customer has an account with id {int}")
     public void aCustomerHasAnAccountWithId(int accountId) {
-        response = bankService.getAccountById(accountId);
+        Response response = bankService.getAccountById(accountId);
         assertEquals(200, response.getStatus());
         testContext().setOriginID(accountId);
     }
-
 }

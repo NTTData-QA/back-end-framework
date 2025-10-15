@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class WithdrawSteps extends AbstractSteps {
 
-  public static final BankService bankService = AuthenticationSteps.bankService;
+  private final BankService bankService = testContext().getBankService();
 
   private BankAPI proxy() {
     return bankService.proxy;

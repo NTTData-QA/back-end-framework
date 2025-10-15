@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TransferSteps extends AbstractSteps {
 
     private Response response;
-    private BankService bankService = testContext().getBankService();
-    private BankAPI proxy = bankService.proxy;
+    private final BankService bankService = testContext().getBankService();
+    
 
     @When("The customer make a transfer with their main account and transferAmount {double} to an account with id {int}")
     public void theCustomerMakeTransferWithTheirMainAccountAndTransferAmountToAnAccountWithId(Double transferAmount, int receiverAccountId){

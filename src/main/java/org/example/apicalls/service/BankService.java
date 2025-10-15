@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.example.api.data.entity.Account;
+import org.example.api.data.entity.Card;
 import org.example.api.data.entity.Customer;
 import org.example.api.data.entity.Transfer;
 import org.example.api.data.request.*;
@@ -19,9 +20,7 @@ import org.example.apicalls.utils.Generator;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.Random;
 
 @Service
 @ComponentScan(basePackages = "org.example.apicalls.service")
@@ -43,7 +42,6 @@ public class BankService {
      */
 
     public Response doRegister(String name, String surname, String email, String password, String role){
-        BankAPI proxy = client.getAPI();
         Customer customer= new Customer();
         customer.setName(name);
         customer.setSurname(surname);
@@ -150,36 +148,36 @@ public class BankService {
     }
 
     // Creates a new Account (if it is for a random user, set the id on the account before calling this method)
-     public Response doNewAccount (Account newAccount, HttpServletRequest request){
+    public Response doNewAccount (Account newAccount, HttpServletRequest request){
         response = proxy.createAccount(newAccount, request);
-         System.out.println(response.getStatus());
-         return response;
-     }
+        System.out.println(response.getStatus());
+        return response;
+    }
 
-     // Creates a new Card (if it is for a random account, set the id on the card before calling this method)
-     public Response doNewCard(CardRequest newCard){
-         CardRequest cardRequest = new CardRequest();
-         cardRequest.setAccountId(newCard.getAccountId());
-         cardRequest.setType(newCard.getType());
-         response = proxy.newCard(cardRequest);
-         System.out.println(response.getStatus());
-         return response;
-     }
+    // Creates a new Card (if it is for a random account, set the id on the card before calling this method)
+    public Response doNewCard(Integer accountId, Card.CardType type){
+        CardRequest cardRequest = new CardRequest();
+        cardRequest.setAccountId(accountId);
+        cardRequest.setType(type);
+        response = proxy.newCard(cardRequest);
+        System.out.println(response.getStatus());
+        return response;
+    }
 
-     public Response doNewTransfer (TransferRequest transfer, HttpServletRequest request){
-         TransferRequest transferRequest = new TransferRequest();
-         transferRequest.setTransferAmount(transfer.getTransferAmount());
-         if(transfer.getCurrencyType().name().equals("USD")){
-             transferRequest.setCurrencyType(Transfer.CurrencyType.USD);
-         } else{
-             transferRequest.setCurrencyType(Transfer.CurrencyType.EUR);
-         }
-         transferRequest.setOriginAccountId(transfer.getOriginAccountId());
-         transferRequest.setReceivingAccountId(transfer.getReceivingAccountId());
-         response = proxy.localTransfer(transferRequest, request);
-         System.out.println("Status code: " + response.getStatus());
-         return response;
-     }
+    public Response doNewTransfer (TransferRequest transfer, HttpServletRequest request){
+        TransferRequest transferRequest = new TransferRequest();
+        transferRequest.setTransferAmount(transfer.getTransferAmount());
+        if(transfer.getCurrencyType().name().equals("USD")){
+            transferRequest.setCurrencyType(Transfer.CurrencyType.USD);
+        } else{
+            transferRequest.setCurrencyType(Transfer.CurrencyType.EUR);
+        }
+        transferRequest.setOriginAccountId(transfer.getOriginAccountId());
+        transferRequest.setReceivingAccountId(transfer.getReceivingAccountId());
+        response = proxy.localTransfer(transferRequest, request);
+        System.out.println("Status code: " + response.getStatus());
+        return response;
+    }
 
     public Response doDeleteTransfer(Integer transferId) {
         response = proxy.deleteTransfer(transferId);
@@ -187,34 +185,29 @@ public class BankService {
         return response;
     }
 
-    public ArrayList<Response> updateEmailAndPassword(UpdateRequest updateRequest) {
-        ArrayList<Response> responses = new ArrayList<>();
-        Response responseEmail = null;
-        Response responsePassword = null;
-        try {
-            responseEmail = proxy.updateEmail(updateRequest, null);
-            System.out.println(responseEmail.readEntity(String.class));
-            Map<String, NewCookie> cookies = responseEmail.getCookies();
-            NewCookie newCookie = cookies.entrySet().iterator().next().getValue();
-            proxy = client.getAPI(newCookie);
-            if (responseEmail.getStatus() == 200) {
-                responsePassword = proxy.updatePassword(updateRequest, null);
-                System.out.println(responsePassword.readEntity(String.class));
-                if (responsePassword.getStatus() == 200) {
-                    System.out.println("User credentials updated successfully.");
+    public Response updateEmailAndPassword(String email, String password) {
+        UpdateRequest updateRequest = new UpdateRequest();
+        updateRequest.setEmail(email);
+        updateRequest.setPassword(password);
 
-                } else {
-                    System.out.println("Failed to update password: " + responsePassword.getStatusInfo());
-                }
+        Response responseEmail = proxy.updateEmail(updateRequest, null);
+        System.out.println(responseEmail.readEntity(String.class));
+        Map<String, NewCookie> cookies = responseEmail.getCookies();
+        //NewCookie newCookie = cookies.entrySet().iterator().next().getValue();
+        //proxy = client.getAPI(newCookie);
+        if (responseEmail.getStatus() == 200) {
+            Response responsePassword = proxy.updatePassword(updateRequest, null);
+            System.out.println(responsePassword.readEntity(String.class));
+            if (responsePassword.getStatus() == 200) {
+                System.out.println("User credentials updated successfully.");
             } else {
-                System.out.println("Failed to update email: " + responseEmail.getStatusInfo());
+                System.out.println("Failed to update password: " + responsePassword.getStatusInfo());
             }
-        } catch (Exception e) {
-            System.out.println("An error occurred: " + e.getMessage());
+            return responsePassword;
+        } else {
+            System.out.println("Failed to update email: " + responseEmail.getStatusInfo());
+            return responseEmail;
         }
-        responses.add(responseEmail);
-        responses.add(responsePassword);
-        return responses;
     }
 
     public Response createWithdraw(Integer cardId, double amount, HttpServletRequest request) {
@@ -256,8 +249,8 @@ public class BankService {
         return proxy.deleteAccountsOfCustomer(customerId);
     }
 
-    public Response doDeleteAccountsOfLoggedUser() {
-        return proxy.deleteCardsOfLoggedUser(null);
+    public Response doDeleteLoggedUserAccounts() {
+        return proxy.deleteLoggedUserAccounts(null);
     }
 
     public Response doUpdateExpirationDate(int accountId) {
@@ -283,4 +276,25 @@ public class BankService {
     public Response getLoggedCustomer() { return proxy.getLoggedCustomer(); }
 
     public Response getAccountById(Integer accountId) { return proxy.accountById(accountId); }
+
+    public Response getLoggedUserAccounts() { return proxy.getUserAccounts(null); }
+
+    public Response getLoggedUserAmount() { return proxy.getUserAmount(null); }
+
+    public Response getCustomerByEmail(String email) { return proxy.getCustomerByEmail(email); }
+
+    public Response doDeleteCustomerById(Integer customerId) { return proxy.deleteCustomerById(customerId); }
+
+    public Response doDeleteWithdrawsByCardId(Integer cardId) { return proxy.deleteWithdrawsById(cardId); }
+
+    public Response doDeleteLoggedUserCards() { return proxy.deleteLoggedUserCards(null); }
+
+    public Response doGetLoggedUserCards() { return proxy.getLoggedUserCards(); }
+
+    public Response doUpdateNameAndSurname(String name, String surname) {
+        UpdateRequest nameUpdateRequest = new UpdateRequest();
+        nameUpdateRequest.setName(name);
+        nameUpdateRequest.setSurname(surname);
+        return proxy.updateNameAndSurname(nameUpdateRequest, null);
+    }
 }

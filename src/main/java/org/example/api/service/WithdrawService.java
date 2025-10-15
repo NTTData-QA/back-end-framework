@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -41,14 +40,14 @@ public class WithdrawService {
 
         Account account = card.getAccount();
         Double balance = account.getAmount();
-        String tipo_tarjeta = card.getType();
+        Card.CardType type = card.getType();
 
 
-        if (account.getIsInDebt() == Boolean.TRUE && tipo_tarjeta.equals("Debit")){
+        if (account.getIsInDebt() == Boolean.TRUE && type.equals(Card.CardType.DEBIT)){
             throw new IllegalArgumentException("Account is in debt");
         }
 
-        if (balance < amount && tipo_tarjeta.equals("Debit")) {
+        if (balance < amount && type.equals(Card.CardType.DEBIT)) {
             throw new IllegalStateException("Insufficient funds");
         }
 

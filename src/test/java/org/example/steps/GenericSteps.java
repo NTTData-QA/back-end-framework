@@ -23,27 +23,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GenericSteps extends AbstractSteps {
-    private Response response;
-    private BankService bankService = new BankService();
+
+    private final BankService bankService = new BankService();
     @Autowired private CustomerRepository customerRepository;
+
 
     @Then("I should receive a message {string}")
     public void verifyMessage(String expectedMessage) {
-        response = testContext().getResponse();
+        Response response = testContext().getResponse();
         String actualMessage = response.readEntity(String.class);
         Assert.assertEquals(expectedMessage, actualMessage);
     }
 
     @Then("i should receive the code {int}")
     public void iShouldReceiveTheCode(int expectedCode) {
-        response = testContext().getResponse();
+        Response response = testContext().getResponse();
         Assert.assertEquals(expectedCode, response.getStatus());
     }
 
     @Then("The customer gets a {int} status response and message: {string}")
     public void theCustomerGetsStatusResponseAndBody(Integer expectedStatus, String expectedMessage){
         //Se recibe la respuesta y se extrae el mensaje y el status de la response
-        response = testContext().getResponse();
+        Response response = testContext().getResponse();
         Integer receivedStatus = response.getStatus();
         String receivedMessage= response.readEntity(String.class);
 
@@ -55,7 +56,7 @@ public class GenericSteps extends AbstractSteps {
     @Then("The customer gets a {int} status response")
     public void theCustomerGetsAStatusStatusResponse(Integer expectedStatus) {
         //Se recibe la respuesta y se extrae el mensaje y el status de la response
-        response = testContext().getResponse();
+        Response response = testContext().getResponse();
         Integer receivedStatus = response.getStatus();
 
         // Comprobamos que el status y el mensaje de la response sean los esperados
@@ -81,7 +82,6 @@ public class GenericSteps extends AbstractSteps {
         }
 
         testContext().setCards(cards);
-
     }
 
     @Before("@createFakeAccountFirst")
@@ -93,7 +93,7 @@ public class GenericSteps extends AbstractSteps {
 
     @Then("i should receive the code {int} and a status message")
     public void iShouldReceiveTheCodeCodeAndAStatusMessage(Integer code) {
-        response = testContext().getResponse();
+        Response response = testContext().getResponse();
         String mensaje = response.readEntity(String.class);
         try {
             assertEquals(code, response.getStatus());
@@ -110,7 +110,7 @@ public class GenericSteps extends AbstractSteps {
 
     @Then("the customer should receive the code {int} and a message")
     public void theCustomerShouldReceiveTheCodeAndAMessage(int codigo) {
-        response = testContext().getResponse();
+        Response response = testContext().getResponse();
         Assert.assertEquals(codigo, response.getStatus());
     }
 }
