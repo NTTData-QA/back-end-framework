@@ -113,6 +113,24 @@ Alexandru Roberto Rizea
 
 Vlad Alexandru Simion
 
+Álvaro Máximo Muñoz Pavón
+
+Andrés Francisco Fernández Rodríguez-Acosta
+
+Daniel Ceballos Roales
+
+Jesús Ruslan Esquinas Herrera
+
+Jose Julián Manzano Montenegro
+
+Jose Miguel Iborra Conejo
+
+Manuel Ortiz Blanco
+
+Mohanad JD Abulatifa
+
+Paula Calvente Lobato
+
 ## Acknowledgments
 
 Special thanks to Álvaro Laguna García and Raúl Galera Sancho for their supervision and help along the development of this project.

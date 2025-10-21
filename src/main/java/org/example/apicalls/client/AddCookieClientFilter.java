@@ -21,7 +21,7 @@ public class AddCookieClientFilter implements ClientRequestFilter {
     public void filter(ClientRequestContext clientRequestContext) {
         List<Object> cookies = new ArrayList<>();
         cookies.add(this.cookie);
-        clientRequestContext.getCookies().entrySet().stream().forEach(item -> cookies.add(item.getValue()));
+        clientRequestContext.getCookies().forEach((key, value) -> cookies.add(value));
         clientRequestContext.getHeaders().put("Cookie", cookies);
     }
 }

@@ -2,15 +2,20 @@ package org.example.api.data.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.api.data.entity.Customer;
+import org.example.api.data.repository.CustomerRepository;
 import org.example.api.data.request.UpdateRequest;
 import org.example.api.service.AuthService;
 import org.example.api.service.CustomerService;
 import org.example.api.token.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +23,8 @@ import java.util.Optional;
 @RestController
 public class CustomerController {
   private final CustomerService customerService;
+  @Autowired private CustomerRepository customerRepository;
+  @Autowired private AccountController accountController;
 
   @Autowired
   private AuthService authService;
@@ -29,14 +36,32 @@ public class CustomerController {
     this.customerService = customerService;
   }
 
+  @GetMapping("/api/customer")
+  public Customer getLoggedCustomer() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
+
+    Integer customerId = Integer.valueOf(authentication.getName());
+
+    return customer(customerId).getBody();
+  }
+
   @GetMapping("/api/customer/{id}")   // get 1 customer by customerId
-  public Optional<Customer> customer(@PathVariable Integer id) {
-    return customerService.findById(id);
+  public ResponseEntity<Customer> customer(@PathVariable Integer id) {
+    if (customerRepository.existsById(id)){
+      Optional<Customer> customer = customerService.findById(id);
+      return ResponseEntity.ok(customer.orElseThrow());
+    } else {
+      return ResponseEntity.status(404).build();
+    }
   }
 
   @GetMapping("/api/customer/email/{email}")   // get 1 customer by customerId
   public Customer getCustomerByEmail(@PathVariable String email) {
-    return customerService.findByEmail(email).get();
+    return customerService.findByEmail(email).orElseThrow();
   }
 
   @GetMapping("/api/customers")      // get all customers from DB
@@ -44,7 +69,7 @@ public class CustomerController {
     return customerService.findAll();
   }
 
-  @DeleteMapping("/public/customer/{email}")
+  @DeleteMapping("/api/customer/{email}")
   public ResponseEntity<String> deleteCustomer(@PathVariable String email) {
     try {
       boolean isDeleted = customerService.deleteByEmail(email);
@@ -102,6 +127,22 @@ public class CustomerController {
     catch (Exception e){
       return ResponseEntity.badRequest().body("Your name or surname must be valid");
     }
+  }
+
+  // Eliminar un customer por si id
+  @DeleteMapping("/api/customer/delete/{customerId}")
+  public ResponseEntity<String> deleteById(@PathVariable Integer customerId) {
+    Optional<Customer> customer = customerRepository.findById(customerId);
+    if (customer.isEmpty()){
+      return ResponseEntity.badRequest().body("Error: customer not found");
+    }
+    if(customerId==999){
+        return ResponseEntity.badRequest().body("Error: customer admin can not delete");
+    }
+    accountController.deleteAccountsOfCustomer(customerId);
+    customerRepository.deleteById(customerId);
+    return ResponseEntity.ok("The customer has been deleted successfully.");
+
   }
 }
 

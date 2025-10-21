@@ -40,10 +40,6 @@ public class CustomerService {
     return customerRepository.save(cust);
   }
 
-  public void deleteById(Integer customerId) {
-    customerRepository.deleteById(customerId);
-  }
-
   public Optional<Customer> findByEmail(String email) {
     return customerRepository.findByEmail(email);
   }
@@ -52,10 +48,7 @@ public class CustomerService {
     String jwt = authService.getJwtFromCookies(request);
     String email = Token.getCustomerEmailFromJWT(jwt);
     Optional<Customer> customerOptional =  customerRepository.findByEmail(email);
-    if (!customerOptional.isPresent()){
-      return null;
-    }
-      return customerOptional.get();
+      return customerOptional.orElse(null);
   }
 
   public ResponseCookie updateEmailAndReturnNewCookie(UpdateRequest updateRequest, Customer customer){
@@ -98,6 +91,16 @@ public class CustomerService {
     }
   }
 
+  public Boolean deleteById(Integer customerId) {
+    if (customerRepository.existsById(customerId)) {
+      System.out.println("Eliminando cliente por su Id: " + customerId);
+      customerRepository.deleteById(customerId);
+      return true;
+    } else {
+      System.out.println("Cliente no encontrado por Id: " + customerId);
+      return false;
+    }
+  }
 
   public Optional<Customer> findByPassword(String password){
     return customerRepository.findByPassword(password);
