@@ -9,23 +9,36 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+
 @Configuration
 public class BankClient {
 
+    private static final String BASE_URL = "http://localhost:8080/";
+
     @Bean
     public BankAPI getAPI() {
+        // Configuramos un CookieCLient para aceptar todas las cookies (así pasamos automáticamente tanto JWT como Refresh
+        CookieManager cookieManager = new CookieManager();
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
 
-        ResteasyClient client = (ResteasyClient)ClientBuilder.newClient();
-        ResteasyWebTarget target = client.target("http://localhost:8080/");
+        // Creamos el cliente con soporte de cookies
+        ResteasyClient client = (ResteasyClient) ClientBuilder
+                .newClient()
+                .register(cookieManager);
+
+        ResteasyWebTarget target = client.target(BASE_URL);
         return target.proxy(BankAPI.class);
     }
 
+    /*
     @Bean
     public BankAPI getAPI(NewCookie newCookie){
         Cookie cookie = convertNewCookieToCookie(newCookie);
         ResteasyClient clientNew = (ResteasyClient)ClientBuilder.newClient();
         ResteasyClient client = (ResteasyClient) clientNew.register(new AddCookieClientFilter(cookie));
-        ResteasyWebTarget target = client.target("http://localhost:8080/");
+        ResteasyWebTarget target = client.target(BASE_URL);
         return target.proxy(BankAPI.class);
     }
 
@@ -38,7 +51,7 @@ public class BankClient {
                 newCookie.getVersion()
         );
     }
-
+    */
     /**
      * Calls an API endpoint and returns a typed Response object.
      *

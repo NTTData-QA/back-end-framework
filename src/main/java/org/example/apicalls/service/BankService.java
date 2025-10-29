@@ -34,12 +34,6 @@ public class BankService {
         proxy = client.getAPI();
     }
 
-    /*
-    public Response getResponse(){
-        return response;
-    }
-
-     */
 
     public Response doRegister(String name, String surname, String email, String password, String role){
         Customer customer= new Customer();
@@ -56,20 +50,6 @@ public class BankService {
         response = proxy.addCustomer(customer);
         return response;
     }
-
-//    public Customer registerCustomer(String name, String surname, String email, String password){
-//        BankAPI proxy = client.getAPI();
-//        Customer customer= new Customer();
-//        customer.setName(name);
-//        customer.setSurname(surname);
-//        customer.setEmail(email);
-//        customer.setPassword(password);
-//        Random rand = new Random(System.currentTimeMillis());
-//        int id = rand.nextInt(999);
-//        customer.setCustomerId(id);
-//        response = proxy.addCustomer(customer);
-//        return customer;
-//    }
 
     // Register a new customer randomly generated
     public Customer registerRandomCustomer(){
@@ -112,15 +92,17 @@ public class BankService {
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail(email);
         loginRequest.setPassword(password);
+
         response = proxy.login(loginRequest, null);
         System.out.println("HTTP Status: "+ response.getStatus());
-
+        /*
+        // No hace falta, con CookieManager se manejan TODAS las cookies automáticamente
         if (response.getStatus() == 200) {
             Map<String, NewCookie> cookies = response.getCookies();
             NewCookie newCookie = cookies.entrySet().iterator().next().getValue();
             proxy = client.getAPI(newCookie);
         }
-
+        */
         return response;
     }
 
@@ -132,18 +114,24 @@ public class BankService {
 
         response = proxy.login(loginRequest, null);
         System.out.println("HTTP Status: "+ response.getStatus());
+        /*
+        // Idem que otro "doLogin"
         if (response.getStatus() == 200) {
             Map<String, NewCookie> cookies = response.getCookies();
             cookie = cookies.entrySet().iterator().next().getValue();
             proxy = client.getAPI(cookie);
         }
+        */
         return response;
     }
 
     public Response doLogout (){
         response = proxy.logout(null);
         System.out.println(response.getStatus());
+        /*
+        // No tenemos que actualizar el proxy. Misma razón que en "doLogin"
         proxy = client.getAPI();
+        */
         return response;
     }
 

@@ -41,10 +41,12 @@ public class RestEasyClientTest {
         loginResponse = proxy.login(loginRequest, null);
         System.out.println("HTTP Status First Login: "+ loginResponse.getStatus());
         System.out.println("Codigo login");
-
+        /*
+        // Idem que BankService. Con el CookieManager se gestionan todas las cookies automáticamente
         Map<String, NewCookie> cookies = loginResponse.getCookies();
         NewCookie newCookie = cookies.entrySet().iterator().next().getValue();
         proxy = bankClient.getAPI(newCookie);
+        */
     }
 
     @Test
