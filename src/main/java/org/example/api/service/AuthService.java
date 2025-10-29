@@ -20,6 +20,7 @@ public class AuthService {
     private Token token;
 
     private String jwtCookie = "cookieToken";
+    private String rfrCookie = "cookieRefresh";
 
     @Autowired
     CustomerRepository customerRepository;
@@ -43,10 +44,21 @@ public class AuthService {
     public ResponseCookie generateJwtCookie(LoginRequest loginRequest) {
         String jwt = tokenService.generateToken(loginRequest.getEmail());
         return ResponseCookie.from(jwtCookie, jwt).path("/").maxAge( 60 * 60).httpOnly(true).build();
+    }public ResponseCookie generateRfrCookie(LoginRequest loginRequest) {
+        String rfr = tokenService.generateRefreshToken(loginRequest.getEmail());
+        return ResponseCookie.from(rfrCookie, rfr).path("/").maxAge( 7 * 24 * 60 * 60).httpOnly(true).build();
     }
 
     public String getJwtFromCookies(HttpServletRequest request) {
         Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+        if (cookie != null) {
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
+    public String getRfrFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, rfrCookie);
         if (cookie != null) {
             return cookie.getValue();
         } else {
@@ -58,9 +70,9 @@ public class AuthService {
     public Optional<Customer> findCustomerByEmail(String email) {
         return customerRepository.findByEmail(email);
     }
+
     public Boolean AreYouLogged(HttpServletRequest request) {
         String jwt = getJwtFromCookies(request);
-
         return jwt == null || !token.validateToken(jwt);
     }
 }

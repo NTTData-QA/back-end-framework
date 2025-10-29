@@ -36,9 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-
         //Obtiene el JWT de la cookie
         String jwt = authService.getJwtFromCookies(request);
+        String rfr = authService.getRfrFromCookies(request);
 
         if (jwt != null && token.validateToken(jwt)) {
             // Si el token es válido, permite la ejecución de la petición
