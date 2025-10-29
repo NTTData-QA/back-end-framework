@@ -29,6 +29,7 @@ public class AuthenticationController {
     private final CustomerService customerService;
 
     private final String jwtCookie = "cookieToken";
+    private final String rfrCookie = "cookieRefresh";
 
     public AuthenticationController(CustomerService customerService) {
         this.customerService = customerService;
@@ -80,8 +81,13 @@ public class AuthenticationController {
 
         if (authService.authenticate(logInRequest.getEmail(), logInRequest.getPassword())){
             ResponseCookie jwtCookie = authService.generateJwtCookie(logInRequest);
+            ResponseCookie rfrCookie = authService.generateRfrCookie(logInRequest);
             return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .headers(headers -> {
+                        headers.add(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+                        headers.add(HttpHeaders.SET_COOKIE, rfrCookie.toString());
+                    })
+                    //.header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                     .body("Correct authentication");
         }
         return ResponseEntity.badRequest().body("Invalid credentials");
@@ -98,10 +104,16 @@ public class AuthenticationController {
              return ResponseEntity.badRequest().body("You have to log in first");
 
         }
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, "")
+        ResponseCookie jwtCookieRevoked = ResponseCookie.from(jwtCookie, "")
+                .path("/").maxAge(0).httpOnly(true).build();
+        ResponseCookie rfrCookieRevoked = ResponseCookie.from(rfrCookie, "")
                 .path("/").maxAge(0).httpOnly(true).build();
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .headers(headers -> {
+                    headers.add(HttpHeaders.SET_COOKIE, jwtCookieRevoked.toString());
+                    headers.add(HttpHeaders.SET_COOKIE, rfrCookieRevoked.toString());
+                })
+                //.header(HttpHeaders.SET_COOKIE, jwtCookieRevoked.toString())
                 .body("Logged out successfully. Cookies cleared.");
     }
 }
