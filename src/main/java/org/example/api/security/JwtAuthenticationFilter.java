@@ -42,8 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwt != null && token.validateToken(jwt)) {
             // Si el token es válido, permite la ejecución de la petición
-                String email = Token.getCustomerEmailFromJWT(jwt);
-                String role = Token.getCustomerRoleFromJWT(jwt);
+            String email = Token.getCustomerEmailFromJWT(jwt);
+            String role = Token.getCustomerRoleFromJWT(jwt);
 
             //Verifica si el cliente esta autenticado o no
             if(SecurityContextHolder.getContext().getAuthentication() == null){

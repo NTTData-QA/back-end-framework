@@ -29,7 +29,7 @@ public class SecurityConfig {
                 // Configuración para permitir ciertas rutas sin verificación
                 .authorizeHttpRequests(auth -> auth
                         //endpoints públicos
-                        .requestMatchers("/public/**","/public/logout").permitAll()
+                        .requestMatchers("/public/**", "/public/logout", "/auth/refresh").permitAll()
                         .requestMatchers(PathRequest.toH2Console()).permitAll()
                         //REGLAS POR ROL
                         .requestMatchers(new RegexRequestMatcher("^/api/customer/\\d+$", "GET")).hasRole("ADMIN")
